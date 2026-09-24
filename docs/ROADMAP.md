@@ -59,7 +59,7 @@ If the targets are missed, fix the qualification and messaging before building v
 - [ ] Integration guide, with the Vera & Co. admin as the reference Next.js integration
 - [ ] **Autonomous hunts:** saved targets (e.g. "dental clinics, Surabaya, capacity ≥ 60") that JARVIS runs on a schedule. It finds, audits, scores and drafts new leads on its own, then reports the best ones in a daily briefing, ready for a person to send.
 - [ ] Streaming chat endpoint for talking to JARVIS in natural language, e.g. _"find 20 dental clinics in Surabaya that need a new website"_
-- [ ] Instagram Business Discovery signals (optional)
+- [ ] Instagram Business Discovery signals, including capacity for businesses without a website (D9)
 - [ ] Follow-up reminders (reminders only, never auto-sent) and an in-app daily briefing
 
 ## v0.3: Open to other agencies
@@ -89,7 +89,7 @@ If the targets are missed, fix the qualification and messaging before building v
 
 ## Open decisions
 
-- **Capacity of businesses without a website.** JARVIS judges capacity from the website, so it is unknown for businesses found on Google Maps without one, which are often the best leads. Options: (a) Instagram Business Discovery signals (official API, planned for v0.2, needs Meta app review); (b) storing a coarse Google review-count bucket as a signal, which is a grey area under the Google Maps Platform Terms. Until decided, capacity shows as unknown and the Google rating is shown live on the lead page.
+- ~~Capacity of businesses without a website~~: decided, see [D9](DECISIONS.md#d9-capacity-for-businesses-without-a-website-comes-from-instagram-not-google).
 
 - Public project name, needed before any package is published
 - CLA tooling and text, needed before the first external contribution is merged

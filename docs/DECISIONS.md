@@ -71,3 +71,11 @@ _2026-09-24 · Accepted_
 **Decision:** Each milestone must be used by Vera & Co. before the next one starts. The project isn't promoted publicly until Vera & Co. has used v0.1 for at least a month.
 
 **Why:** Open-source projects are usually abandoned when they deliver no value to their author for too long. Using it ourselves keeps the scope honest.
+
+### D9: Capacity for businesses without a website comes from Instagram, not Google
+
+_2026-09-24 · Accepted_
+
+**Decision:** For businesses found on Google Maps without a website, capacity stays "unknown" until Instagram Business Discovery signals (official Meta API) are added in v0.2. Google review counts are shown live to the user but are never stored or turned into a stored signal.
+
+**Why:** Storing a score derived from Google review counts is a grey area under the Google Maps Platform Terms (§3.2.3), and D3 keeps JARVIS clear of them. Meanwhile the user sees ratings live when picking businesses on the Find page, so selection already filters for established businesses.

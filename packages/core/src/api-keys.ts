@@ -3,7 +3,7 @@ import { and, eq, isNull } from 'drizzle-orm';
 import type { Database } from './db/client.ts';
 import { apiKeys } from './db/schema.ts';
 
-const KEY_PREFIX = 'jrv_';
+const KEY_PREFIX = 'arc_';
 
 export interface CreatedApiKey {
   id: string;

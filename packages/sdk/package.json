@@ -1,8 +1,8 @@
 {
-  "name": "@jarvis/sdk",
+  "name": "@arclight/sdk",
   "version": "0.0.0",
   "private": true,
-  "description": "Typed client for the JARVIS HTTP API",
+  "description": "Typed client for the Arclight HTTP API",
   "license": "MIT",
   "type": "module",
   "exports": {

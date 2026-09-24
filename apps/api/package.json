@@ -1,12 +1,14 @@
 {
-  "name": "@jarvis/api",
+  "name": "@arclight/api",
   "version": "0.0.0",
   "private": true,
   "license": "AGPL-3.0-only",
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/server.ts",
+    "dev:worker": "tsx watch src/worker.ts",
     "start": "tsx src/server.ts",
+    "start:worker": "tsx src/worker.ts",
     "api-key:create": "tsx src/cli/create-api-key.ts",
     "openapi:export": "tsx scripts/export-openapi.ts",
     "typecheck": "tsc",
@@ -15,12 +17,13 @@
   "dependencies": {
     "@hono/node-server": "^2.1.1",
     "@hono/zod-openapi": "^1.6.3",
-    "@jarvis/core": "workspace:*",
+    "@arclight/core": "workspace:*",
     "drizzle-orm": "^0.45.3",
     "hono": "^4.13.9",
+    "pg-boss": "^12.34.0",
     "zod": "^4.6.5"
   },
   "devDependencies": {
-    "@jarvis/sdk": "workspace:*"
+    "@arclight/sdk": "workspace:*"
   }
 }

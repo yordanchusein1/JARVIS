@@ -28,14 +28,71 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List tracked businesses, newest first */
+        /** List tracked businesses, highest priority first */
         get: operations["listBusinesses"];
         put?: never;
         /**
          * Start tracking businesses from website addresses
-         * @description Invalid addresses are reported in `skipped`. Websites that are already tracked are returned without being duplicated.
+         * @description New businesses are queued for an audit. Invalid addresses are reported in `skipped`, and websites that are already tracked are returned without being duplicated.
          */
         post: operations["trackBusinesses"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/businesses/import": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Start tracking the websites listed in a CSV export
+         * @description Uses the column headed website, url or domain, or else every cell that looks like a website. At most 1000 websites per import.
+         */
+        post: operations["importBusinessesCsv"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/businesses/places": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Start tracking businesses picked from a Google Places search
+         * @description Only the Google place ID is stored. New businesses are queued for an audit.
+         */
+        post: operations["trackPlaces"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/businesses/{id}/place": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Live Google Places details of a business added from a Places search */
+        get: operations["getBusinessPlace"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -49,9 +106,154 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get one tracked business */
+        /** Get one business with the evidence and contacts from its latest audit */
         get: operations["getBusiness"];
         put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update a lead, e.g. move it through the pipeline */
+        patch: operations["updateBusiness"];
+        trace?: never;
+    };
+    "/businesses/{id}/audits": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Queue a new audit of the business */
+        post: operations["auditBusiness"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/businesses/{id}/drafts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Write WhatsApp and email drafts from the latest audit
+         * @description Drafts cite only facts from the audit. Arclight never sends them; a person reviews and sends each message.
+         */
+        post: operations["draftMessages"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/agency-profile": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get the agency's profile, used to write outreach in its name */
+        get: operations["getAgencyProfile"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update the agency's profile */
+        patch: operations["updateAgencyProfile"];
+        trace?: never;
+    };
+    "/places/search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Search Google Places for prospects, e.g. "klinik gigi Surabaya"
+         * @description Results come live from Google and are not stored. `businessId` is set when a result is already tracked.
+         */
+        get: operations["searchPlaces"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/do-not-contact": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Domains, emails and phone numbers that must never be contacted */
+        get: operations["listDoNotContact"];
+        put?: never;
+        /** Add a domain, email or phone number to the do-not-contact list */
+        post: operations["addDoNotContact"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/do-not-contact/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Remove an entry from the do-not-contact list */
+        delete: operations["removeDoNotContact"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scoring/signals": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Every signal seen so far, with its weight and how it relates to 👍/👎 feedback */
+        get: operations["listSignalInsights"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scoring/weights": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Replace the points of signals and recalculate all scores */
+        put: operations["updateScoringWeights"];
         post?: never;
         delete?: never;
         options?: never;
@@ -74,11 +276,36 @@ export interface components {
             displayName: string | null;
             /** @enum {string} */
             status: "new" | "contacted" | "replied" | "meeting" | "won" | "lost";
+            /**
+             * @description A person rated this lead 👍 or 👎
+             * @enum {string|null}
+             */
+            feedback: "good" | "bad" | null;
+            /** @description Geometric mean of the latest need and capacity scores */
+            priority: number | null;
+            latestAudit: components["schemas"]["Audit"];
             /** Format: date-time */
             createdAt: string;
             /** Format: date-time */
             updatedAt: string;
         };
+        Audit: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            status: "queued" | "running" | "succeeded" | "failed";
+            /** @description How much the business needs the agency (0–100) */
+            needScore: number | null;
+            /** @description How established the business is (0–100) */
+            capacityScore: number | null;
+            error: string | null;
+            /** @description How the audit ran, e.g. skipped checks */
+            notes: string[];
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            finishedAt: string | null;
+        } | null;
         Error: {
             error: {
                 /** @example not_found */
@@ -86,6 +313,89 @@ export interface components {
                 message: string;
                 details?: unknown;
             };
+        };
+        /** @description Live data from Google Places. Google does not allow storing it, so it is never saved by Arclight. */
+        Place: {
+            placeId: string;
+            name: string | null;
+            address: string | null;
+            websiteUrl: string | null;
+            phone: string | null;
+            rating: number | null;
+            ratingCount: number | null;
+            mapsUrl: string | null;
+        };
+        BusinessDetail: components["schemas"]["Business"] & {
+            /** @description Signals from the latest audit, strongest first */
+            signals: components["schemas"]["Signal"][];
+            contacts: components["schemas"]["Contact"][];
+            /** @description Latest draft per channel */
+            drafts: components["schemas"]["Draft"][];
+            /** @description The website's domain is on the do-not-contact list */
+            doNotContact: boolean;
+        };
+        Signal: {
+            /** @enum {string} */
+            axis: "need" | "capacity";
+            /** @example slow_mobile */
+            key: string;
+            points: number;
+            /** @example Google PageSpeed Insights rates the mobile performance 34/100. */
+            evidence: string;
+        };
+        Contact: {
+            /** @enum {string} */
+            kind: "email" | "phone" | "whatsapp" | "instagram" | "facebook" | "tiktok" | "linkedin" | "other";
+            value: string;
+            sourceUrl: string | null;
+        };
+        Draft: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            channel: "whatsapp" | "email";
+            subject: string | null;
+            body: string;
+            /** @description Automatic checks to review before sending, e.g. an unsupported number */
+            warnings: string[];
+            model: string;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        /** @enum {string} */
+        LeadStatus: "new" | "contacted" | "replied" | "meeting" | "won" | "lost";
+        AgencyProfile: {
+            agencyName: string;
+            senderName: string;
+            /** @description What the agency offers, in plain words */
+            services: string;
+            /** @example friendly and professional */
+            tone: string;
+            /**
+             * @description BCP 47 tag
+             * @example id
+             */
+            language: string;
+        };
+        DoNotContact: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            kind: "domain" | "email" | "phone";
+            value: string;
+            reason: string | null;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        SignalInsight: {
+            key: string;
+            /** @enum {string} */
+            axis: "need" | "capacity";
+            defaultPoints: number;
+            points: number;
+            leads: number;
+            good: number;
+            bad: number;
         };
     };
     responses: never;
@@ -131,7 +441,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Tracked businesses */
+            /** @description Tracked businesses with their latest audit */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -170,6 +480,12 @@ export interface operations {
                      *     ]
                      */
                     websites: string[];
+                    /**
+                     * @description Where the list came from
+                     * @default url
+                     * @enum {string}
+                     */
+                    source?: "url" | "csv";
                 };
             };
         };
@@ -201,6 +517,157 @@ export interface operations {
             };
         };
     };
+    importBusinessesCsv: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    csv: string;
+                };
+            };
+        };
+        responses: {
+            /** @description The tracked businesses */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["Business"][];
+                        created: number;
+                        skipped: {
+                            input: string;
+                            reason: string;
+                        }[];
+                    };
+                };
+            };
+            /** @description No websites found, or too many */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Missing or invalid API key */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    trackPlaces: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    placeIds: string[];
+                };
+            };
+        };
+        responses: {
+            /** @description The tracked businesses */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["Business"][];
+                        created: number;
+                        skipped: {
+                            input: string;
+                            reason: string;
+                        }[];
+                    };
+                };
+            };
+            /** @description Missing or invalid API key */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    getBusinessPlace: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Live place details (not stored) */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Place"];
+                };
+            };
+            /** @description Missing or invalid API key */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description No business with this id */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Google Places failed */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Google Places is not configured */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
     getBusiness: {
         parameters: {
             query?: never;
@@ -213,6 +680,54 @@ export interface operations {
         requestBody?: never;
         responses: {
             /** @description The business */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BusinessDetail"];
+                };
+            };
+            /** @description Missing or invalid API key */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description No business with this id */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    updateBusiness: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    status?: components["schemas"]["LeadStatus"];
+                    /** @enum {string|null} */
+                    feedback?: "good" | "bad" | null;
+                };
+            };
+        };
+        responses: {
+            /** @description The updated business */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -232,6 +747,425 @@ export interface operations {
             };
             /** @description No business with this id */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    auditBusiness: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The audit was queued */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Audit"];
+                };
+            };
+            /** @description Missing or invalid API key */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description No business with this id */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    draftMessages: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The new drafts */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["Draft"][];
+                    };
+                };
+            };
+            /** @description Missing or invalid API key */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description No business with this id */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Not ready: the agency profile is incomplete or the audit has not succeeded */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description The language model failed */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description No language model is configured */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    getAgencyProfile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The profile */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AgencyProfile"];
+                };
+            };
+            /** @description Missing or invalid API key */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    updateAgencyProfile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    agencyName?: string;
+                    senderName?: string;
+                    /** @description What the agency offers, in plain words */
+                    services?: string;
+                    /** @example friendly and professional */
+                    tone?: string;
+                    /**
+                     * @description BCP 47 tag
+                     * @example id
+                     */
+                    language?: string;
+                };
+            };
+        };
+        responses: {
+            /** @description The updated profile */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AgencyProfile"];
+                };
+            };
+            /** @description Missing or invalid API key */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    searchPlaces: {
+        parameters: {
+            query: {
+                q: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Matching places */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: (components["schemas"]["Place"] & {
+                            /** Format: uuid */
+                            businessId: string | null;
+                        })[];
+                    };
+                };
+            };
+            /** @description Missing or invalid API key */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Google Places failed */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Google Places is not configured */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    listDoNotContact: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The list */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["DoNotContact"][];
+                    };
+                };
+            };
+            /** @description Missing or invalid API key */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    addDoNotContact: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @enum {string} */
+                    kind: "domain" | "email" | "phone";
+                    value: string;
+                    reason?: string;
+                };
+            };
+        };
+        responses: {
+            /** @description The entry */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DoNotContact"];
+                };
+            };
+            /** @description Invalid value */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Missing or invalid API key */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    removeDoNotContact: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Removed */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid API key */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description No such entry */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    listSignalInsights: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Signals */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["SignalInsight"][];
+                    };
+                };
+            };
+            /** @description Missing or invalid API key */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    updateScoringWeights: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    weights: {
+                        [key: string]: number;
+                    };
+                };
+            };
+        };
+        responses: {
+            /** @description Saved; scores were recalculated */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid API key */
+            401: {
                 headers: {
                     [name: string]: unknown;
                 };

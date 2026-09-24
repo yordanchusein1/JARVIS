@@ -12,33 +12,40 @@ Each version must be usable on its own and must be used by Vera & Co. before the
 | ---- | --------------------------------------------------------------------------- | ---------------------------------------------- |
 | 1    | Foundation, URL import, website audit, lead list and detail with evidence   | Audit any prospect's website from a pasted URL |
 | 2    | Scoring, agency profile, drafts, action buttons, manual status              | End-to-end outreach from pasted URLs           |
-| 3    | Places live search, CSV import, do-not-contact list, 👍/👎 feedback         | Find new prospects without leaving JARVIS      |
+| 3    | Places live search, CSV import, do-not-contact list, 👍/👎 feedback         | Find new prospects without leaving Arclight    |
 | 4    | Buffer: hardening, deployment on the Vera & Co. server, fixes from real use | v0.1 in daily use                              |
 
 **Foundation**
 
 - [x] pnpm monorepo: `apps/api`, `apps/dashboard`, `packages/core`, `packages/sdk`
 - [x] TypeScript strict, ESLint, Prettier, Vitest, GitHub Actions CI
-- [x] Docker Compose: postgres, api, dashboard
-- [ ] Worker process (added together with the audit job)
+- [x] Docker Compose: postgres, api, worker, dashboard
+- [x] Worker process with a pg-boss job queue
 - [x] Database schema: tracked businesses, audits, signals and evidence, scores, contact channels, pipeline status, activity log, do-not-contact list
-- [ ] Drafts table (added together with drafting)
+- [x] Drafts table
 - [x] `/v1` API with an OpenAPI spec and API-key auth; the dashboard uses the SDK only
 
 **Pipeline**
 
 - [x] Find: pasted URLs
-- [ ] Find: live Google Places text search (store `place_id` only), CSV import
-- [ ] Audit: PageSpeed Insights (mobile), HTTPS, viewport, outdated-site signals, contact or booking form, published contacts and social links; with SSRF protection and `robots.txt` handling
-- [ ] Score: `need` and `capacity` with per-signal evidence, configurable weights, and 👍/👎 feedback
-- [ ] Agency profile: name, services, tone, sender name
-- [ ] Draft: WhatsApp and email variants grounded only in the recorded evidence (Claude)
-- [ ] Act: copy, `wa.me`, `mailto:`, open-profile buttons; manual status (new → contacted → replied → meeting → won/lost)
+- [x] Find: live Google Places text search (store `place_id` only), CSV import
+- [x] Audit: PageSpeed Insights (mobile), HTTPS, viewport, outdated-site signals, contact or booking form, published contacts and social links; with SSRF protection and `robots.txt` handling
+- [x] Score: `need` and `capacity` with per-signal evidence, and priority ranking
+- [x] Score: configurable weights and 👍/👎 feedback
+- [x] Agency profile: name, services, tone, sender name
+- [x] Draft: WhatsApp and email variants grounded only in the recorded evidence (Claude), with a warning for numbers the audit did not measure
+- [x] Act: copy, `wa.me`, `mailto:`, open-profile buttons; manual status (new → contacted → replied → meeting → won/lost)
 
 **Dashboard**
 
-- [ ] Sign-in (single admin user)
+- [x] Sign-in (single admin user): signed session cookie, checked in the proxy and before every API call, with a limit on failed attempts
 - [ ] Search/import, lead list sorted by priority, lead detail with evidence and drafts, pipeline view, settings
+
+**Public readiness**
+
+- [x] Name and brand (Arclight), public website and documentation
+- [ ] Tested end to end with real Google and Anthropic keys
+- [ ] Deployed and used by Vera & Co. for four weeks
 
 ### Success criteria (after 4 weeks of use by Vera & Co.)
 
@@ -51,19 +58,20 @@ If the targets are missed, fix the qualification and messaging before building v
 
 ## v0.2: Embed in any website
 
-**Goal:** JARVIS runs inside the Vera & Co. admin panel (Next.js).
+**Goal:** Arclight runs inside the Vera & Co. admin panel (Next.js).
 
 - [ ] Publish the SDK (MIT)
 - [ ] `packages/react` (MIT): lead list, lead detail, pipeline, and chat components
 - [ ] Integration guide, with the Vera & Co. admin as the reference Next.js integration
-- [ ] **Autonomous hunts:** saved targets (e.g. "dental clinics, Surabaya, capacity ≥ 60") that JARVIS runs on a schedule. It finds, audits, scores and drafts new leads on its own, then reports the best ones in a daily briefing, ready for a person to send.
-- [ ] Streaming chat endpoint for talking to JARVIS in natural language, e.g. _"find 20 dental clinics in Surabaya that need a new website"_
-- [ ] Instagram Business Discovery signals (optional)
+- [ ] **Autonomous hunts:** saved targets (e.g. "dental clinics, Surabaya, capacity ≥ 60") that Arclight runs on a schedule. It finds, audits, scores and drafts new leads on its own, then reports the best ones in a daily briefing, ready for a person to send.
+- [ ] **MCP server** (`apps/mcp`, MIT): exposes Arclight as tools (search prospects, track, get lead with evidence, write drafts, update pipeline) so any AI agent (Claude, Hermes Agent and others) can use Arclight as its lead generation skill. It uses the same public API and API keys, and never sends messages (D4, D10)
+- [ ] Streaming chat endpoint for talking to Arclight in natural language, e.g. _"find 20 dental clinics in Surabaya that need a new website"_
+- [ ] Instagram Business Discovery signals, including capacity for businesses without a website (D9)
 - [ ] Follow-up reminders (reminders only, never auto-sent) and an in-app daily briefing
 
 ## v0.3: Open to other agencies
 
-**Goal:** agencies other than web agencies can use JARVIS productively.
+**Goal:** agencies other than web agencies can use Arclight productively.
 
 - [ ] Extract plugin interfaces (sources, qualifiers, channels) and document how to write plugins
 - [ ] Qualifiers for marketing and SEO agencies
@@ -87,6 +95,8 @@ If the targets are missed, fix the qualification and messaging before building v
 - Don't promote the project publicly until v0.1 has been in real use for a month.
 
 ## Open decisions
+
+- ~~Capacity of businesses without a website~~: decided, see [D9](DECISIONS.md#d9-capacity-for-businesses-without-a-website-comes-from-instagram-not-google).
 
 - Public project name, needed before any package is published
 - CLA tooling and text, needed before the first external contribution is merged

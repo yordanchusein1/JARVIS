@@ -1,19 +1,39 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
+import Link from 'next/link';
+import { isSignedIn } from '@/lib/auth';
+import { logoutAction } from './login/actions';
+import '@fontsource-variable/inter';
+import '@fontsource-variable/space-grotesk';
+import { Logo } from '@/components/logo';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'JARVIS',
+  title: 'Arclight',
   description: 'AI Chief of Staff for agencies',
 };
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+export default async function RootLayout({ children }: { children: ReactNode }) {
+  const signedIn = await isSignedIn();
   return (
     <html lang="en">
       <body>
         <header className="topbar">
-          <span className="brand">JARVIS</span>
-          <span className="muted">Lead Hunter</span>
+          <Link href="/" className="brand" aria-label="Arclight home">
+            <Logo id="dashboard-logo" />
+          </Link>
+          {signedIn && (
+            <nav className="nav">
+              <Link href="/">Leads</Link>
+              <Link href="/find">Find</Link>
+              <Link href="/settings">Settings</Link>
+              <form action={logoutAction}>
+                <button type="submit" className="link-button">
+                  Sign out
+                </button>
+              </form>
+            </nav>
+          )}
         </header>
         <main className="container">{children}</main>
       </body>

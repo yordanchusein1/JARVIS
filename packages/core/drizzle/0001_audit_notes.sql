@@ -1,0 +1,1 @@
+ALTER TABLE "audits" ADD COLUMN "notes" text[] DEFAULT '{}' NOT NULL;

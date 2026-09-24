@@ -21,7 +21,7 @@ export const leadStatus = pgEnum('lead_status', [
   'lost',
 ]);
 
-// How a business entered JARVIS. For `places`, only the place_id may be stored (see docs/DECISIONS.md, D3).
+// How a business entered Arclight. For `places`, only the place_id may be stored (see docs/DECISIONS.md, D3).
 export const businessSource = pgEnum('business_source', ['url', 'csv', 'places']);
 
 export const auditStatus = pgEnum('audit_status', ['queued', 'running', 'succeeded', 'failed']);
@@ -38,6 +38,9 @@ export const contactKind = pgEnum('contact_kind', [
   'linkedin',
   'other',
 ]);
+
+// A person's judgement of a lead, used to calibrate scoring.
+export const leadFeedback = pgEnum('lead_feedback', ['good', 'bad']);
 
 export const doNotContactKind = pgEnum('do_not_contact_kind', ['domain', 'email', 'phone']);
 
@@ -62,6 +65,7 @@ export const businesses = pgTable('businesses', {
   // Name as published on the business's own website, never copied from Google.
   displayName: text('display_name'),
   status: leadStatus('status').notNull().default('new'),
+  feedback: leadFeedback('feedback'),
   createdAt: createdAt(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 });
@@ -75,6 +79,8 @@ export const audits = pgTable(
       .references(() => businesses.id, { onDelete: 'cascade' }),
     status: auditStatus('status').notNull().default('queued'),
     error: text('error'),
+    // Things the user should know about how the audit ran, e.g. a check that was skipped.
+    notes: text('notes').array().notNull().default([]),
     needScore: integer('need_score'),
     capacityScore: integer('capacity_score'),
     startedAt: timestamp('started_at', { withTimezone: true }),
@@ -140,4 +146,39 @@ export const doNotContact = pgTable(
     createdAt: createdAt(),
   },
   (t) => [unique('do_not_contact_kind_value').on(t.kind, t.value)],
+);
+
+// A single row describing the agency, used to write outreach in its name and voice.
+export const agencyProfile = pgTable('agency_profile', {
+  id: text('id').primaryKey().default('default'),
+  agencyName: text('agency_name').notNull().default(''),
+  senderName: text('sender_name').notNull().default(''),
+  services: text('services').notNull().default(''),
+  tone: text('tone').notNull().default('friendly and professional'),
+  // Language drafts are written in, as a BCP 47 tag such as "id" or "en".
+  language: text('language').notNull().default('id'),
+  // Points per signal key that replace the built-in defaults, e.g. { "no_https": 10 }.
+  scoringWeights: jsonb('scoring_weights').$type<Record<string, number>>().notNull().default({}),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const draftChannel = pgEnum('draft_channel', ['whatsapp', 'email']);
+
+export const drafts = pgTable(
+  'drafts',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    businessId: uuid('business_id')
+      .notNull()
+      .references(() => businesses.id, { onDelete: 'cascade' }),
+    auditId: uuid('audit_id').references(() => audits.id, { onDelete: 'set null' }),
+    channel: draftChannel('channel').notNull(),
+    subject: text('subject'),
+    body: text('body').notNull(),
+    // Automatic checks a person should look at before sending, e.g. a number not backed by evidence.
+    warnings: text('warnings').array().notNull().default([]),
+    model: text('model').notNull(),
+    createdAt: createdAt(),
+  },
+  (t) => [index('drafts_business_id_idx').on(t.businessId)],
 );

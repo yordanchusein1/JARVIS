@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Arclight"><defs><linearGradient id="arc" x1="10" y1="6" x2="54" y2="58" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#B8F1FF"/><stop offset="0.55" stop-color="#3FD0FF"/><stop offset="1" stop-color="#0A8CC4"/></linearGradient></defs>
+  <path d="M20.59 56.47A27 27 0 1 1 43.41 56.47" fill="none" stroke="url(#arc)" stroke-width="3.6" stroke-linecap="round"/>
+  <path d="M21.5 45.5L32 20.5L42.5 45.5" fill="none" stroke="url(#arc)" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="32" cy="37" r="3.4" fill="#7FE3FF"/></svg>

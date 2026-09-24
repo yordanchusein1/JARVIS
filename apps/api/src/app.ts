@@ -1,11 +1,25 @@
 import { createRoute, z } from '@hono/zod-openapi';
-import { verifyApiKey, type Database } from '@jarvis/core';
+import {
+  verifyApiKey,
+  type AuditQueue,
+  type Database,
+  type DraftWriter,
+  type PlacesClient,
+} from '@arclight/core';
 import { createMiddleware } from 'hono/factory';
 import { createRouter, type AppEnv } from './router.ts';
+import { agencyRoutes } from './routes/agency.ts';
 import { businessRoutes } from './routes/businesses.ts';
+import { placesRoutes } from './routes/places.ts';
+import { settingsRoutes } from './routes/settings.ts';
 
 export interface AppDependencies {
   db: Database;
+  auditQueue: AuditQueue;
+  /** Omit when no language model is configured; drafting then returns 503. */
+  draftWriter?: DraftWriter;
+  /** Omit when no Google API key is configured; Places endpoints then return 503. */
+  places?: PlacesClient;
 }
 
 const PUBLIC_PATHS = new Set(['/v1/health', '/v1/openapi.json']);
@@ -13,10 +27,10 @@ const PUBLIC_PATHS = new Set(['/v1/health', '/v1/openapi.json']);
 export const openApiInfo = {
   openapi: '3.1.0',
   info: {
-    title: 'JARVIS API',
+    title: 'Arclight API',
     version: '0.1.0',
     description:
-      'HTTP API of the JARVIS engine. Call it from your server with an API key; never expose the key to browsers.',
+      'HTTP API of the Arclight engine. Call it from your server with an API key; never expose the key to browsers.',
     license: { name: 'AGPL-3.0-only', identifier: 'AGPL-3.0-only' },
   },
 };
@@ -35,7 +49,7 @@ const healthRoute = createRoute({
   },
 });
 
-export function createApp({ db }: AppDependencies) {
+export function createApp({ db, auditQueue, draftWriter, places }: AppDependencies) {
   const requireApiKey = createMiddleware<AppEnv>(async (c, next) => {
     if (PUBLIC_PATHS.has(c.req.path)) return next();
 
@@ -60,7 +74,10 @@ export function createApp({ db }: AppDependencies) {
   });
   v1.use('*', requireApiKey);
   v1.openapi(healthRoute, (c) => c.json({ status: 'ok' as const }, 200))
-    .route('/', businessRoutes(db))
+    .route('/', businessRoutes(db, auditQueue, draftWriter, places))
+    .route('/', agencyRoutes(db))
+    .route('/', placesRoutes(db, places))
+    .route('/', settingsRoutes(db))
     .doc31('/openapi.json', { ...openApiInfo, servers: [{ url: '/v1' }] });
 
   const app = createRouter();

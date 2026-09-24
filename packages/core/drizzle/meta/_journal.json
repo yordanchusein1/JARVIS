@@ -8,6 +8,27 @@
       "when": 1790243417323,
       "tag": "0000_init",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1790244225122,
+      "tag": "0001_audit_notes",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1790256032588,
+      "tag": "0002_agency_profile_and_drafts",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1790256880319,
+      "tag": "0003_places_feedback_weights",
+      "breakpoints": true
     }
   ]
 }

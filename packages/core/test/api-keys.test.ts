@@ -12,7 +12,7 @@ describe('API keys', () => {
   it('verifies a created key and rejects others', async () => {
     const created = await createApiKey(db, 'dashboard');
 
-    expect(created.key).toMatch(/^jrv_[\w-]{43}$/);
+    expect(created.key).toMatch(/^arc_[\w-]{43}$/);
     expect((await verifyApiKey(db, created.key))?.id).toBe(created.id);
     expect(await verifyApiKey(db, `${created.key}x`)).toBeNull();
     expect(await verifyApiKey(db, 'not-a-key')).toBeNull();

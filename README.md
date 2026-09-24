@@ -1,98 +1,78 @@
-# JARVIS
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/brand/logo-on-dark.svg">
+    <img src="docs/brand/logo-on-light.svg" alt="Arclight" height="48">
+  </picture>
+</p>
 
-> An open-source AI Chief of Staff for agencies, built to plug into any website.
+<p align="center"><strong>Your agency's always-on lead hunter.</strong></p>
 
-**Status:** 🧭 Planning, with no code yet. This repository currently holds the project's vision, architecture, decisions and roadmap.
+<p align="center">
+  Arclight finds businesses that need what your agency sells, proves it with evidence from their
+  own website, and drafts the first message. You review it and press send.
+</p>
 
-JARVIS is a self-hosted AI assistant for the internal team of an agency: web, marketing, creative, SEO, branding and similar. It runs as its own service with an API, so an agency can use its built-in dashboard or embed it in its own admin panel.
+<p align="center">
+  <a href="docs/getting-started.md">Getting started</a> ·
+  <a href="docs/user-guide.md">User guide</a> ·
+  <a href="docs/api.md">API</a> ·
+  <a href="docs/ROADMAP.md">Roadmap</a> ·
+  <a href="docs/README.md">All documentation</a>
+</p>
 
-Its first job is the one most agencies find hardest: **finding and reaching the right clients.**
+> [!NOTE]
+> **Early access.** Arclight is used today by one agency ([Vera & Co.](docs/VISION.md#origin)) and is changing quickly. Expect rough edges, and please [report them](https://github.com/yordanchusein1/JARVIS/issues).
 
-> `JARVIS` is a working codename. The project will get its own public name before any packages are published or the project is promoted.
+![The Arclight dashboard: a list of leads ranked by priority, need and capacity](docs/images/leads.png)
 
----
+## What it does
 
-## The first feature: Lead Hunter
+1. **Find.** Search Google Maps for businesses such as "dental clinics in Surabaya", paste a list of websites, or import a CSV.
+2. **Audit.** Arclight visits each business's own website and measures what matters: speed on phones, HTTPS, outdated technology, contact and booking forms, published contacts and social links.
+3. **Score.** Every lead gets a **need** score (how much they need you) and a **capacity** score (whether they are established enough to pay). Their geometric mean, **priority**, puts the best leads first.
+4. **Draft.** Claude writes a WhatsApp message and an email in your agency's voice that cite only what was measured. Numbers that the audit never measured are flagged.
+5. **You send.** One click opens WhatsApp or your email client with the message filled in. Track each lead from _new_ to _won_.
 
-```
-Find ──► Audit ──► Score ──► Draft ──► ✋ You send it ──► Track
-```
+![A lead with its audit evidence and the drafted WhatsApp message and email](docs/images/lead.png)
 
-1. **Find.** Search for businesses such as _"dental clinics in Surabaya"_ live through the Google Places API, or paste a list of websites.
-2. **Audit.** JARVIS inspects each business's own website: speed, mobile experience, HTTPS, signs of an outdated site, whether it has a contact or booking form, and links to its social profiles.
-3. **Score.** Each business gets two scores, each backed by evidence you can read:
-   - **Capacity:** is this an established business that can afford an agency?
-   - **Need:** is there a concrete gap the agency can fix?
-4. **Draft.** It writes a personalised WhatsApp and email message that cites only facts it measured, e.g. _"Your homepage takes 8.9 s to load on mobile."_
-5. **You send it.** One click copies the message or opens WhatsApp (`wa.me`), email (`mailto:`) or the business's Instagram profile. **JARVIS never sends anything on its own.**
-6. **Track.** Move each lead through a simple pipeline: new → contacted → replied → meeting → won/lost.
+## Principles
 
-## Design principles
+- **Human in the loop.** Arclight never sends a message on its own.
+- **Official data only.** Google Places is used for search, and only place IDs are stored, as Google's terms require. Maps and social networks are never scraped.
+- **Do-not-contact list.** Businesses that ask to be left alone are never tracked, shown or drafted again.
+- **Self-hosted.** Your leads stay on your server.
+- **Open.** A documented HTTP API, a typed SDK, and (planned) an MCP server so AI agents can use Arclight as a tool.
 
-- **Embeddable anywhere.** JARVIS is a headless engine with a versioned HTTP API and an OpenAPI spec. Its own dashboard uses the same public API that any other website would use.
-- **Human in the loop.** A person approves and performs every outbound action.
-- **Official data only.** It uses official APIs and the businesses' own websites. It does not scrape Google Maps or social networks.
-- **Self-hosted.** Your lead data stays on your own server.
-- **Model-agnostic.** Claude is the default LLM, behind a small interface.
-- **Useful first, general later.** The first version is built concretely for a web agency. Extension points are extracted once a second agency type needs them.
+## Quick start
 
-## Planned stack
-
-| Layer              | Choice                                       |
-| ------------------ | -------------------------------------------- |
-| Language           | TypeScript throughout                        |
-| API & worker       | Hono · pg-boss (a Postgres-backed job queue) |
-| Database           | PostgreSQL (Drizzle ORM)                     |
-| Built-in dashboard | Next.js                                      |
-| Client SDK         | Typed API client (MIT-licensed)              |
-| LLM                | Claude by default                            |
-| Deployment         | Docker Compose                               |
-
-## Getting started
-
-> Work in progress: v0.1 week 1. Businesses can be tracked by website address. Auditing comes next.
-
-### With Docker
+You need [Docker](https://docs.docker.com/get-docker/), a [Google Cloud API key](docs/getting-started.md#2-create-a-google-cloud-api-key) and an [Anthropic API key](docs/getting-started.md#3-create-an-anthropic-api-key).
 
 ```sh
+git clone https://github.com/yordanchusein1/JARVIS arclight && cd arclight
+cp .env.example .env    # fill in the keys, DASHBOARD_PASSWORD and SESSION_SECRET
 docker compose up -d --build
-# Create an API key for the dashboard and start it with the key
-JARVIS_API_KEY=$(docker compose exec -T api tsx src/cli/create-api-key.ts dashboard | tail -1)
-echo "JARVIS_API_KEY=$JARVIS_API_KEY" >> .env
-docker compose up -d dashboard
 ```
 
-The dashboard runs at http://localhost:3000 and the API at http://localhost:8787/v1 (OpenAPI spec at `/v1/openapi.json`). The ports are bound to `127.0.0.1` because the dashboard has no sign-in yet.
+Then create an API key for the dashboard, add it to `.env` and open http://localhost:3000. The [getting started guide](docs/getting-started.md) walks through every step, including creating the API keys.
 
-### For development
+## How it is built
 
-Requirements: Node.js 22.12+, pnpm 10 and PostgreSQL 16.
+| Part           | Path             | Technology                                   | License  |
+| -------------- | ---------------- | -------------------------------------------- | -------- |
+| Engine         | `packages/core`  | TypeScript, PostgreSQL (Drizzle), pg-boss    | AGPL-3.0 |
+| API and worker | `apps/api`       | Hono, OpenAPI 3.1                            | AGPL-3.0 |
+| Dashboard      | `apps/dashboard` | Next.js                                      | AGPL-3.0 |
+| SDK            | `packages/sdk`   | Typed client generated from the OpenAPI spec | MIT      |
+| Website        | `apps/web`       | Next.js (static)                             | AGPL-3.0 |
 
-```sh
-pnpm install
-cp .env.example .env              # then set DATABASE_URL
-export $(grep -v '^#' .env | xargs)
-pnpm api-key:create dashboard     # put the printed key in .env as JARVIS_API_KEY
-pnpm dev:api                      # http://localhost:8787/v1
-pnpm dev:dashboard                # http://localhost:3000 (needs JARVIS_API_URL and JARVIS_API_KEY)
-```
+The dashboard uses only the public API, the same way your own website or an AI agent would. Read more in [Architecture](docs/ARCHITECTURE.md) and the [decision log](docs/DECISIONS.md).
 
-| Command                                        | What it does                                                        |
-| ---------------------------------------------- | ------------------------------------------------------------------- |
-| `pnpm test`                                    | Runs all tests. `DATABASE_URL` must point to a disposable database. |
-| `pnpm lint` · `pnpm typecheck` · `pnpm format` | Code quality checks                                                 |
-| `pnpm db:generate`                             | Creates a migration after changing `packages/core/src/db/schema.ts` |
-| `pnpm sdk:generate`                            | Regenerates the SDK after changing the API                          |
+## Contributing
 
-## Documentation
-
-- [Vision](docs/VISION.md): why JARVIS exists and who it is for
-- [Architecture](docs/ARCHITECTURE.md): components, data sources and how to embed JARVIS
-- [Decisions](docs/DECISIONS.md): key decisions and the reasons behind them
-- [Roadmap](docs/ROADMAP.md): what gets built, in what order, and how success is measured
-- [Contributing](CONTRIBUTING.md)
+Issues, ideas and feedback are very welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for how to set up a development environment, and [SECURITY.md](SECURITY.md) for reporting vulnerabilities.
 
 ## License
 
-- The engine and dashboard are licensed under [AGPL-3.0](LICENSE). You may use, modify and self-host them freely. If you offer a modified version as a network service, you must publish your source.
-- Client libraries (`packages/sdk` and the future `packages/react`) will be MIT-licensed, so you can use them in closed-source admin panels.
+The engine, API, dashboard and website are licensed under [AGPL-3.0](LICENSE). The SDK in `packages/sdk` is [MIT](packages/sdk/LICENSE), so you can use it in closed-source admin panels.
+
+Arclight is not affiliated with Marvel.

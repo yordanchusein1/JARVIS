@@ -1,5 +1,5 @@
-# Local and single-server deployment. Ports are bound to 127.0.0.1 because the dashboard has no
-# sign-in yet; put a reverse proxy with authentication in front before exposing it.
+# Local and single-server deployment. Ports are bound to 127.0.0.1; to expose JARVIS, put a reverse
+# proxy with HTTPS in front of the dashboard (the session cookie is marked Secure).
 services:
   postgres:
     image: postgres:16-alpine
@@ -52,6 +52,8 @@ services:
     environment:
       JARVIS_API_URL: http://api:8787
       JARVIS_API_KEY: ${JARVIS_API_KEY:-}
+      DASHBOARD_PASSWORD: ${DASHBOARD_PASSWORD:-}
+      SESSION_SECRET: ${SESSION_SECRET:-}
     depends_on:
       - api
     ports:

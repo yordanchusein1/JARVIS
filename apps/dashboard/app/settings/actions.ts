@@ -12,7 +12,7 @@ export async function saveProfileAction(
   _prev: ProfileState,
   form: FormData,
 ): Promise<ProfileState> {
-  const jarvis = getJarvis();
+  const jarvis = await getJarvis();
   if (!jarvis) return { error: 'The dashboard is not connected to the JARVIS API.' };
   const field = (name: string) => String(form.get(name) ?? '').trim();
 
@@ -34,7 +34,7 @@ export async function addDoNotContactAction(
   _prev: ProfileState,
   form: FormData,
 ): Promise<ProfileState> {
-  const jarvis = getJarvis();
+  const jarvis = await getJarvis();
   if (!jarvis) return { error: 'The dashboard is not connected to the JARVIS API.' };
   const kind = String(form.get('kind')) as 'domain' | 'email' | 'phone';
   const { error } = await jarvis.POST('/do-not-contact', {
@@ -50,7 +50,7 @@ export async function addDoNotContactAction(
 }
 
 export async function removeDoNotContactAction(id: string): Promise<void> {
-  const jarvis = getJarvis();
+  const jarvis = await getJarvis();
   if (!jarvis) throw new Error('The dashboard is not connected to the JARVIS API.');
   await jarvis.DELETE('/do-not-contact/{id}', { params: { path: { id } } });
   revalidatePath('/settings');
@@ -60,7 +60,7 @@ export async function saveWeightsAction(
   _prev: ProfileState,
   form: FormData,
 ): Promise<ProfileState> {
-  const jarvis = getJarvis();
+  const jarvis = await getJarvis();
   if (!jarvis) return { error: 'The dashboard is not connected to the JARVIS API.' };
   const weights: Record<string, number> = {};
   for (const [name, value] of form.entries()) {

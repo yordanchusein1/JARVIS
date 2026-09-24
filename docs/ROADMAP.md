@@ -38,7 +38,7 @@ Each version must be usable on its own and must be used by Vera & Co. before the
 
 **Dashboard**
 
-- [ ] Sign-in (single admin user)
+- [x] Sign-in (single admin user): signed session cookie, checked in the proxy and before every API call, with a limit on failed attempts
 - [ ] Search/import, lead list sorted by priority, lead detail with evidence and drafts, pipeline view, settings
 
 ### Success criteria (after 4 weeks of use by Vera & Co.)

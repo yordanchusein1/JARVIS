@@ -8,7 +8,7 @@ import { TrackForm } from './track-form';
 export const dynamic = 'force-dynamic';
 
 export default async function LeadsPage() {
-  const jarvis = getJarvis();
+  const jarvis = await getJarvis();
   if (!jarvis) {
     return (
       <div className="card">

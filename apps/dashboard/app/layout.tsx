@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import Link from 'next/link';
+import { isSignedIn } from '@/lib/auth';
+import { logoutAction } from './login/actions';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -8,7 +10,8 @@ export const metadata: Metadata = {
   description: 'AI Chief of Staff for agencies',
 };
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+export default async function RootLayout({ children }: { children: ReactNode }) {
+  const signedIn = await isSignedIn();
   return (
     <html lang="en">
       <body>
@@ -16,11 +19,18 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           <Link href="/" className="brand">
             JARVIS
           </Link>
-          <nav className="nav">
-            <Link href="/">Leads</Link>
-            <Link href="/find">Find</Link>
-            <Link href="/settings">Settings</Link>
-          </nav>
+          {signedIn && (
+            <nav className="nav">
+              <Link href="/">Leads</Link>
+              <Link href="/find">Find</Link>
+              <Link href="/settings">Settings</Link>
+              <form action={logoutAction}>
+                <button type="submit" className="link-button">
+                  Sign out
+                </button>
+              </form>
+            </nav>
+          )}
         </header>
         <main className="container">{children}</main>
       </body>

@@ -51,12 +51,12 @@ Find ──► Audit ──► Score ──► Draft ──► ✋ You send it �
 
 ## Getting started
 
-> Work in progress (v0.1, week 3). Find prospects on Google Maps, paste websites or import a CSV; JARVIS audits and scores each lead and writes WhatsApp and email drafts that you review and send yourself. Next: sign-in and deployment.
+> Work in progress (v0.1, week 3). Find prospects on Google Maps, paste websites or import a CSV; JARVIS audits and scores each lead and writes WhatsApp and email drafts that you review and send yourself. Next: deployment.
 
 ### With Docker
 
 ```sh
-cp .env.example .env              # set ANTHROPIC_API_KEY and GOOGLE_API_KEY
+cp .env.example .env              # set DASHBOARD_PASSWORD, SESSION_SECRET, ANTHROPIC_API_KEY, GOOGLE_API_KEY
 docker compose up -d --build
 # Create an API key for the dashboard and start it with the key
 JARVIS_API_KEY=$(docker compose exec -T api tsx src/cli/create-api-key.ts dashboard | tail -1)
@@ -64,7 +64,7 @@ echo "JARVIS_API_KEY=$JARVIS_API_KEY" >> .env
 docker compose up -d dashboard
 ```
 
-The dashboard runs at http://localhost:3000 and the API at http://localhost:8787/v1 (OpenAPI spec at `/v1/openapi.json`). The ports are bound to `127.0.0.1` because the dashboard has no sign-in yet.
+The dashboard runs at http://localhost:3000 and the API at http://localhost:8787/v1 (OpenAPI spec at `/v1/openapi.json`). Sign in with `DASHBOARD_PASSWORD`. The ports are bound to `127.0.0.1`; put a reverse proxy with HTTPS in front before exposing JARVIS.
 
 ### For development
 

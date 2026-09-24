@@ -10,7 +10,7 @@ export interface TrackState {
 }
 
 export async function trackWebsitesAction(_prev: TrackState, form: FormData): Promise<TrackState> {
-  const jarvis = getJarvis();
+  const jarvis = await getJarvis();
   if (!jarvis) return { error: 'The dashboard is not connected to the JARVIS API.' };
 
   const websites = String(form.get('websites') ?? '')
@@ -34,7 +34,7 @@ export async function trackWebsitesAction(_prev: TrackState, form: FormData): Pr
 }
 
 export async function importCsvAction(_prev: TrackState, form: FormData): Promise<TrackState> {
-  const jarvis = getJarvis();
+  const jarvis = await getJarvis();
   if (!jarvis) return { error: 'The dashboard is not connected to the JARVIS API.' };
   const file = form.get('csv');
   if (!(file instanceof File) || file.size === 0) return { error: 'Choose a CSV file.' };

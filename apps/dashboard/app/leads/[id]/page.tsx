@@ -76,7 +76,7 @@ function SignalList({
 
 export default async function LeadPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const jarvis = getJarvis();
+  const jarvis = await getJarvis();
   if (!jarvis) notFound();
 
   const { data: lead, response } = await jarvis.GET('/businesses/{id}', {

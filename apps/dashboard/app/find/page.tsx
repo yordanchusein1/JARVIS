@@ -10,7 +10,7 @@ export default async function FindPage({
   searchParams: Promise<{ q?: string }>;
 }) {
   const { q = '' } = await searchParams;
-  const jarvis = getJarvis();
+  const jarvis = await getJarvis();
   if (!jarvis) return <p className="error">The dashboard is not connected to the JARVIS API.</p>;
 
   const query = q.trim();

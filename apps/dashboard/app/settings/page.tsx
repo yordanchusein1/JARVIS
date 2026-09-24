@@ -6,7 +6,7 @@ import { ProfileForm } from './profile-form';
 export const dynamic = 'force-dynamic';
 
 export default async function SettingsPage() {
-  const jarvis = getJarvis();
+  const jarvis = await getJarvis();
   if (!jarvis) return <p className="error">The dashboard is not connected to the JARVIS API.</p>;
   const [{ data, error }, dnc, insights] = await Promise.all([
     jarvis.GET('/agency-profile'),

@@ -7,9 +7,10 @@ import { createApp } from '../src/app.ts';
 const url = process.env.DATABASE_URL;
 if (!url) throw new Error('DATABASE_URL must point to a disposable test database');
 
+await runMigrations(url);
 const { db, close } = connectDatabase(url);
-await runMigrations(db);
-const { app } = createApp({ db });
+const queued: string[] = [];
+const { app } = createApp({ db, auditQueue: { enqueue: async (ids) => void queued.push(...ids) } });
 
 // The SDK talks to the app in-process, so these tests also cover the generated client.
 function client(apiKey: string) {
@@ -35,7 +36,12 @@ describe('public endpoints', () => {
 
     const doc = (await (await app.request('/v1/openapi.json')).json()) as { paths: object };
     expect(Object.keys(doc.paths)).toEqual(
-      expect.arrayContaining(['/health', '/businesses', '/businesses/{id}']),
+      expect.arrayContaining([
+        '/health',
+        '/businesses',
+        '/businesses/{id}',
+        '/businesses/{id}/audits',
+      ]),
     );
   });
 });
@@ -56,7 +62,7 @@ describe('authentication', () => {
 });
 
 describe('businesses', () => {
-  it('tracks websites, lists them and fetches one', async () => {
+  it('tracks websites, queues audits, lists them and fetches one', async () => {
     const { data: tracked } = await jarvis.POST('/businesses', {
       body: { websites: ['klinik.co.id', 'www.klinik.co.id', 'localhost'] },
     });
@@ -67,7 +73,15 @@ describe('businesses', () => {
       websiteUrl: 'https://klinik.co.id/',
       source: 'url',
       status: 'new',
+      priority: null,
+      latestAudit: { status: 'queued', needScore: null, notes: [] },
     });
+    expect(queued).toContain(business?.latestAudit?.id);
+
+    // Tracking the same website again neither duplicates it nor queues another audit.
+    const again = await jarvis.POST('/businesses', { body: { websites: ['klinik.co.id'] } });
+    expect(again.data?.created).toBe(0);
+    expect(again.data?.data[0]?.id).toBe(business?.id);
 
     const { data: list } = await jarvis.GET('/businesses');
     expect(list?.data).toHaveLength(1);
@@ -75,7 +89,26 @@ describe('businesses', () => {
     const { data: one } = await jarvis.GET('/businesses/{id}', {
       params: { path: { id: business!.id } },
     });
-    expect(one?.id).toBe(business!.id);
+    expect(one).toMatchObject({ id: business!.id, signals: [], contacts: [] });
+  });
+
+  it('queues a new audit on request', async () => {
+    const { data: tracked } = await jarvis.POST('/businesses', {
+      body: { websites: ['klinik.co.id'] },
+    });
+    const id = tracked!.data[0]!.id;
+
+    const { data: audit, response } = await jarvis.POST('/businesses/{id}/audits', {
+      params: { path: { id } },
+    });
+    expect(response.status).toBe(202);
+    expect(audit?.status).toBe('queued');
+    expect(queued).toContain(audit?.id);
+
+    const missing = await jarvis.POST('/businesses/{id}/audits', {
+      params: { path: { id: '00000000-0000-4000-8000-000000000000' } },
+    });
+    expect(missing.response.status).toBe(404);
   });
 
   it('validates input', async () => {

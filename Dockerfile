@@ -25,7 +25,7 @@ FROM deps AS dashboard-build
 COPY tsconfig.base.json ./
 COPY packages/sdk packages/sdk
 COPY apps/dashboard apps/dashboard
-RUN pnpm --filter @jarvis/dashboard build
+RUN NEXT_OUTPUT=standalone pnpm --filter @jarvis/dashboard build
 
 FROM node:22-slim AS dashboard
 WORKDIR /app

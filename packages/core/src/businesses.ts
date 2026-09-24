@@ -13,8 +13,8 @@ export interface SkippedWebsite {
 export interface TrackWebsitesResult {
   /** Businesses for the given websites, including ones that were already tracked. */
   businesses: Business[];
-  /** How many of `businesses` were newly created by this call. */
-  created: number;
+  /** Ids of the businesses that were newly created by this call. */
+  createdIds: string[];
   skipped: SkippedWebsite[];
 }
 
@@ -37,7 +37,7 @@ export async function trackWebsites(
     }
   }
 
-  if (byKey.size === 0) return { businesses: [], created: 0, skipped };
+  if (byKey.size === 0) return { businesses: [], createdIds: [], skipped };
 
   return db.transaction(async (tx) => {
     const created = await tx
@@ -62,20 +62,8 @@ export async function trackWebsites(
       .where(inArray(businesses.websiteKey, [...byKey.keys()]))
       .orderBy(desc(businesses.createdAt));
 
-    return { businesses: rows, created: created.length, skipped };
+    return { businesses: rows, createdIds: created.map((b) => b.id), skipped };
   });
-}
-
-export async function listBusinesses(
-  db: Database,
-  { limit = 50, offset = 0 }: { limit?: number; offset?: number } = {},
-): Promise<Business[]> {
-  return db
-    .select()
-    .from(businesses)
-    .orderBy(desc(businesses.createdAt), desc(businesses.id))
-    .limit(limit)
-    .offset(offset);
 }
 
 export async function getBusiness(db: Database, id: string): Promise<Business | null> {

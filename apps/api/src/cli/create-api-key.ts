@@ -8,9 +8,9 @@ if (!name || !url) {
   process.exit(1);
 }
 
+await runMigrations(url);
 const { db, close } = connectDatabase(url);
 try {
-  await runMigrations(db);
   const created = await createApiKey(db, name);
   console.log(`Created API key "${created.name}". Store it now; it will not be shown again:\n`);
   console.log(created.key);

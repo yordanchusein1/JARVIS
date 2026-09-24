@@ -75,6 +75,8 @@ export const audits = pgTable(
       .references(() => businesses.id, { onDelete: 'cascade' }),
     status: auditStatus('status').notNull().default('queued'),
     error: text('error'),
+    // Things the user should know about how the audit ran, e.g. a check that was skipped.
+    notes: text('notes').array().notNull().default([]),
     needScore: integer('need_score'),
     capacityScore: integer('capacity_score'),
     startedAt: timestamp('started_at', { withTimezone: true }),

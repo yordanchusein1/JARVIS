@@ -1,9 +1,10 @@
+import Link from 'next/link';
 import { getJarvis } from '@/lib/jarvis';
+import { AutoRefresh } from './auto-refresh';
+import { AuditStatus, isAuditPending, Score } from './components';
 import { TrackForm } from './track-form';
 
 export const dynamic = 'force-dynamic';
-
-const dateFormat = new Intl.DateTimeFormat('en-GB', { dateStyle: 'medium', timeStyle: 'short' });
 
 export default async function LeadsPage() {
   const jarvis = getJarvis();
@@ -20,44 +21,57 @@ export default async function LeadsPage() {
   }
 
   const { data, error } = await jarvis.GET('/businesses', { params: { query: { limit: 100 } } });
+  const leads = data?.data ?? [];
 
   return (
     <>
+      <AutoRefresh active={leads.some((b) => isAuditPending(b.latestAudit))} />
       <h1>Leads</h1>
       <TrackForm />
       {error || !data ? (
         <p className="error">Could not load leads: {error?.error.message ?? 'API unreachable'}</p>
-      ) : data.data.length === 0 ? (
+      ) : leads.length === 0 ? (
         <p className="muted">No leads yet. Add a prospect&apos;s website above.</p>
       ) : (
-        <table className="table">
-          <thead>
-            <tr>
-              <th>Website</th>
-              <th>Status</th>
-              <th>Added</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.data.map((b) => (
-              <tr key={b.id}>
-                <td>
-                  {b.websiteUrl ? (
-                    <a href={b.websiteUrl} target="_blank" rel="noreferrer noopener">
-                      {b.displayName ?? b.websiteUrl}
-                    </a>
-                  ) : (
-                    (b.displayName ?? '—')
-                  )}
-                </td>
-                <td>
-                  <span className="badge">{b.status}</span>
-                </td>
-                <td className="muted">{dateFormat.format(new Date(b.createdAt))}</td>
+        <div className="table-wrap">
+          <table className="table">
+            <thead>
+              <tr>
+                <th>Business</th>
+                <th className="num">Priority</th>
+                <th className="num">Need</th>
+                <th className="num">Capacity</th>
+                <th>Audit</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {leads.map((b) => (
+                <tr key={b.id}>
+                  <td>
+                    <Link href={`/leads/${b.id}`} className="lead-link">
+                      {b.displayName ?? b.websiteUrl ?? 'Unnamed business'}
+                    </Link>
+                    {b.displayName && b.websiteUrl && (
+                      <div className="muted small">{b.websiteUrl}</div>
+                    )}
+                  </td>
+                  <td className="num">
+                    <Score value={b.priority} label="Priority" />
+                  </td>
+                  <td className="num">
+                    <Score value={b.latestAudit?.needScore ?? null} label="Need" />
+                  </td>
+                  <td className="num">
+                    <Score value={b.latestAudit?.capacityScore ?? null} label="Capacity" />
+                  </td>
+                  <td>
+                    <AuditStatus audit={b.latestAudit} />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </>
   );

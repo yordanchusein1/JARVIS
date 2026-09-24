@@ -1,4 +1,4 @@
-import { connectDatabase, runMigrations } from './client.ts';
+import { runMigrations } from './client.ts';
 
 const url = process.env.DATABASE_URL;
 if (!url) {
@@ -6,10 +6,5 @@ if (!url) {
   process.exit(1);
 }
 
-const { db, close } = connectDatabase(url);
-try {
-  await runMigrations(db);
-  console.log('Migrations applied');
-} finally {
-  await close();
-}
+await runMigrations(url);
+console.log('Migrations applied');

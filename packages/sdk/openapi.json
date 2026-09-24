@@ -68,6 +68,18 @@
               "lost"
             ]
           },
+          "priority": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 0,
+            "maximum": 100,
+            "description": "Geometric mean of the latest need and capacity scores"
+          },
+          "latestAudit": {
+            "$ref": "#/components/schemas/Audit"
+          },
           "createdAt": {
             "type": "string",
             "format": "date-time"
@@ -84,8 +96,83 @@
           "websiteUrl",
           "displayName",
           "status",
+          "priority",
+          "latestAudit",
           "createdAt",
           "updatedAt"
+        ]
+      },
+      "Audit": {
+        "type": [
+          "object",
+          "null"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "queued",
+              "running",
+              "succeeded",
+              "failed"
+            ]
+          },
+          "needScore": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 0,
+            "maximum": 100,
+            "description": "How much the business needs the agency (0–100)"
+          },
+          "capacityScore": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 0,
+            "maximum": 100,
+            "description": "How established the business is (0–100)"
+          },
+          "error": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "notes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "How the audit ran, e.g. skipped checks"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "finishedAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "needScore",
+          "capacityScore",
+          "error",
+          "notes",
+          "createdAt",
+          "finishedAt"
         ]
       },
       "Error": {
@@ -111,6 +198,96 @@
         },
         "required": [
           "error"
+        ]
+      },
+      "BusinessDetail": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Business"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "signals": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Signal"
+                },
+                "description": "Signals from the latest audit, strongest first"
+              },
+              "contacts": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Contact"
+                }
+              }
+            },
+            "required": [
+              "signals",
+              "contacts"
+            ]
+          }
+        ]
+      },
+      "Signal": {
+        "type": "object",
+        "properties": {
+          "axis": {
+            "type": "string",
+            "enum": [
+              "need",
+              "capacity"
+            ]
+          },
+          "key": {
+            "type": "string",
+            "example": "slow_mobile"
+          },
+          "points": {
+            "type": "integer"
+          },
+          "evidence": {
+            "type": "string",
+            "example": "Google PageSpeed Insights rates the mobile performance 34/100."
+          }
+        },
+        "required": [
+          "axis",
+          "key",
+          "points",
+          "evidence"
+        ]
+      },
+      "Contact": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "email",
+              "phone",
+              "whatsapp",
+              "instagram",
+              "facebook",
+              "tiktok",
+              "linkedin",
+              "other"
+            ]
+          },
+          "value": {
+            "type": "string"
+          },
+          "sourceUrl": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "kind",
+          "value",
+          "sourceUrl"
         ]
       }
     },
@@ -152,7 +329,7 @@
     "/businesses": {
       "get": {
         "operationId": "listBusinesses",
-        "summary": "List tracked businesses, newest first",
+        "summary": "List tracked businesses, highest priority first",
         "tags": [
           "Businesses"
         ],
@@ -189,7 +366,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Tracked businesses",
+            "description": "Tracked businesses with their latest audit",
             "content": {
               "application/json": {
                 "schema": {
@@ -224,7 +401,7 @@
       "post": {
         "operationId": "trackBusinesses",
         "summary": "Start tracking businesses from website addresses",
-        "description": "Invalid addresses are reported in `skipped`. Websites that are already tracked are returned without being duplicated.",
+        "description": "New businesses are queued for an audit. Invalid addresses are reported in `skipped`, and websites that are already tracked are returned without being duplicated.",
         "tags": [
           "Businesses"
         ],
@@ -322,7 +499,7 @@
     "/businesses/{id}": {
       "get": {
         "operationId": "getBusiness",
-        "summary": "Get one tracked business",
+        "summary": "Get one business with the evidence and contacts from its latest audit",
         "tags": [
           "Businesses"
         ],
@@ -348,7 +525,64 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Business"
+                  "$ref": "#/components/schemas/BusinessDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No business with this id",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/businesses/{id}/audits": {
+      "post": {
+        "operationId": "auditBusiness",
+        "summary": "Queue a new audit of the business",
+        "tags": [
+          "Businesses"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "The audit was queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Audit"
                 }
               }
             }

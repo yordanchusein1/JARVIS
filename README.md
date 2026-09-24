@@ -50,11 +50,12 @@ Find ──► Audit ──► Score ──► Draft ──► ✋ You send it �
 
 ## Getting started
 
-> Work in progress: v0.1 week 1. Businesses can be tracked by website address. Auditing comes next.
+> Work in progress (v0.1, week 1). You can add prospects by website address, and JARVIS audits each website and scores the lead. Drafting messages comes next.
 
 ### With Docker
 
 ```sh
+cp .env.example .env              # optionally set PAGESPEED_API_KEY
 docker compose up -d --build
 # Create an API key for the dashboard and start it with the key
 JARVIS_API_KEY=$(docker compose exec -T api tsx src/cli/create-api-key.ts dashboard | tail -1)
@@ -74,6 +75,7 @@ cp .env.example .env              # then set DATABASE_URL
 export $(grep -v '^#' .env | xargs)
 pnpm api-key:create dashboard     # put the printed key in .env as JARVIS_API_KEY
 pnpm dev:api                      # http://localhost:8787/v1
+pnpm dev:worker                   # runs website audits
 pnpm dev:dashboard                # http://localhost:3000 (needs JARVIS_API_URL and JARVIS_API_KEY)
 ```
 

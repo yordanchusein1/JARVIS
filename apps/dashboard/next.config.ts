@@ -1,7 +1,8 @@
 import type { NextConfig } from 'next';
 
 const config: NextConfig = {
-  output: 'standalone',
+  // The Docker image runs the standalone server; `next start` needs the regular output.
+  output: process.env.NEXT_OUTPUT === 'standalone' ? 'standalone' : undefined,
   transpilePackages: ['@jarvis/sdk'],
 };
 

@@ -21,6 +21,17 @@ export function connectDatabase(url: string): DatabaseConnection {
 
 const migrationsFolder = fileURLToPath(new URL('../../drizzle', import.meta.url));
 
-export async function runMigrations(db: Database): Promise<void> {
-  await migrate(db, { migrationsFolder });
+/**
+ * Applies pending migrations. The API, the worker and CLI commands all call this on start-up, so a
+ * PostgreSQL advisory lock makes concurrent callers wait for each other instead of racing.
+ */
+export async function runMigrations(url: string): Promise<void> {
+  // A single connection, so the session-level lock covers every migration query.
+  const sql = postgres(url, { max: 1, onnotice: () => {} });
+  try {
+    await sql`select pg_advisory_lock(hashtext('jarvis:migrations'))`;
+    await migrate(drizzle(sql), { migrationsFolder });
+  } finally {
+    await sql.end();
+  }
 }

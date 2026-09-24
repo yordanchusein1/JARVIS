@@ -9,6 +9,7 @@
   },
   "scripts": {
     "dev:api": "pnpm --filter @jarvis/api dev",
+    "dev:worker": "pnpm --filter @jarvis/api dev:worker",
     "dev:dashboard": "pnpm --filter @jarvis/dashboard dev",
     "db:generate": "pnpm --filter @jarvis/core db:generate",
     "db:migrate": "pnpm --filter @jarvis/core db:migrate",

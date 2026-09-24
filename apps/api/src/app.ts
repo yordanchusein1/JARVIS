@@ -1,11 +1,12 @@
 import { createRoute, z } from '@hono/zod-openapi';
-import { verifyApiKey, type Database } from '@jarvis/core';
+import { verifyApiKey, type AuditQueue, type Database } from '@jarvis/core';
 import { createMiddleware } from 'hono/factory';
 import { createRouter, type AppEnv } from './router.ts';
 import { businessRoutes } from './routes/businesses.ts';
 
 export interface AppDependencies {
   db: Database;
+  auditQueue: AuditQueue;
 }
 
 const PUBLIC_PATHS = new Set(['/v1/health', '/v1/openapi.json']);
@@ -35,7 +36,7 @@ const healthRoute = createRoute({
   },
 });
 
-export function createApp({ db }: AppDependencies) {
+export function createApp({ db, auditQueue }: AppDependencies) {
   const requireApiKey = createMiddleware<AppEnv>(async (c, next) => {
     if (PUBLIC_PATHS.has(c.req.path)) return next();
 
@@ -60,7 +61,7 @@ export function createApp({ db }: AppDependencies) {
   });
   v1.use('*', requireApiKey);
   v1.openapi(healthRoute, (c) => c.json({ status: 'ok' as const }, 200))
-    .route('/', businessRoutes(db))
+    .route('/', businessRoutes(db, auditQueue))
     .doc31('/openapi.json', { ...openApiInfo, servers: [{ url: '/v1' }] });
 
   const app = createRouter();

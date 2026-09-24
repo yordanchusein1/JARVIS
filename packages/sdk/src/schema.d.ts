@@ -28,12 +28,12 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List tracked businesses, newest first */
+        /** List tracked businesses, highest priority first */
         get: operations["listBusinesses"];
         put?: never;
         /**
          * Start tracking businesses from website addresses
-         * @description Invalid addresses are reported in `skipped`. Websites that are already tracked are returned without being duplicated.
+         * @description New businesses are queued for an audit. Invalid addresses are reported in `skipped`, and websites that are already tracked are returned without being duplicated.
          */
         post: operations["trackBusinesses"];
         delete?: never;
@@ -49,10 +49,27 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get one tracked business */
+        /** Get one business with the evidence and contacts from its latest audit */
         get: operations["getBusiness"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/businesses/{id}/audits": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Queue a new audit of the business */
+        post: operations["auditBusiness"];
         delete?: never;
         options?: never;
         head?: never;
@@ -74,11 +91,31 @@ export interface components {
             displayName: string | null;
             /** @enum {string} */
             status: "new" | "contacted" | "replied" | "meeting" | "won" | "lost";
+            /** @description Geometric mean of the latest need and capacity scores */
+            priority: number | null;
+            latestAudit: components["schemas"]["Audit"];
             /** Format: date-time */
             createdAt: string;
             /** Format: date-time */
             updatedAt: string;
         };
+        Audit: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            status: "queued" | "running" | "succeeded" | "failed";
+            /** @description How much the business needs the agency (0–100) */
+            needScore: number | null;
+            /** @description How established the business is (0–100) */
+            capacityScore: number | null;
+            error: string | null;
+            /** @description How the audit ran, e.g. skipped checks */
+            notes: string[];
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            finishedAt: string | null;
+        } | null;
         Error: {
             error: {
                 /** @example not_found */
@@ -86,6 +123,26 @@ export interface components {
                 message: string;
                 details?: unknown;
             };
+        };
+        BusinessDetail: components["schemas"]["Business"] & {
+            /** @description Signals from the latest audit, strongest first */
+            signals: components["schemas"]["Signal"][];
+            contacts: components["schemas"]["Contact"][];
+        };
+        Signal: {
+            /** @enum {string} */
+            axis: "need" | "capacity";
+            /** @example slow_mobile */
+            key: string;
+            points: number;
+            /** @example Google PageSpeed Insights rates the mobile performance 34/100. */
+            evidence: string;
+        };
+        Contact: {
+            /** @enum {string} */
+            kind: "email" | "phone" | "whatsapp" | "instagram" | "facebook" | "tiktok" | "linkedin" | "other";
+            value: string;
+            sourceUrl: string | null;
         };
     };
     responses: never;
@@ -131,7 +188,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Tracked businesses */
+            /** @description Tracked businesses with their latest audit */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -218,7 +275,47 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Business"];
+                    "application/json": components["schemas"]["BusinessDetail"];
+                };
+            };
+            /** @description Missing or invalid API key */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description No business with this id */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    auditBusiness: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The audit was queued */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Audit"];
                 };
             };
             /** @description Missing or invalid API key */

@@ -19,8 +19,8 @@ Each version must be usable on its own and must be used by Vera & Co. before the
 
 - [x] pnpm monorepo: `apps/api`, `apps/dashboard`, `packages/core`, `packages/sdk`
 - [x] TypeScript strict, ESLint, Prettier, Vitest, GitHub Actions CI
-- [x] Docker Compose: postgres, api, dashboard
-- [ ] Worker process (added together with the audit job)
+- [x] Docker Compose: postgres, api, worker, dashboard
+- [x] Worker process with a pg-boss job queue
 - [x] Database schema: tracked businesses, audits, signals and evidence, scores, contact channels, pipeline status, activity log, do-not-contact list
 - [ ] Drafts table (added together with drafting)
 - [x] `/v1` API with an OpenAPI spec and API-key auth; the dashboard uses the SDK only
@@ -29,8 +29,9 @@ Each version must be usable on its own and must be used by Vera & Co. before the
 
 - [x] Find: pasted URLs
 - [ ] Find: live Google Places text search (store `place_id` only), CSV import
-- [ ] Audit: PageSpeed Insights (mobile), HTTPS, viewport, outdated-site signals, contact or booking form, published contacts and social links; with SSRF protection and `robots.txt` handling
-- [ ] Score: `need` and `capacity` with per-signal evidence, configurable weights, and 👍/👎 feedback
+- [x] Audit: PageSpeed Insights (mobile), HTTPS, viewport, outdated-site signals, contact or booking form, published contacts and social links; with SSRF protection and `robots.txt` handling
+- [x] Score: `need` and `capacity` with per-signal evidence, and priority ranking
+- [ ] Score: configurable weights and 👍/👎 feedback
 - [ ] Agency profile: name, services, tone, sender name
 - [ ] Draft: WhatsApp and email variants grounded only in the recorded evidence (Claude)
 - [ ] Act: copy, `wa.me`, `mailto:`, open-profile buttons; manual status (new → contacted → replied → meeting → won/lost)

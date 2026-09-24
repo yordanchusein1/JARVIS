@@ -1,5 +1,5 @@
 import { serve } from '@hono/node-server';
-import { connectDatabase, runMigrations } from '@jarvis/core';
+import { connectDatabase, pgBossAuditQueue, runMigrations, startJobQueue } from '@jarvis/core';
 import { z } from 'zod';
 import { createApp } from './app.ts';
 
@@ -10,16 +10,18 @@ const env = z
   })
   .parse(process.env);
 
+await runMigrations(env.DATABASE_URL);
 const { db, close } = connectDatabase(env.DATABASE_URL);
-await runMigrations(db);
+const boss = await startJobQueue(env.DATABASE_URL);
 
-const { app } = createApp({ db });
+const { app } = createApp({ db, auditQueue: pgBossAuditQueue(boss) });
 const server = serve({ fetch: app.fetch, port: env.PORT }, ({ port }) => {
   console.log(`JARVIS API listening on http://localhost:${port}/v1`);
 });
 
 function shutdown() {
   server.close(async () => {
+    await boss.stop();
     await close();
     process.exit(0);
   });

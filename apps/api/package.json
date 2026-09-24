@@ -6,7 +6,9 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/server.ts",
+    "dev:worker": "tsx watch src/worker.ts",
     "start": "tsx src/server.ts",
+    "start:worker": "tsx src/worker.ts",
     "api-key:create": "tsx src/cli/create-api-key.ts",
     "openapi:export": "tsx scripts/export-openapi.ts",
     "typecheck": "tsc",
@@ -18,6 +20,7 @@
     "@jarvis/core": "workspace:*",
     "drizzle-orm": "^0.45.3",
     "hono": "^4.13.9",
+    "pg-boss": "^12.34.0",
     "zod": "^4.6.5"
   },
   "devDependencies": {

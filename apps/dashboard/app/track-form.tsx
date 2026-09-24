@@ -18,7 +18,7 @@ export function TrackForm() {
         placeholder={'klinik-contoh.co.id\nhttps://www.sekolah-contoh.sch.id'}
         className="input"
       />
-      <p className="muted small">One website per line. JARVIS will audit each one.</p>
+      <p className="muted small">One website per line. JARVIS audits each new one automatically.</p>
       <button type="submit" className="button" disabled={pending}>
         {pending ? 'Adding…' : 'Add websites'}
       </button>

@@ -151,3 +151,138 @@ a {
 .success {
   color: var(--success);
 }
+
+h2 {
+  margin: 0 0 4px;
+  font-size: 16px;
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+.table .num {
+  text-align: right;
+  width: 1%;
+  white-space: nowrap;
+}
+
+.lead-link {
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.lead-link:hover {
+  text-decoration: underline;
+}
+
+.score {
+  display: inline-block;
+  min-width: 2.2em;
+  padding: 1px 6px;
+  border-radius: 6px;
+  text-align: center;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.score-high {
+  background: color-mix(in srgb, var(--success) 18%, transparent);
+  color: var(--success);
+}
+
+.score-mid {
+  background: color-mix(in srgb, #d97706 18%, transparent);
+  color: #b45309;
+}
+
+.score-low {
+  background: color-mix(in srgb, var(--muted) 18%, transparent);
+  color: var(--muted);
+}
+
+.badge-running,
+.badge-queued {
+  border-color: #d97706;
+}
+
+.badge-failed {
+  border-color: var(--error);
+  color: var(--error);
+}
+
+.button.secondary {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+.lead-header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.lead-header h1 {
+  margin: 0 0 4px;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.stat {
+  display: grid;
+  gap: 4px;
+  justify-items: start;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+}
+
+.columns {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 0 16px;
+}
+
+.signals,
+.contacts,
+.notes {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 8px;
+}
+
+.signals li {
+  display: grid;
+  grid-template-columns: 3em 1fr;
+  gap: 8px;
+}
+
+.points {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.contacts li {
+  display: grid;
+  grid-template-columns: 6em 1fr;
+  gap: 8px;
+  overflow-wrap: anywhere;
+}
+
+.notes {
+  margin-bottom: 16px;
+  color: var(--muted);
+}

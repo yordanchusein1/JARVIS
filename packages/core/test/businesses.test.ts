@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { activityLog } from '../src/db/schema.ts';
-import { getBusiness, listBusinesses, trackWebsites } from '../src/businesses.ts';
+import { businesses } from '../src/db/schema.ts';
+import { getBusiness, trackWebsites } from '../src/businesses.ts';
 import { setupTestDatabase } from './db.ts';
 
 const database = await setupTestDatabase();
@@ -19,7 +20,7 @@ describe('trackWebsites', () => {
       'localhost',
     ]);
 
-    expect(result.created).toBe(2);
+    expect(result.createdIds).toHaveLength(2);
     expect(result.businesses.map((b) => b.websiteKey).sort()).toEqual([
       'klinik-a.co.id',
       'klinik-b.com',
@@ -34,9 +35,9 @@ describe('trackWebsites', () => {
     const first = await trackWebsites(db, ['klinik-a.co.id']);
     const second = await trackWebsites(db, ['https://klinik-a.co.id', 'klinik-c.id']);
 
-    expect(second.created).toBe(1);
+    expect(second.createdIds).toHaveLength(1);
     expect(second.businesses.map((b) => b.id)).toContain(first.businesses[0]?.id);
-    expect(await listBusinesses(db)).toHaveLength(2);
+    expect(await db.select().from(businesses)).toHaveLength(2);
   });
 });
 

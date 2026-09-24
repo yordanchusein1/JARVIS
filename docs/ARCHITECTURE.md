@@ -1,13 +1,13 @@
 # Architecture
 
-> Status: proposed. This document describes the target design and will be refined as code is written. The reasons behind major choices are in [DECISIONS.md](DECISIONS.md).
+> This document describes Arclight as built for v0.1 (early access). The reasons behind major choices are in [DECISIONS.md](DECISIONS.md).
 
 ## Overview
 
 Arclight is a **headless engine**: a standalone service with a versioned HTTP API. Every user interface, including Arclight's own dashboard, is a client of that API.
 
 ```
-┌──────────────────────────── Arclight (this repository) ────────────────────────────┐
+┌──────────────────────────── Arclight (this repository) ──────────────────────────┐
 │                                                                                  │
 │  apps/api  (Hono)  ──enqueue──►  pg-boss queue  ──►  apps/api worker process     │
 │   /v1/* + OpenAPI                                    audit · score · draft       │
@@ -27,22 +27,24 @@ Arclight is a **headless engine**: a standalone service with a versioned HTTP AP
 ## Repository layout
 
 ```
-Arclight/
+arclight/
 ├── apps/
 │   ├── api/          # Hono HTTP server (/v1, OpenAPI) and worker entrypoint
-│   └── dashboard/    # Next.js built-in dashboard
+│   ├── dashboard/    # Next.js built-in dashboard with single-admin sign-in
+│   └── web/          # Public website (static Next.js)
 ├── packages/
 │   ├── core/         # Framework-agnostic domain logic and database access
 │   ├── sdk/          # Typed client for the /v1 API (MIT)
 │   └── react/        # (v0.2) Embeddable React components (MIT)
-├── docs/
+├── docs/             # Documentation, decisions and the brand kit
 ├── docker-compose.yml   # postgres · api · worker · dashboard
 └── LICENSE
 ```
 
 - **`packages/core`** contains all business logic and depends on no HTTP framework. It can be tested in isolation, and it can be reused if the transport changes.
 - **`apps/api`** is a thin HTTP layer over `core`. Validation schemas (zod) generate the OpenAPI spec. The same package has a second entrypoint that runs the background worker.
-- **`apps/dashboard`** must not import `core` or touch the database. It uses `packages/sdk` only. This rule keeps the API complete enough for any external website.
+- **`apps/dashboard`** must not import `core` or touch the database. It uses `packages/sdk` only. This rule keeps the API complete enough for any external website. Sign-in uses a signed, expiring session cookie that is checked in `proxy.ts` and again before every API call.
+- **`apps/web`** is the public landing page. It has no connection to the engine.
 
 ## Data sources
 
@@ -63,8 +65,8 @@ Arclight/
 search/import ─► track (place_id or URL) ─► audit ─► score ─► draft ─► human sends ─► status
 ```
 
-1. **Track.** The user selects results to track. Arclight resolves each one's website: live through Places, or directly from the pasted URL.
-2. **Audit** (background job):
+1. **Track.** The user selects results to track. Arclight stores the place ID, or the normalised website from a pasted URL or CSV. Websites on the do-not-contact list are refused.
+2. **Audit** (background job). For a Google place, the website is looked up live; once Arclight has visited it, the website address (now first-party data) is saved. A place without a website gets a `no_website` need signal and an unknown capacity.
    - PageSpeed Insights (mobile): performance score and Core Web Vitals.
    - HTTPS, a mobile viewport, and signs of an outdated site (old copyright year, legacy libraries).
    - Contact, booking or enquiry forms, and click-to-chat links.
@@ -82,7 +84,7 @@ Browser (staff) ──session──► Your website's backend ──API key (ser
 
 1. Run Arclight as a separate service (Docker) next to your website.
 2. Your backend authenticates your staff as usual, then calls Arclight using a server-side API key. The key must never reach the browser.
-3. Your frontend renders your own UI, or `@…/react` components from v0.2 onwards.
+3. Your frontend renders your own UI, or `@arclight/react` components from v0.2 onwards. See [Embedding](embedding.md).
 
 Integration options, in order of availability:
 
@@ -100,7 +102,9 @@ The reference integration is the Vera & Co. admin panel (Next.js).
 - **No outbound sending** in the system. Every contact is made by a person.
 - **SSRF protection:** website fetches block private, loopback and link-local addresses, limit redirects, and enforce timeouts and size limits.
 - **Do-not-contact list**, applied everywhere a lead is shown.
-- **Activity log** of every tracked lead, audit, draft and status change.
+- **Activity log** of every tracked lead, audit, draft, status change and do-not-contact entry.
+- **Prompt injection:** content from prospects' websites reaches the model only as evidence sentences inside a data block, and drafts are checked for numbers the audit never measured.
+- **Dashboard sign-in:** constant-time password comparison and a limit of five failed attempts per client address per 15 minutes.
 - **Secrets** come only from environment variables. The API key is stored hashed.
 
 ## Technology choices

@@ -41,6 +41,12 @@ Each version must be usable on its own and must be used by Vera & Co. before the
 - [x] Sign-in (single admin user): signed session cookie, checked in the proxy and before every API call, with a limit on failed attempts
 - [ ] Search/import, lead list sorted by priority, lead detail with evidence and drafts, pipeline view, settings
 
+**Public readiness**
+
+- [x] Name and brand (Arclight), public website and documentation
+- [ ] Tested end to end with real Google and Anthropic keys
+- [ ] Deployed and used by Vera & Co. for four weeks
+
 ### Success criteria (after 4 weeks of use by Vera & Co.)
 
 - At least 50 qualified leads contacted

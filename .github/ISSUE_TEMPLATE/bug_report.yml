@@ -1,0 +1,45 @@
+name: Bug report
+description: Something doesn't work as documented
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a problem. For security issues, please use **Security → Report a vulnerability** instead of a public issue.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What did you do, what did you expect, and what happened instead?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Go to …
+        2. Click …
+        3. See …
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: Relevant output of `docker compose logs api worker dashboard`. Remove API keys and other secrets first.
+      render: text
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: The commit you're running (`git rev-parse --short HEAD`)
+  - type: dropdown
+    id: setup
+    attributes:
+      label: How do you run Arclight?
+      options:
+        - Docker Compose on my computer
+        - Docker Compose on a server
+        - Development setup (pnpm)
+        - Other

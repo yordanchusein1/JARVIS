@@ -87,3 +87,11 @@ _2026-09-24 · Accepted_
 **Decision:** Arclight stays a focused lead generation tool for agencies. It does not try to become a general-purpose agent. Instead, it is usable three ways: its dashboard, embedded in an agency's website through the API, and as tools for AI agents through an MCP server.
 
 **Why:** General agents such as Hermes Agent are backed by large teams and communities, and competing with them would stall a small project. Arclight's value is what a general agent does not do reliably: consistent evidence-based scoring, a lead pipeline, and built-in compliance (Google terms, do-not-contact, no automated sending). Offering an MCP server lets Arclight benefit from those agents' adoption instead.
+
+### D11: The public name is Arclight
+
+_2026-09-24 · Accepted_
+
+**Decision:** The project, formerly developed under the codename JARVIS, is called Arclight. Packages are `@arclight/*` and API keys start with `arc_`. The GitHub repository keeps its current URL until it is renamed; GitHub redirects old links.
+
+**Why:** "JARVIS" is a Marvel trademark and impossible to search for. Arclight keeps the spirit of an always-on assistant (the light of an arc reactor) without borrowing anyone's brand.

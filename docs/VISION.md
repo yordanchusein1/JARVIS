@@ -71,4 +71,4 @@ Lead Hunter comes first. After that, Arclight grows towards a full Chief of Staf
 
 ## Origin
 
-Arclight started as an internal tool for **Vera & Co.**, a website agency. It is open source so other agencies can benefit, and so that it is shaped by more than one agency's needs. Vera & Co. is the first user, and each version must be useful to it before the project moves on.
+Arclight started as an internal tool for **Vera & Co.**, a website agency in Indonesia, under the codename JARVIS. It is open source so other agencies can benefit, and so that it is shaped by more than one agency's needs. Vera & Co. is the first user, and each version must be useful to it before the project moves on.

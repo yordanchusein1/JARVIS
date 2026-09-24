@@ -63,7 +63,7 @@ The Google Maps Platform Terms forbid copying and saving business names, address
 
 ### Who makes Arclight?
 
-Arclight started as an internal tool at Vera & Co., a website agency in Indonesia, and is developed in the open. It is in **early access**: expect changes, and please [report problems](https://github.com/yordanchusein1/JARVIS/issues).
+Arclight started as an internal tool at Vera & Co., a website agency in Indonesia, and is developed in the open. It is in **early access**: expect changes, and please [report problems](https://github.com/yordanchusein1/arclight/issues).
 
 ### Can I use another AI model instead of Claude?
 

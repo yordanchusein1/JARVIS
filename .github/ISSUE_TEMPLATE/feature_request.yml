@@ -26,4 +26,4 @@ body:
   - type: markdown
     attributes:
       value: |
-        Arclight deliberately never sends messages on its own and never scrapes Google Maps or social networks ([decisions](https://github.com/yordanchusein1/JARVIS/blob/HEAD/docs/DECISIONS.md)). Ideas that change these principles are welcome as discussions, but can't be accepted as features.
+        Arclight deliberately never sends messages on its own and never scrapes Google Maps or social networks ([decisions](https://github.com/yordanchusein1/arclight/blob/HEAD/docs/DECISIONS.md)). Ideas that change these principles are welcome as discussions, but can't be accepted as features.

@@ -1,6 +1,6 @@
 # Contributing to Arclight
 
-Thanks for your interest! Arclight is in early access, so bug reports, ideas and feedback from real agencies are the most valuable contributions right now. [Open an issue](https://github.com/yordanchusein1/JARVIS/issues) any time.
+Thanks for your interest! Arclight is in early access, so bug reports, ideas and feedback from real agencies are the most valuable contributions right now. [Open an issue](https://github.com/yordanchusein1/arclight/issues) any time.
 
 ## Ground rules
 

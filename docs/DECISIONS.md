@@ -79,3 +79,11 @@ _2026-09-24 · Accepted_
 **Decision:** For businesses found on Google Maps without a website, capacity stays "unknown" until Instagram Business Discovery signals (official Meta API) are added in v0.2. Google review counts are shown live to the user but are never stored or turned into a stored signal.
 
 **Why:** Storing a score derived from Google review counts is a grey area under the Google Maps Platform Terms (§3.2.3), and D3 keeps JARVIS clear of them. Meanwhile the user sees ratings live when picking businesses on the Find page, so selection already filters for established businesses.
+
+### D10: A vertical tool that any agent can use, not a general agent
+
+_2026-09-24 · Accepted_
+
+**Decision:** JARVIS stays a focused lead generation tool for agencies. It does not try to become a general-purpose agent. Instead, it is usable three ways: its dashboard, embedded in an agency's website through the API, and as tools for AI agents through an MCP server.
+
+**Why:** General agents such as Hermes Agent are backed by large teams and communities, and competing with them would stall a small project. JARVIS's value is what a general agent does not do reliably: consistent evidence-based scoring, a lead pipeline, and built-in compliance (Google terms, do-not-contact, no automated sending). Offering an MCP server lets JARVIS benefit from those agents' adoption instead.

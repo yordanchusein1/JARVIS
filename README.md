@@ -29,6 +29,7 @@ Find ──► Audit ──► Score ──► Draft ──► ✋ You send it �
 
 ## Design principles
 
+- **Usable by AI agents.** An MCP server (planned for v0.2) lets agents such as Claude or Hermes Agent use JARVIS as their lead generation tool.
 - **Embeddable anywhere.** JARVIS is a headless engine with a versioned HTTP API and an OpenAPI spec. Its own dashboard uses the same public API that any other website would use.
 - **Human in the loop.** A person approves and performs every outbound action.
 - **Official data only.** It uses official APIs and the businesses' own websites. It does not scrape Google Maps or social networks.

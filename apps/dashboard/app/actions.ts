@@ -1,0 +1,34 @@
+'use server';
+
+import { revalidatePath } from 'next/cache';
+import { getJarvis } from '@/lib/jarvis';
+
+export interface TrackState {
+  message?: string;
+  skipped?: { input: string; reason: string }[];
+  error?: string;
+}
+
+export async function trackWebsitesAction(_prev: TrackState, form: FormData): Promise<TrackState> {
+  const jarvis = getJarvis();
+  if (!jarvis) return { error: 'The dashboard is not connected to the JARVIS API.' };
+
+  const websites = String(form.get('websites') ?? '')
+    .split(/[\s,]+/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+  if (websites.length === 0) return { error: 'Enter at least one website.' };
+  if (websites.length > 100) return { error: 'Add at most 100 websites at a time.' };
+
+  const { data, error } = await jarvis.POST('/businesses', { body: { websites } });
+  if (!data) return { error: error?.error.message ?? 'Could not add the websites.' };
+
+  revalidatePath('/');
+  const existing = data.data.length - data.created;
+  return {
+    message: `Added ${data.created} new business${data.created === 1 ? '' : 'es'}${
+      existing > 0 ? ` (${existing} already tracked)` : ''
+    }.`,
+    skipped: data.skipped,
+  };
+}

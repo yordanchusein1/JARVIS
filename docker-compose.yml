@@ -1,0 +1,44 @@
+# Local and single-server deployment. Ports are bound to 127.0.0.1 because the dashboard has no
+# sign-in yet; put a reverse proxy with authentication in front before exposing it.
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: jarvis
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-jarvis}
+      POSTGRES_DB: jarvis
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U jarvis -d jarvis']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build:
+      context: .
+      target: api
+    environment:
+      DATABASE_URL: postgres://jarvis:${POSTGRES_PASSWORD:-jarvis}@postgres:5432/jarvis
+      PORT: 8787
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - '127.0.0.1:8787:8787'
+
+  dashboard:
+    build:
+      context: .
+      target: dashboard
+    environment:
+      JARVIS_API_URL: http://api:8787
+      JARVIS_API_KEY: ${JARVIS_API_KEY:-}
+    depends_on:
+      - api
+    ports:
+      - '127.0.0.1:3000:3000'
+
+volumes:
+  pgdata:

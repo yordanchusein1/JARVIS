@@ -43,15 +43,15 @@ Established local businesses with a physical presence, where public signals are 
 
 ## Principles
 
-| Principle | What it means in practice |
-|---|---|
-| **Embeddable anywhere** | API-first. The dashboard is just one client of the API. |
-| **Human in the loop** | Nothing is sent, deleted or paid for without a person acting. |
-| **Official data only** | Official APIs plus the businesses' own public websites. No scraping of Google Maps, Instagram, Facebook, TikTok or LinkedIn. JARVIS respects each provider's terms and `robots.txt`. |
-| **Privacy & compliance** | Only business contact data is stored. JARVIS keeps a do-not-contact list and follows UU PDP (Indonesia) and, where applicable, GDPR. |
-| **Self-hosted** | One `docker compose up`. Data leaves the server only for the APIs the agency configures. |
-| **Model-agnostic** | Claude is the default, behind a small provider interface. |
-| **Concrete first** | Build the web-agency case well, and generalise only when a second case exists. |
+| Principle                | What it means in practice                                                                                                                                                            |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Embeddable anywhere**  | API-first. The dashboard is just one client of the API.                                                                                                                              |
+| **Human in the loop**    | Nothing is sent, deleted or paid for without a person acting.                                                                                                                        |
+| **Official data only**   | Official APIs plus the businesses' own public websites. No scraping of Google Maps, Instagram, Facebook, TikTok or LinkedIn. JARVIS respects each provider's terms and `robots.txt`. |
+| **Privacy & compliance** | Only business contact data is stored. JARVIS keeps a do-not-contact list and follows UU PDP (Indonesia) and, where applicable, GDPR.                                                 |
+| **Self-hosted**          | One `docker compose up`. Data leaves the server only for the APIs the agency configures.                                                                                             |
+| **Model-agnostic**       | Claude is the default, behind a small provider interface.                                                                                                                            |
+| **Concrete first**       | Build the web-agency case well, and generalise only when a second case exists.                                                                                                       |
 
 ## Non-goals (for now)
 
@@ -65,7 +65,7 @@ Established local businesses with a physical presence, where public signals are 
 Lead Hunter comes first. After that, JARVIS grows towards a full Chief of Staff:
 
 - **Agency memory:** services, portfolio, pricing and SOPs, used to ground every answer and draft.
-- **Proactive briefings:** e.g. *"12 new qualified leads, 3 replies, and client X's proposal is due Thursday."*
+- **Proactive briefings:** e.g. _"12 new qualified leads, 3 replies, and client X's proposal is due Thursday."_
 - **Operations help:** proposals, meeting notes, reports and follow-ups.
 - **More interfaces:** chat inside any admin panel, then messaging apps and voice.
 

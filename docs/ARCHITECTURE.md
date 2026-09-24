@@ -46,12 +46,12 @@ JARVIS/
 
 ## Data sources
 
-| Source | How it is used | What is stored |
-|---|---|---|
-| **Google Places API (New)** | Live text search from the dashboard, e.g. "dental clinic, Surabaya". Details such as rating are fetched live when shown. | **`place_id` only.** The Google Maps Platform Terms forbid copying and saving business names, addresses or reviews. |
-| **The business's own website** | Page fetches (honouring `robots.txt`) plus the PageSpeed Insights API, which is free but needs an API key. | Audit results, and the contact channels and social profile links that the business publishes there. |
-| **Manual input** | Pasted website URLs or a CSV upload. | What the user provides. |
-| **Instagram Graph API: Business Discovery** *(v0.2, optional)* | Public business or creator accounts found through links on the business's website. Requires the agency's own Instagram business account and a Meta app that has passed review. | Follower count, post count and the date of the latest post, used as capacity signals and refreshed rather than hoarded. |
+| Source                                                         | How it is used                                                                                                                                                                 | What is stored                                                                                                          |
+| -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------- |
+| **Google Places API (New)**                                    | Live text search from the dashboard, e.g. "dental clinic, Surabaya". Details such as rating are fetched live when shown.                                                       | **`place_id` only.** The Google Maps Platform Terms forbid copying and saving business names, addresses or reviews.     |
+| **The business's own website**                                 | Page fetches (honouring `robots.txt`) plus the PageSpeed Insights API, which is free but needs an API key.                                                                     | Audit results, and the contact channels and social profile links that the business publishes there.                     |
+| **Manual input**                                               | Pasted website URLs or a CSV upload.                                                                                                                                           | What the user provides.                                                                                                 |
+| **Instagram Graph API: Business Discovery** _(v0.2, optional)_ | Public business or creator accounts found through links on the business's website. Requires the agency's own Instagram business account and a Meta app that has passed review. | Follower count, post count and the date of the latest post, used as capacity signals and refreshed rather than hoarded. |
 
 **Not used:** scraping Google Maps, Instagram, Facebook, TikTok or LinkedIn, which is against their terms, and the Meta Ad Library API, which covers only political ads and ads delivered in the EU, so it is of little use for Indonesian businesses.
 
@@ -86,12 +86,12 @@ Browser (staff) ──session──► Your website's backend ──API key (ser
 
 Integration options, in order of availability:
 
-| Option | For | Available |
-|---|---|---|
-| REST API + OpenAPI spec | Any language or framework | v0.1 |
-| TypeScript SDK | Node and Next.js backends | v0.1 (used by the dashboard), published in v0.2 |
-| React components | React and Next.js admin panels | v0.2 |
-| Framework-agnostic embed (web component or iframe) | WordPress, Laravel and other non-React sites | v0.3 |
+| Option                                             | For                                          | Available                                       |
+| -------------------------------------------------- | -------------------------------------------- | ----------------------------------------------- |
+| REST API + OpenAPI spec                            | Any language or framework                    | v0.1                                            |
+| TypeScript SDK                                     | Node and Next.js backends                    | v0.1 (used by the dashboard), published in v0.2 |
+| React components                                   | React and Next.js admin panels               | v0.2                                            |
+| Framework-agnostic embed (web component or iframe) | WordPress, Laravel and other non-React sites | v0.3                                            |
 
 The reference integration is the Vera & Co. admin panel (Next.js).
 
@@ -105,12 +105,12 @@ The reference integration is the Vera & Co. admin panel (Next.js).
 
 ## Technology choices
 
-| Concern | Choice |
-|---|---|
-| Language | TypeScript (strict) |
-| HTTP | Hono + `@hono/zod-openapi` |
-| Database | PostgreSQL + Drizzle ORM (pgvector later, for agency memory) |
-| Jobs | pg-boss |
-| LLM | Anthropic SDK behind a small provider interface |
-| Dashboard | Next.js |
-| Tooling | pnpm workspaces, Vitest, ESLint, Prettier, GitHub Actions |
+| Concern   | Choice                                                       |
+| --------- | ------------------------------------------------------------ |
+| Language  | TypeScript (strict)                                          |
+| HTTP      | Hono + `@hono/zod-openapi`                                   |
+| Database  | PostgreSQL + Drizzle ORM (pgvector later, for agency memory) |
+| Jobs      | pg-boss                                                      |
+| LLM       | Anthropic SDK behind a small provider interface              |
+| Dashboard | Next.js                                                      |
+| Tooling   | pnpm workspaces, Vitest, ESLint, Prettier, GitHub Actions    |

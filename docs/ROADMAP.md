@@ -4,26 +4,31 @@ Each version must be usable on its own and must be used by Vera & Co. before the
 
 ## v0.1: Lead Hunter MVP
 
-**Goal:** go from *"find me prospects"* to *well-researched messages that a person sends*.
+**Goal:** go from _"find me prospects"_ to _well-researched messages that a person sends_.
 
 **Time budget:** about 14 hours a week, for roughly 3–4 weeks (~50 hours). Each week ends with something Vera & Co. can use:
 
-| Week | Deliverable | Usable result |
-|---|---|---|
-| 1 | Foundation, URL import, website audit, lead list and detail with evidence | Audit any prospect's website from a pasted URL |
-| 2 | Scoring, agency profile, drafts, action buttons, manual status | End-to-end outreach from pasted URLs |
-| 3 | Places live search, CSV import, do-not-contact list, 👍/👎 feedback | Find new prospects without leaving JARVIS |
-| 4 | Buffer: hardening, deployment on the Vera & Co. server, fixes from real use | v0.1 in daily use |
+| Week | Deliverable                                                                 | Usable result                                  |
+| ---- | --------------------------------------------------------------------------- | ---------------------------------------------- |
+| 1    | Foundation, URL import, website audit, lead list and detail with evidence   | Audit any prospect's website from a pasted URL |
+| 2    | Scoring, agency profile, drafts, action buttons, manual status              | End-to-end outreach from pasted URLs           |
+| 3    | Places live search, CSV import, do-not-contact list, 👍/👎 feedback         | Find new prospects without leaving JARVIS      |
+| 4    | Buffer: hardening, deployment on the Vera & Co. server, fixes from real use | v0.1 in daily use                              |
 
 **Foundation**
-- [ ] pnpm monorepo: `apps/api`, `apps/dashboard`, `packages/core`, `packages/sdk`
-- [ ] TypeScript strict, ESLint, Prettier, Vitest, GitHub Actions CI
-- [ ] Docker Compose: postgres, api, worker, dashboard
-- [ ] Database schema: tracked businesses, audits, signals and evidence, scores, drafts, pipeline status, activity log, do-not-contact list
-- [ ] `/v1` API with an OpenAPI spec and API-key auth; the dashboard uses the SDK only
+
+- [x] pnpm monorepo: `apps/api`, `apps/dashboard`, `packages/core`, `packages/sdk`
+- [x] TypeScript strict, ESLint, Prettier, Vitest, GitHub Actions CI
+- [x] Docker Compose: postgres, api, dashboard
+- [ ] Worker process (added together with the audit job)
+- [x] Database schema: tracked businesses, audits, signals and evidence, scores, contact channels, pipeline status, activity log, do-not-contact list
+- [ ] Drafts table (added together with drafting)
+- [x] `/v1` API with an OpenAPI spec and API-key auth; the dashboard uses the SDK only
 
 **Pipeline**
-- [ ] Find: live Google Places text search (store `place_id` only), pasted URLs, CSV import
+
+- [x] Find: pasted URLs
+- [ ] Find: live Google Places text search (store `place_id` only), CSV import
 - [ ] Audit: PageSpeed Insights (mobile), HTTPS, viewport, outdated-site signals, contact or booking form, published contacts and social links; with SSRF protection and `robots.txt` handling
 - [ ] Score: `need` and `capacity` with per-signal evidence, configurable weights, and 👍/👎 feedback
 - [ ] Agency profile: name, services, tone, sender name
@@ -31,6 +36,7 @@ Each version must be usable on its own and must be used by Vera & Co. before the
 - [ ] Act: copy, `wa.me`, `mailto:`, open-profile buttons; manual status (new → contacted → replied → meeting → won/lost)
 
 **Dashboard**
+
 - [ ] Sign-in (single admin user)
 - [ ] Search/import, lead list sorted by priority, lead detail with evidence and drafts, pipeline view, settings
 
@@ -50,7 +56,8 @@ If the targets are missed, fix the qualification and messaging before building v
 - [ ] Publish the SDK (MIT)
 - [ ] `packages/react` (MIT): lead list, lead detail, pipeline, and chat components
 - [ ] Integration guide, with the Vera & Co. admin as the reference Next.js integration
-- [ ] Streaming chat endpoint for talking to JARVIS in natural language
+- [ ] **Autonomous hunts:** saved targets (e.g. "dental clinics, Surabaya, capacity ≥ 60") that JARVIS runs on a schedule. It finds, audits, scores and drafts new leads on its own, then reports the best ones in a daily briefing, ready for a person to send.
+- [ ] Streaming chat endpoint for talking to JARVIS in natural language, e.g. _"find 20 dental clinics in Surabaya that need a new website"_
 - [ ] Instagram Business Discovery signals (optional)
 - [ ] Follow-up reminders (reminders only, never auto-sent) and an in-app daily briefing
 

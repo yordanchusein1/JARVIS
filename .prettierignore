@@ -1,0 +1,6 @@
+pnpm-lock.yaml
+LICENSE
+packages/core/drizzle/meta/
+packages/sdk/openapi.json
+packages/sdk/src/schema.d.ts
+.next/

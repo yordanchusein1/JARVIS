@@ -1,4 +1,10 @@
-import { createApiKey, connectDatabase, runMigrations } from '@jarvis/core';
+import {
+  createApiKey,
+  connectDatabase,
+  runMigrations,
+  schema,
+  type DraftWriter,
+} from '@jarvis/core';
 import { createJarvisClient } from '@jarvis/sdk';
 import { sql } from 'drizzle-orm';
 import { afterAll, beforeEach, describe, expect, it } from 'vitest';
@@ -10,7 +16,14 @@ if (!url) throw new Error('DATABASE_URL must point to a disposable test database
 await runMigrations(url);
 const { db, close } = connectDatabase(url);
 const queued: string[] = [];
-const { app } = createApp({ db, auditQueue: { enqueue: async (ids) => void queued.push(...ids) } });
+const auditQueue = { enqueue: async (ids: string[]) => void queued.push(...ids) };
+const draftWriter: DraftWriter = async () => ({
+  whatsapp: 'Halo dari Vera & Co',
+  emailSubject: 'Website Anda',
+  emailBody: 'Isi email',
+  model: 'test-model',
+});
+const { app } = createApp({ db, auditQueue, draftWriter });
 
 // The SDK talks to the app in-process, so these tests also cover the generated client.
 function client(apiKey: string) {
@@ -22,10 +35,13 @@ function client(apiKey: string) {
 }
 
 let jarvis = client('');
+let jarvisKey = '';
 
 beforeEach(async () => {
-  await db.execute(sql`TRUNCATE api_keys, businesses CASCADE`);
-  jarvis = client((await createApiKey(db, 'test')).key);
+  await db.execute(sql`TRUNCATE api_keys, businesses, agency_profile CASCADE`);
+  const key = (await createApiKey(db, 'test')).key;
+  jarvis = client(key);
+  jarvisKey = `Bearer ${key}`;
 });
 afterAll(() => close());
 
@@ -125,5 +141,66 @@ describe('businesses', () => {
     });
     expect(response.status).toBe(404);
     expect(error?.error.code).toBe('not_found');
+  });
+});
+
+describe('pipeline and drafts', () => {
+  async function trackedId() {
+    const { data } = await jarvis.POST('/businesses', { body: { websites: ['klinik.co.id'] } });
+    return data!.data[0]!.id;
+  }
+
+  it('moves a lead through the pipeline', async () => {
+    const id = await trackedId();
+    const { data } = await jarvis.PATCH('/businesses/{id}', {
+      params: { path: { id } },
+      body: { status: 'contacted' },
+    });
+    expect(data?.status).toBe('contacted');
+
+    const bad = await jarvis.PATCH('/businesses/{id}', {
+      params: { path: { id } },
+      body: { status: 'invented' as 'won' },
+    });
+    expect(bad.response.status).toBe(400);
+  });
+
+  it('stores the agency profile', async () => {
+    const { data } = await jarvis.PATCH('/agency-profile', {
+      body: { agencyName: 'Vera & Co', senderName: 'Yordan', services: 'Website' },
+    });
+    expect(data).toMatchObject({ agencyName: 'Vera & Co', language: 'id' });
+    expect((await jarvis.GET('/agency-profile')).data?.senderName).toBe('Yordan');
+  });
+
+  it('writes drafts only when the lead is ready', async () => {
+    const id = await trackedId();
+    const notReady = await jarvis.POST('/businesses/{id}/drafts', { params: { path: { id } } });
+    expect(notReady.response.status).toBe(409);
+    expect(notReady.error?.error.message).toContain('agency profile');
+
+    await jarvis.PATCH('/agency-profile', {
+      body: { agencyName: 'Vera & Co', senderName: 'Yordan', services: 'Website' },
+    });
+    await db.update(schema.audits).set({ status: 'succeeded', needScore: 50, capacityScore: 50 });
+
+    const { data, response } = await jarvis.POST('/businesses/{id}/drafts', {
+      params: { path: { id } },
+    });
+    expect(response.status).toBe(201);
+    expect(data?.data.map((d) => d.channel)).toEqual(['whatsapp', 'email']);
+
+    const { data: lead } = await jarvis.GET('/businesses/{id}', { params: { path: { id } } });
+    expect(lead?.drafts.map((d) => d.body)).toEqual(['Halo dari Vera & Co', 'Isi email']);
+  });
+
+  it('reports when no language model is configured', async () => {
+    const { app: bare } = createApp({ db, auditQueue });
+    const id = await trackedId();
+    const res = await bare.request(`/v1/businesses/${id}/drafts`, {
+      method: 'POST',
+      headers: { authorization: jarvisKey },
+    });
+    expect(res.status).toBe(503);
   });
 });

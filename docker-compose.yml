@@ -22,6 +22,8 @@ services:
     environment:
       DATABASE_URL: postgres://jarvis:${POSTGRES_PASSWORD:-jarvis}@postgres:5432/jarvis
       PORT: 8787
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      ANTHROPIC_MODEL: ${ANTHROPIC_MODEL:-claude-opus-5}
     depends_on:
       postgres:
         condition: service_healthy

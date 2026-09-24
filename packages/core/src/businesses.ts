@@ -70,3 +70,30 @@ export async function getBusiness(db: Database, id: string): Promise<Business | 
   const [row] = await db.select().from(businesses).where(eq(businesses.id, id));
   return row ?? null;
 }
+
+export type LeadStatus = Business['status'];
+
+/** Moves a lead through the pipeline (new → contacted → replied → meeting → won/lost). */
+export async function setLeadStatus(
+  db: Database,
+  id: string,
+  status: LeadStatus,
+): Promise<Business | null> {
+  return db.transaction(async (tx) => {
+    const [before] = await tx.select().from(businesses).where(eq(businesses.id, id));
+    if (!before) return null;
+    const [row] = await tx
+      .update(businesses)
+      .set({ status, updatedAt: new Date() })
+      .where(eq(businesses.id, id))
+      .returning();
+    if (before.status !== status) {
+      await tx.insert(activityLog).values({
+        businessId: id,
+        action: 'status.changed',
+        details: { from: before.status, to: status },
+      });
+    }
+    return row ?? null;
+  });
+}

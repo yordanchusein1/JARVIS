@@ -22,7 +22,7 @@ Each version must be usable on its own and must be used by Vera & Co. before the
 - [x] Docker Compose: postgres, api, worker, dashboard
 - [x] Worker process with a pg-boss job queue
 - [x] Database schema: tracked businesses, audits, signals and evidence, scores, contact channels, pipeline status, activity log, do-not-contact list
-- [ ] Drafts table (added together with drafting)
+- [x] Drafts table
 - [x] `/v1` API with an OpenAPI spec and API-key auth; the dashboard uses the SDK only
 
 **Pipeline**
@@ -32,9 +32,9 @@ Each version must be usable on its own and must be used by Vera & Co. before the
 - [x] Audit: PageSpeed Insights (mobile), HTTPS, viewport, outdated-site signals, contact or booking form, published contacts and social links; with SSRF protection and `robots.txt` handling
 - [x] Score: `need` and `capacity` with per-signal evidence, and priority ranking
 - [ ] Score: configurable weights and 👍/👎 feedback
-- [ ] Agency profile: name, services, tone, sender name
-- [ ] Draft: WhatsApp and email variants grounded only in the recorded evidence (Claude)
-- [ ] Act: copy, `wa.me`, `mailto:`, open-profile buttons; manual status (new → contacted → replied → meeting → won/lost)
+- [x] Agency profile: name, services, tone, sender name
+- [x] Draft: WhatsApp and email variants grounded only in the recorded evidence (Claude), with a warning for numbers the audit did not measure
+- [x] Act: copy, `wa.me`, `mailto:`, open-profile buttons; manual status (new → contacted → replied → meeting → won/lost)
 
 **Dashboard**
 

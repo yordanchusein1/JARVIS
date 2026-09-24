@@ -56,7 +56,8 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        patch?: never;
+        /** Update a lead, e.g. move it through the pipeline */
+        patch: operations["updateBusiness"];
         trace?: never;
     };
     "/businesses/{id}/audits": {
@@ -74,6 +75,44 @@ export interface paths {
         options?: never;
         head?: never;
         patch?: never;
+        trace?: never;
+    };
+    "/businesses/{id}/drafts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Write WhatsApp and email drafts from the latest audit
+         * @description Drafts cite only facts from the audit. JARVIS never sends them; a person reviews and sends each message.
+         */
+        post: operations["draftMessages"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/agency-profile": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get the agency's profile, used to write outreach in its name */
+        get: operations["getAgencyProfile"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update the agency's profile */
+        patch: operations["updateAgencyProfile"];
         trace?: never;
     };
 }
@@ -128,6 +167,8 @@ export interface components {
             /** @description Signals from the latest audit, strongest first */
             signals: components["schemas"]["Signal"][];
             contacts: components["schemas"]["Contact"][];
+            /** @description Latest draft per channel */
+            drafts: components["schemas"]["Draft"][];
         };
         Signal: {
             /** @enum {string} */
@@ -143,6 +184,34 @@ export interface components {
             kind: "email" | "phone" | "whatsapp" | "instagram" | "facebook" | "tiktok" | "linkedin" | "other";
             value: string;
             sourceUrl: string | null;
+        };
+        Draft: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            channel: "whatsapp" | "email";
+            subject: string | null;
+            body: string;
+            /** @description Automatic checks to review before sending, e.g. an unsupported number */
+            warnings: string[];
+            model: string;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        /** @enum {string} */
+        LeadStatus: "new" | "contacted" | "replied" | "meeting" | "won" | "lost";
+        AgencyProfile: {
+            agencyName: string;
+            senderName: string;
+            /** @description What the agency offers, in plain words */
+            services: string;
+            /** @example friendly and professional */
+            tone: string;
+            /**
+             * @description BCP 47 tag
+             * @example id
+             */
+            language: string;
         };
     };
     responses: never;
@@ -298,6 +367,52 @@ export interface operations {
             };
         };
     };
+    updateBusiness: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    status: components["schemas"]["LeadStatus"];
+                };
+            };
+        };
+        responses: {
+            /** @description The updated business */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Business"];
+                };
+            };
+            /** @description Missing or invalid API key */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description No business with this id */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
     auditBusiness: {
         parameters: {
             query?: never;
@@ -329,6 +444,149 @@ export interface operations {
             };
             /** @description No business with this id */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    draftMessages: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The new drafts */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["Draft"][];
+                    };
+                };
+            };
+            /** @description Missing or invalid API key */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description No business with this id */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Not ready: the agency profile is incomplete or the audit has not succeeded */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description The language model failed */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description No language model is configured */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    getAgencyProfile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The profile */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AgencyProfile"];
+                };
+            };
+            /** @description Missing or invalid API key */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    updateAgencyProfile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    agencyName?: string;
+                    senderName?: string;
+                    /** @description What the agency offers, in plain words */
+                    services?: string;
+                    /** @example friendly and professional */
+                    tone?: string;
+                    /**
+                     * @description BCP 47 tag
+                     * @example id
+                     */
+                    language?: string;
+                };
+            };
+        };
+        responses: {
+            /** @description The updated profile */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AgencyProfile"];
+                };
+            };
+            /** @description Missing or invalid API key */
+            401: {
                 headers: {
                     [name: string]: unknown;
                 };

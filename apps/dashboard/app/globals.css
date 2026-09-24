@@ -286,3 +286,63 @@ h2 {
   margin-bottom: 16px;
   color: var(--muted);
 }
+
+.brand {
+  text-decoration: none;
+}
+
+.nav {
+  display: flex;
+  gap: 16px;
+  font-size: 14px;
+}
+
+.nav a {
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.nav a:hover {
+  color: var(--text);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.button {
+  text-decoration: none;
+  display: inline-block;
+}
+
+.input.compact {
+  width: auto;
+  padding: 6px 8px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.drafts {
+  margin-bottom: 24px;
+}
+
+.draft-body {
+  white-space: pre-wrap;
+  margin: 0;
+  padding: 12px;
+  border-radius: 8px;
+  background: var(--bg);
+}
+
+.warning {
+  color: #b45309;
+  margin: 0;
+}

@@ -220,11 +220,19 @@
                 "items": {
                   "$ref": "#/components/schemas/Contact"
                 }
+              },
+              "drafts": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Draft"
+                },
+                "description": "Latest draft per channel"
               }
             },
             "required": [
               "signals",
-              "contacts"
+              "contacts",
+              "drafts"
             ]
           }
         ]
@@ -288,6 +296,102 @@
           "kind",
           "value",
           "sourceUrl"
+        ]
+      },
+      "Draft": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "channel": {
+            "type": "string",
+            "enum": [
+              "whatsapp",
+              "email"
+            ]
+          },
+          "subject": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "body": {
+            "type": "string"
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Automatic checks to review before sending, e.g. an unsupported number"
+          },
+          "model": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "channel",
+          "subject",
+          "body",
+          "warnings",
+          "model",
+          "createdAt"
+        ]
+      },
+      "LeadStatus": {
+        "type": "string",
+        "enum": [
+          "new",
+          "contacted",
+          "replied",
+          "meeting",
+          "won",
+          "lost"
+        ]
+      },
+      "AgencyProfile": {
+        "type": "object",
+        "properties": {
+          "agencyName": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "senderName": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "services": {
+            "type": "string",
+            "maxLength": 2000,
+            "description": "What the agency offers, in plain words"
+          },
+          "tone": {
+            "type": "string",
+            "maxLength": 200,
+            "example": "friendly and professional"
+          },
+          "language": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 35,
+            "example": "id",
+            "description": "BCP 47 tag"
+          }
+        },
+        "required": [
+          "agencyName",
+          "senderName",
+          "services",
+          "tone",
+          "language"
         ]
       }
     },
@@ -551,6 +655,79 @@
             }
           }
         }
+      },
+      "patch": {
+        "operationId": "updateBusiness",
+        "summary": "Update a lead, e.g. move it through the pipeline",
+        "tags": [
+          "Businesses"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "$ref": "#/components/schemas/LeadStatus"
+                  }
+                },
+                "required": [
+                  "status"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The updated business",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Business"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No business with this id",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/businesses/{id}/audits": {
@@ -599,6 +776,212 @@
           },
           "404": {
             "description": "No business with this id",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/businesses/{id}/drafts": {
+      "post": {
+        "operationId": "draftMessages",
+        "summary": "Write WhatsApp and email drafts from the latest audit",
+        "description": "Drafts cite only facts from the audit. JARVIS never sends them; a person reviews and sends each message.",
+        "tags": [
+          "Businesses"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "The new drafts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Draft"
+                      }
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No business with this id",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Not ready: the agency profile is incomplete or the audit has not succeeded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "The language model failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "No language model is configured",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agency-profile": {
+      "get": {
+        "operationId": "getAgencyProfile",
+        "summary": "Get the agency's profile, used to write outreach in its name",
+        "tags": [
+          "Agency"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The profile",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgencyProfile"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "operationId": "updateAgencyProfile",
+        "summary": "Update the agency's profile",
+        "tags": [
+          "Agency"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "agencyName": {
+                    "type": "string",
+                    "maxLength": 200
+                  },
+                  "senderName": {
+                    "type": "string",
+                    "maxLength": 200
+                  },
+                  "services": {
+                    "type": "string",
+                    "maxLength": 2000,
+                    "description": "What the agency offers, in plain words"
+                  },
+                  "tone": {
+                    "type": "string",
+                    "maxLength": 200,
+                    "example": "friendly and professional"
+                  },
+                  "language": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 35,
+                    "example": "id",
+                    "description": "BCP 47 tag"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The updated profile",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgencyProfile"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key",
             "content": {
               "application/json": {
                 "schema": {

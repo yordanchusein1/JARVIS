@@ -4,12 +4,23 @@ import type { components } from '@jarvis/sdk';
 import { getJarvis } from '@/lib/jarvis';
 import { AutoRefresh } from '../../auto-refresh';
 import { AuditStatus, isAuditPending, Score } from '../../components';
-import { reauditAction } from './actions';
+import { reauditAction, statusAction } from './actions';
+import { DraftButton } from './draft-button';
+import { DraftCard } from './drafts';
 
 export const dynamic = 'force-dynamic';
 
 type Signal = components['schemas']['Signal'];
 type Contact = components['schemas']['Contact'];
+
+const STATUSES = [
+  ['new', 'New'],
+  ['contacted', 'Contacted'],
+  ['replied', 'Replied'],
+  ['meeting', 'Meeting'],
+  ['won', 'Won'],
+  ['lost', 'Lost'],
+] as const;
 
 const CONTACT_LABELS: Record<Contact['kind'], string> = {
   email: 'Email',
@@ -77,6 +88,7 @@ export default async function LeadPage({ params }: { params: Promise<{ id: strin
   const audit = lead.latestAudit;
   const pending = isAuditPending(audit);
   const reaudit = reauditAction.bind(null, lead.id);
+  const updateStatus = statusAction.bind(null, lead.id);
 
   return (
     <>
@@ -93,11 +105,29 @@ export default async function LeadPage({ params }: { params: Promise<{ id: strin
             </a>
           )}
         </div>
-        <form action={reaudit}>
-          <button type="submit" className="button secondary" disabled={pending}>
-            {pending ? 'Audit in progress…' : 'Audit again'}
-          </button>
-        </form>
+        <div className="actions">
+          {/* Keyed by status: React resets forms after an action, which would show the old value. */}
+          <form key={lead.status} action={updateStatus} className="actions">
+            <label className="muted small" htmlFor="status">
+              Pipeline
+            </label>
+            <select id="status" name="status" className="input compact" defaultValue={lead.status}>
+              {STATUSES.map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
+            </select>
+            <button type="submit" className="button secondary">
+              Update
+            </button>
+          </form>
+          <form action={reaudit}>
+            <button type="submit" className="button secondary" disabled={pending}>
+              {pending ? 'Audit in progress…' : 'Audit again'}
+            </button>
+          </form>
+        </div>
       </header>
 
       <section className="stats">
@@ -141,6 +171,21 @@ export default async function LeadPage({ params }: { params: Promise<{ id: strin
             empty="No signs of an established business found on the website."
           />
         </div>
+      )}
+
+      {audit?.status === 'succeeded' && (
+        <section className="drafts">
+          <div className="section-header">
+            <h2>Outreach</h2>
+            <DraftButton id={lead.id} hasDrafts={lead.drafts.length > 0} />
+          </div>
+          <p className="muted small">
+            JARVIS never sends anything. Review each message, then send it yourself.
+          </p>
+          {lead.drafts.map((d) => (
+            <DraftCard key={d.id} draft={d} contacts={lead.contacts} />
+          ))}
+        </section>
       )}
 
       <section className="card">

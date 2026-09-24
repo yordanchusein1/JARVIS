@@ -1,6 +1,8 @@
 import { z } from '@hono/zod-openapi';
 import type {
+  AgencyProfile,
   Audit,
+  Draft,
   Business,
   ContactChannel,
   LeadDetail,
@@ -18,6 +20,7 @@ export const ErrorSchema = z
   })
   .openapi('Error');
 
+const LEAD_STATUSES = ['new', 'contacted', 'replied', 'meeting', 'won', 'lost'] as const;
 const score = z.number().int().min(0).max(100).nullable();
 
 export const AuditSchema = z
@@ -40,7 +43,7 @@ export const BusinessSchema = z
     placeId: z.string().nullable(),
     websiteUrl: z.string().nullable().openapi({ example: 'https://klinik.co.id/' }),
     displayName: z.string().nullable(),
-    status: z.enum(['new', 'contacted', 'replied', 'meeting', 'won', 'lost']),
+    status: z.enum(LEAD_STATUSES),
     priority: score.openapi({
       description: 'Geometric mean of the latest need and capacity scores',
     }),
@@ -78,11 +81,58 @@ export const ContactSchema = z
   })
   .openapi('Contact');
 
+export const DraftSchema = z
+  .object({
+    id: z.uuid(),
+    channel: z.enum(['whatsapp', 'email']),
+    subject: z.string().nullable(),
+    body: z.string(),
+    warnings: z.array(z.string()).openapi({
+      description: 'Automatic checks to review before sending, e.g. an unsupported number',
+    }),
+    model: z.string(),
+    createdAt: z.iso.datetime(),
+  })
+  .openapi('Draft');
+
+export const LeadStatusSchema = z.enum(LEAD_STATUSES).openapi('LeadStatus');
+
+export const AgencyProfileSchema = z
+  .object({
+    agencyName: z.string().max(200),
+    senderName: z.string().max(200),
+    services: z
+      .string()
+      .max(2000)
+      .openapi({ description: 'What the agency offers, in plain words' }),
+    tone: z.string().max(200).openapi({ example: 'friendly and professional' }),
+    language: z.string().min(2).max(35).openapi({ example: 'id', description: 'BCP 47 tag' }),
+  })
+  .openapi('AgencyProfile');
+
+export function toDraftDto(draft: Draft): z.infer<typeof DraftSchema> {
+  return {
+    id: draft.id,
+    channel: draft.channel,
+    subject: draft.subject,
+    body: draft.body,
+    warnings: draft.warnings,
+    model: draft.model,
+    createdAt: draft.createdAt.toISOString(),
+  };
+}
+
+export function toAgencyProfileDto(profile: AgencyProfile): z.infer<typeof AgencyProfileSchema> {
+  const { updatedAt: _updatedAt, ...fields } = profile;
+  return fields;
+}
+
 export const BusinessDetailSchema = BusinessSchema.extend({
   signals: z
     .array(SignalSchema)
     .openapi({ description: 'Signals from the latest audit, strongest first' }),
   contacts: z.array(ContactSchema),
+  drafts: z.array(DraftSchema).openapi({ description: 'Latest draft per channel' }),
 }).openapi('BusinessDetail');
 
 export function toAuditDto(audit: Audit): z.infer<typeof AuditSchema> {
@@ -119,8 +169,12 @@ export function toBusinessDto(lead: LeadSummary): z.infer<typeof BusinessSchema>
   };
 }
 
-export function toBusinessDetailDto(lead: LeadDetail): z.infer<typeof BusinessDetailSchema> {
+export function toBusinessDetailDto(
+  lead: LeadDetail,
+  drafts: Draft[],
+): z.infer<typeof BusinessDetailSchema> {
   return {
+    drafts: drafts.map(toDraftDto),
     ...toBusinessDto(lead),
     signals: lead.signals.map((s: Signal) => ({
       axis: s.axis,

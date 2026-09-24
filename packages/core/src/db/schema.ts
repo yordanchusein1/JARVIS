@@ -143,3 +143,36 @@ export const doNotContact = pgTable(
   },
   (t) => [unique('do_not_contact_kind_value').on(t.kind, t.value)],
 );
+
+// A single row describing the agency, used to write outreach in its name and voice.
+export const agencyProfile = pgTable('agency_profile', {
+  id: text('id').primaryKey().default('default'),
+  agencyName: text('agency_name').notNull().default(''),
+  senderName: text('sender_name').notNull().default(''),
+  services: text('services').notNull().default(''),
+  tone: text('tone').notNull().default('friendly and professional'),
+  // Language drafts are written in, as a BCP 47 tag such as "id" or "en".
+  language: text('language').notNull().default('id'),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const draftChannel = pgEnum('draft_channel', ['whatsapp', 'email']);
+
+export const drafts = pgTable(
+  'drafts',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    businessId: uuid('business_id')
+      .notNull()
+      .references(() => businesses.id, { onDelete: 'cascade' }),
+    auditId: uuid('audit_id').references(() => audits.id, { onDelete: 'set null' }),
+    channel: draftChannel('channel').notNull(),
+    subject: text('subject'),
+    body: text('body').notNull(),
+    // Automatic checks a person should look at before sending, e.g. a number not backed by evidence.
+    warnings: text('warnings').array().notNull().default([]),
+    model: text('model').notNull(),
+    createdAt: createdAt(),
+  },
+  (t) => [index('drafts_business_id_idx').on(t.businessId)],
+);

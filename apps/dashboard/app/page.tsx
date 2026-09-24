@@ -42,6 +42,7 @@ export default async function LeadsPage() {
                 <th className="num">Need</th>
                 <th className="num">Capacity</th>
                 <th>Audit</th>
+                <th>Pipeline</th>
               </tr>
             </thead>
             <tbody>
@@ -67,6 +68,7 @@ export default async function LeadsPage() {
                   <td>
                     <AuditStatus audit={b.latestAudit} />
                   </td>
+                  <td className="muted">{b.status}</td>
                 </tr>
               ))}
             </tbody>

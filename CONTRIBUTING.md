@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for your interest in JARVIS! The project is in its planning phase, so ideas and feedback in issues are the most useful contributions right now.
+Thanks for your interest in Arclight! The project is in its planning phase, so ideas and feedback in issues are the most useful contributions right now.
 
 ## Before you contribute code
 

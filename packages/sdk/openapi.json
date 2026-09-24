@@ -1,9 +1,9 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "JARVIS API",
+    "title": "Arclight API",
     "version": "0.1.0",
-    "description": "HTTP API of the JARVIS engine. Call it from your server with an API key; never expose the key to browsers.",
+    "description": "HTTP API of the Arclight engine. Call it from your server with an API key; never expose the key to browsers.",
     "license": {
       "name": "AGPL-3.0-only",
       "identifier": "AGPL-3.0-only"
@@ -272,7 +272,7 @@
           "ratingCount",
           "mapsUrl"
         ],
-        "description": "Live data from Google Places. Google does not allow storing it, so it is never saved by JARVIS."
+        "description": "Live data from Google Places. Google does not allow storing it, so it is never saved by Arclight."
       },
       "BusinessDetail": {
         "allOf": [
@@ -1237,7 +1237,7 @@
       "post": {
         "operationId": "draftMessages",
         "summary": "Write WhatsApp and email drafts from the latest audit",
-        "description": "Drafts cite only facts from the audit. JARVIS never sends them; a person reviews and sends each message.",
+        "description": "Drafts cite only facts from the audit. Arclight never sends them; a person reviews and sends each message.",
         "tags": [
           "Businesses"
         ],
@@ -1495,7 +1495,7 @@
                             ]
                           }
                         ],
-                        "description": "Live data from Google Places. Google does not allow storing it, so it is never saved by JARVIS."
+                        "description": "Live data from Google Places. Google does not allow storing it, so it is never saved by Arclight."
                       }
                     }
                   },

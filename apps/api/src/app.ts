@@ -5,7 +5,7 @@ import {
   type Database,
   type DraftWriter,
   type PlacesClient,
-} from '@jarvis/core';
+} from '@arclight/core';
 import { createMiddleware } from 'hono/factory';
 import { createRouter, type AppEnv } from './router.ts';
 import { agencyRoutes } from './routes/agency.ts';
@@ -27,10 +27,10 @@ const PUBLIC_PATHS = new Set(['/v1/health', '/v1/openapi.json']);
 export const openApiInfo = {
   openapi: '3.1.0',
   info: {
-    title: 'JARVIS API',
+    title: 'Arclight API',
     version: '0.1.0',
     description:
-      'HTTP API of the JARVIS engine. Call it from your server with an API key; never expose the key to browsers.',
+      'HTTP API of the Arclight engine. Call it from your server with an API key; never expose the key to browsers.',
     license: { name: 'AGPL-3.0-only', identifier: 'AGPL-3.0-only' },
   },
 };

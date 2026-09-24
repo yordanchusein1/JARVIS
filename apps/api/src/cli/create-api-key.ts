@@ -1,4 +1,4 @@
-import { connectDatabase, createApiKey, runMigrations } from '@jarvis/core';
+import { connectDatabase, createApiKey, runMigrations } from '@arclight/core';
 
 const name = process.argv[2];
 const url = process.env.DATABASE_URL;

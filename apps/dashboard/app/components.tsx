@@ -1,4 +1,4 @@
-import type { Business } from '@jarvis/sdk';
+import type { Business } from '@arclight/sdk';
 
 export function Score({ value, label }: { value: number | null; label: string }) {
   if (value === null) return <span className="muted">—</span>;

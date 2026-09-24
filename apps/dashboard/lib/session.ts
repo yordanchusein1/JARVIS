@@ -3,7 +3,7 @@
  * runs in the proxy as well as in server components and actions.
  */
 
-export const SESSION_COOKIE = 'jarvis_session';
+export const SESSION_COOKIE = 'arclight_session';
 export const SESSION_TTL_SECONDS = 7 * 24 * 60 * 60;
 
 const encoder = new TextEncoder();

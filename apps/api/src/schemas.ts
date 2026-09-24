@@ -8,7 +8,7 @@ import type {
   LeadDetail,
   LeadSummary,
   Signal,
-} from '@jarvis/core';
+} from '@arclight/core';
 
 export const ErrorSchema = z
   .object({
@@ -212,7 +212,7 @@ export const PlaceSchema = z
   })
   .openapi('Place', {
     description:
-      'Live data from Google Places. Google does not allow storing it, so it is never saved by JARVIS.',
+      'Live data from Google Places. Google does not allow storing it, so it is never saved by Arclight.',
   });
 
 export const DoNotContactSchema = z

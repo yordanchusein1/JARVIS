@@ -1,5 +1,5 @@
 import { createRoute, z } from '@hono/zod-openapi';
-import { schema, type Database, type PlacesClient } from '@jarvis/core';
+import { schema, type Database, type PlacesClient } from '@arclight/core';
 import { inArray } from 'drizzle-orm';
 import { createRouter } from '../router.ts';
 import { ErrorSchema, PlaceSchema } from '../schemas.ts';

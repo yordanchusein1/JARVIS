@@ -12,7 +12,7 @@ Each version must be usable on its own and must be used by Vera & Co. before the
 | ---- | --------------------------------------------------------------------------- | ---------------------------------------------- |
 | 1    | Foundation, URL import, website audit, lead list and detail with evidence   | Audit any prospect's website from a pasted URL |
 | 2    | Scoring, agency profile, drafts, action buttons, manual status              | End-to-end outreach from pasted URLs           |
-| 3    | Places live search, CSV import, do-not-contact list, 👍/👎 feedback         | Find new prospects without leaving JARVIS      |
+| 3    | Places live search, CSV import, do-not-contact list, 👍/👎 feedback         | Find new prospects without leaving Arclight    |
 | 4    | Buffer: hardening, deployment on the Vera & Co. server, fixes from real use | v0.1 in daily use                              |
 
 **Foundation**
@@ -52,20 +52,20 @@ If the targets are missed, fix the qualification and messaging before building v
 
 ## v0.2: Embed in any website
 
-**Goal:** JARVIS runs inside the Vera & Co. admin panel (Next.js).
+**Goal:** Arclight runs inside the Vera & Co. admin panel (Next.js).
 
 - [ ] Publish the SDK (MIT)
 - [ ] `packages/react` (MIT): lead list, lead detail, pipeline, and chat components
 - [ ] Integration guide, with the Vera & Co. admin as the reference Next.js integration
-- [ ] **Autonomous hunts:** saved targets (e.g. "dental clinics, Surabaya, capacity ≥ 60") that JARVIS runs on a schedule. It finds, audits, scores and drafts new leads on its own, then reports the best ones in a daily briefing, ready for a person to send.
-- [ ] **MCP server** (`apps/mcp`, MIT): exposes JARVIS as tools (search prospects, track, get lead with evidence, write drafts, update pipeline) so any AI agent (Claude, Hermes Agent and others) can use JARVIS as its lead generation skill. It uses the same public API and API keys, and never sends messages (D4, D10)
-- [ ] Streaming chat endpoint for talking to JARVIS in natural language, e.g. _"find 20 dental clinics in Surabaya that need a new website"_
+- [ ] **Autonomous hunts:** saved targets (e.g. "dental clinics, Surabaya, capacity ≥ 60") that Arclight runs on a schedule. It finds, audits, scores and drafts new leads on its own, then reports the best ones in a daily briefing, ready for a person to send.
+- [ ] **MCP server** (`apps/mcp`, MIT): exposes Arclight as tools (search prospects, track, get lead with evidence, write drafts, update pipeline) so any AI agent (Claude, Hermes Agent and others) can use Arclight as its lead generation skill. It uses the same public API and API keys, and never sends messages (D4, D10)
+- [ ] Streaming chat endpoint for talking to Arclight in natural language, e.g. _"find 20 dental clinics in Surabaya that need a new website"_
 - [ ] Instagram Business Discovery signals, including capacity for businesses without a website (D9)
 - [ ] Follow-up reminders (reminders only, never auto-sent) and an in-app daily briefing
 
 ## v0.3: Open to other agencies
 
-**Goal:** agencies other than web agencies can use JARVIS productively.
+**Goal:** agencies other than web agencies can use Arclight productively.
 
 - [ ] Extract plugin interfaces (sources, qualifiers, channels) and document how to write plugins
 - [ ] Qualifiers for marketing and SEO agencies

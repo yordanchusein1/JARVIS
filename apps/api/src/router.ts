@@ -1,5 +1,5 @@
 import { OpenAPIHono } from '@hono/zod-openapi';
-import type { ApiKey } from '@jarvis/core';
+import type { ApiKey } from '@arclight/core';
 
 export interface AppEnv {
   Variables: { apiKey: ApiKey };

@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { getJarvis } from '@/lib/jarvis';
+import { getArclight } from '@/lib/arclight';
 import { trackPlacesAction } from './actions';
 
 export const dynamic = 'force-dynamic';
@@ -10,13 +10,14 @@ export default async function FindPage({
   searchParams: Promise<{ q?: string }>;
 }) {
   const { q = '' } = await searchParams;
-  const jarvis = await getJarvis();
-  if (!jarvis) return <p className="error">The dashboard is not connected to the JARVIS API.</p>;
+  const arclight = await getArclight();
+  if (!arclight)
+    return <p className="error">The dashboard is not connected to the Arclight API.</p>;
 
   const query = q.trim();
   const result =
     query.length >= 2
-      ? await jarvis.GET('/places/search', { params: { query: { q: query } } })
+      ? await arclight.GET('/places/search', { params: { query: { q: query } } })
       : null;
   const places = result?.data?.data ?? [];
 
@@ -42,7 +43,7 @@ export default async function FindPage({
           </button>
         </div>
         <p className="muted small">
-          Results come live from Google Maps. JARVIS stores only the Google place ID of the
+          Results come live from Google Maps. Arclight stores only the Google place ID of the
           businesses you pick, as Google&apos;s terms require.
         </p>
       </form>

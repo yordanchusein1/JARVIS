@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { getJarvis } from '@/lib/jarvis';
+import { getArclight } from '@/lib/arclight';
 import { AutoRefresh } from './auto-refresh';
 import { AuditStatus, isAuditPending, Score } from './components';
 import { CsvForm } from './csv-form';
@@ -8,20 +8,20 @@ import { TrackForm } from './track-form';
 export const dynamic = 'force-dynamic';
 
 export default async function LeadsPage() {
-  const jarvis = await getJarvis();
-  if (!jarvis) {
+  const arclight = await getArclight();
+  if (!arclight) {
     return (
       <div className="card">
         <h1>Connect the dashboard</h1>
         <p>
-          Set <code>JARVIS_API_URL</code> and <code>JARVIS_API_KEY</code>. Create a key with{' '}
+          Set <code>Arclight_API_URL</code> and <code>Arclight_API_KEY</code>. Create a key with{' '}
           <code>pnpm api-key:create dashboard</code>.
         </p>
       </div>
     );
   }
 
-  const { data, error } = await jarvis.GET('/businesses', { params: { query: { limit: 100 } } });
+  const { data, error } = await arclight.GET('/businesses', { params: { query: { limit: 100 } } });
   const leads = data?.data ?? [];
 
   return (

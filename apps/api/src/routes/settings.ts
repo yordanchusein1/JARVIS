@@ -9,7 +9,7 @@ import {
   updateScoringWeights,
   type Database,
   type DoNotContactEntry,
-} from '@jarvis/core';
+} from '@arclight/core';
 import { createRouter } from '../router.ts';
 import { DoNotContactSchema, ErrorSchema, SignalInsightSchema } from '../schemas.ts';
 

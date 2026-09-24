@@ -1,7 +1,7 @@
 'use client';
 
 import { useActionState } from 'react';
-import type { components } from '@jarvis/sdk';
+import type { components } from '@arclight/sdk';
 import { addDoNotContactAction, saveWeightsAction, type ProfileState } from './actions';
 
 type Insight = components['schemas']['SignalInsight'];

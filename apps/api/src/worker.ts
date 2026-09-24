@@ -8,7 +8,7 @@ import {
   runMigrations,
   startJobQueue,
   type AuditJob,
-} from '@jarvis/core';
+} from '@arclight/core';
 import { z } from 'zod';
 
 const env = z
@@ -48,7 +48,7 @@ await boss.work<AuditJob>(
   },
 );
 console.log(
-  `JARVIS worker processing "${AUDIT_QUEUE}" jobs (concurrency ${env.AUDIT_CONCURRENCY})`,
+  `Arclight worker processing "${AUDIT_QUEUE}" jobs (concurrency ${env.AUDIT_CONCURRENCY})`,
 );
 
 async function shutdown() {

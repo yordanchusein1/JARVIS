@@ -2,7 +2,7 @@ import robotsParser from 'robots-parser';
 import { USER_AGENT, type PageFetcher } from './safe-fetch.ts';
 
 /**
- * Checks whether the site's robots.txt lets JARVIS fetch `url`. A missing or unreadable
+ * Checks whether the site's robots.txt lets Arclight fetch `url`. A missing or unreadable
  * robots.txt means everything is allowed, as for search engines.
  */
 export async function isAllowedByRobots(fetchPage: PageFetcher, url: string): Promise<boolean> {

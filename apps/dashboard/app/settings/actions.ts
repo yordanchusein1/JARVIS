@@ -1,7 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { getJarvis } from '@/lib/jarvis';
+import { getArclight } from '@/lib/arclight';
 
 export interface ProfileState {
   message?: string;
@@ -12,11 +12,11 @@ export async function saveProfileAction(
   _prev: ProfileState,
   form: FormData,
 ): Promise<ProfileState> {
-  const jarvis = await getJarvis();
-  if (!jarvis) return { error: 'The dashboard is not connected to the JARVIS API.' };
+  const arclight = await getArclight();
+  if (!arclight) return { error: 'The dashboard is not connected to the Arclight API.' };
   const field = (name: string) => String(form.get(name) ?? '').trim();
 
-  const { error } = await jarvis.PATCH('/agency-profile', {
+  const { error } = await arclight.PATCH('/agency-profile', {
     body: {
       agencyName: field('agencyName'),
       senderName: field('senderName'),
@@ -34,10 +34,10 @@ export async function addDoNotContactAction(
   _prev: ProfileState,
   form: FormData,
 ): Promise<ProfileState> {
-  const jarvis = await getJarvis();
-  if (!jarvis) return { error: 'The dashboard is not connected to the JARVIS API.' };
+  const arclight = await getArclight();
+  if (!arclight) return { error: 'The dashboard is not connected to the Arclight API.' };
   const kind = String(form.get('kind')) as 'domain' | 'email' | 'phone';
-  const { error } = await jarvis.POST('/do-not-contact', {
+  const { error } = await arclight.POST('/do-not-contact', {
     body: {
       kind,
       value: String(form.get('value') ?? ''),
@@ -50,9 +50,9 @@ export async function addDoNotContactAction(
 }
 
 export async function removeDoNotContactAction(id: string): Promise<void> {
-  const jarvis = await getJarvis();
-  if (!jarvis) throw new Error('The dashboard is not connected to the JARVIS API.');
-  await jarvis.DELETE('/do-not-contact/{id}', { params: { path: { id } } });
+  const arclight = await getArclight();
+  if (!arclight) throw new Error('The dashboard is not connected to the Arclight API.');
+  await arclight.DELETE('/do-not-contact/{id}', { params: { path: { id } } });
   revalidatePath('/settings');
 }
 
@@ -60,8 +60,8 @@ export async function saveWeightsAction(
   _prev: ProfileState,
   form: FormData,
 ): Promise<ProfileState> {
-  const jarvis = await getJarvis();
-  if (!jarvis) return { error: 'The dashboard is not connected to the JARVIS API.' };
+  const arclight = await getArclight();
+  if (!arclight) return { error: 'The dashboard is not connected to the Arclight API.' };
   const weights: Record<string, number> = {};
   for (const [name, value] of form.entries()) {
     if (!name.startsWith('weight:')) continue;
@@ -71,7 +71,7 @@ export async function saveWeightsAction(
       weights[key] = Math.max(0, Math.min(100, points));
     }
   }
-  const { error } = await jarvis.PUT('/scoring/weights', { body: { weights } });
+  const { error } = await arclight.PUT('/scoring/weights', { body: { weights } });
   if (error) return { error: error.error.message };
   revalidatePath('/settings');
   revalidatePath('/');

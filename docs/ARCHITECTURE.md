@@ -4,10 +4,10 @@
 
 ## Overview
 
-JARVIS is a **headless engine**: a standalone service with a versioned HTTP API. Every user interface, including JARVIS's own dashboard, is a client of that API.
+Arclight is a **headless engine**: a standalone service with a versioned HTTP API. Every user interface, including Arclight's own dashboard, is a client of that API.
 
 ```
-┌──────────────────────────── JARVIS (this repository) ────────────────────────────┐
+┌──────────────────────────── Arclight (this repository) ────────────────────────────┐
 │                                                                                  │
 │  apps/api  (Hono)  ──enqueue──►  pg-boss queue  ──►  apps/api worker process     │
 │   /v1/* + OpenAPI                                    audit · score · draft       │
@@ -27,7 +27,7 @@ JARVIS is a **headless engine**: a standalone service with a versioned HTTP API.
 ## Repository layout
 
 ```
-JARVIS/
+Arclight/
 ├── apps/
 │   ├── api/          # Hono HTTP server (/v1, OpenAPI) and worker entrypoint
 │   └── dashboard/    # Next.js built-in dashboard
@@ -55,7 +55,7 @@ JARVIS/
 
 **Not used:** scraping Google Maps, Instagram, Facebook, TikTok or LinkedIn, which is against their terms, and the Meta Ad Library API, which covers only political ads and ads delivered in the EU, so it is of little use for Indonesian businesses.
 
-> This is our reading of the providers' terms, not legal advice. Anyone deploying JARVIS is responsible for their own compliance.
+> This is our reading of the providers' terms, not legal advice. Anyone deploying Arclight is responsible for their own compliance.
 
 ## Lead pipeline
 
@@ -63,7 +63,7 @@ JARVIS/
 search/import ─► track (place_id or URL) ─► audit ─► score ─► draft ─► human sends ─► status
 ```
 
-1. **Track.** The user selects results to track. JARVIS resolves each one's website: live through Places, or directly from the pasted URL.
+1. **Track.** The user selects results to track. Arclight resolves each one's website: live through Places, or directly from the pasted URL.
 2. **Audit** (background job):
    - PageSpeed Insights (mobile): performance score and Core Web Vitals.
    - HTTPS, a mobile viewport, and signs of an outdated site (old copyright year, legacy libraries).
@@ -74,14 +74,14 @@ search/import ─► track (place_id or URL) ─► audit ─► score ─► dr
 4. **Draft.** The LLM writes WhatsApp and email variants grounded **only** in the recorded evidence and the agency profile (services, tone, sender name).
 5. **Act.** The UI offers copy, `wa.me`, `mailto:` and open-profile links. The user sends the message and updates the status. The system sends nothing.
 
-## Embedding JARVIS in any website
+## Embedding Arclight in any website
 
 ```
-Browser (staff) ──session──► Your website's backend ──API key (server-side only)──► JARVIS /v1
+Browser (staff) ──session──► Your website's backend ──API key (server-side only)──► Arclight /v1
 ```
 
-1. Run JARVIS as a separate service (Docker) next to your website.
-2. Your backend authenticates your staff as usual, then calls JARVIS using a server-side API key. The key must never reach the browser.
+1. Run Arclight as a separate service (Docker) next to your website.
+2. Your backend authenticates your staff as usual, then calls Arclight using a server-side API key. The key must never reach the browser.
 3. Your frontend renders your own UI, or `@…/react` components from v0.2 onwards.
 
 Integration options, in order of availability:

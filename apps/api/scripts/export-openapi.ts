@@ -1,6 +1,6 @@
 // Writes the OpenAPI document to packages/sdk so the SDK types can be generated from it.
 import { writeFileSync } from 'node:fs';
-import type { AuditQueue, Database } from '@jarvis/core';
+import type { AuditQueue, Database } from '@arclight/core';
 import { createApp, openApiInfo } from '../src/app.ts';
 
 // Building the document never touches the database or the queue.

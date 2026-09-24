@@ -1,16 +1,18 @@
-# Local and single-server deployment. Ports are bound to 127.0.0.1; to expose JARVIS, put a reverse
+# Local and single-server deployment. Ports are bound to 127.0.0.1; to expose Arclight, put a reverse
 # proxy with HTTPS in front of the dashboard (the session cookie is marked Secure).
+name: arclight
+
 services:
   postgres:
     image: postgres:16-alpine
     environment:
-      POSTGRES_USER: jarvis
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-jarvis}
-      POSTGRES_DB: jarvis
+      POSTGRES_USER: arclight
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-arclight}
+      POSTGRES_DB: arclight
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U jarvis -d jarvis']
+      test: ['CMD-SHELL', 'pg_isready -U arclight -d arclight']
       interval: 5s
       timeout: 5s
       retries: 10
@@ -20,7 +22,7 @@ services:
       context: .
       target: api
     environment:
-      DATABASE_URL: postgres://jarvis:${POSTGRES_PASSWORD:-jarvis}@postgres:5432/jarvis
+      DATABASE_URL: postgres://arclight:${POSTGRES_PASSWORD:-arclight}@postgres:5432/arclight
       PORT: 8787
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
       ANTHROPIC_MODEL: ${ANTHROPIC_MODEL:-claude-opus-5}
@@ -37,7 +39,7 @@ services:
       target: api
     command: ['tsx', 'src/worker.ts']
     environment:
-      DATABASE_URL: postgres://jarvis:${POSTGRES_PASSWORD:-jarvis}@postgres:5432/jarvis
+      DATABASE_URL: postgres://arclight:${POSTGRES_PASSWORD:-arclight}@postgres:5432/arclight
       GOOGLE_API_KEY: ${GOOGLE_API_KEY:-}
       AUDIT_CONCURRENCY: ${AUDIT_CONCURRENCY:-3}
       DEFAULT_COUNTRY_CODE: ${DEFAULT_COUNTRY_CODE:-62}
@@ -50,8 +52,8 @@ services:
       context: .
       target: dashboard
     environment:
-      JARVIS_API_URL: http://api:8787
-      JARVIS_API_KEY: ${JARVIS_API_KEY:-}
+      Arclight_API_URL: http://api:8787
+      Arclight_API_KEY: ${Arclight_API_KEY:-}
       DASHBOARD_PASSWORD: ${DASHBOARD_PASSWORD:-}
       SESSION_SECRET: ${SESSION_SECRET:-}
     depends_on:

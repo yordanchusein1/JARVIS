@@ -1,4 +1,4 @@
-import { getJarvis } from '@/lib/jarvis';
+import { getArclight } from '@/lib/arclight';
 import { removeDoNotContactAction } from './actions';
 import { DoNotContactForm, WeightsForm } from './lists';
 import { ProfileForm } from './profile-form';
@@ -6,12 +6,13 @@ import { ProfileForm } from './profile-form';
 export const dynamic = 'force-dynamic';
 
 export default async function SettingsPage() {
-  const jarvis = await getJarvis();
-  if (!jarvis) return <p className="error">The dashboard is not connected to the JARVIS API.</p>;
+  const arclight = await getArclight();
+  if (!arclight)
+    return <p className="error">The dashboard is not connected to the Arclight API.</p>;
   const [{ data, error }, dnc, insights] = await Promise.all([
-    jarvis.GET('/agency-profile'),
-    jarvis.GET('/do-not-contact'),
-    jarvis.GET('/scoring/signals'),
+    arclight.GET('/agency-profile'),
+    arclight.GET('/do-not-contact'),
+    arclight.GET('/scoring/signals'),
   ]);
   if (!data) return <p className="error">Could not load the profile: {error?.error.message}</p>;
 
@@ -19,14 +20,14 @@ export default async function SettingsPage() {
     <>
       <h1>Agency profile</h1>
       <p className="muted">
-        JARVIS writes outreach in your agency&apos;s name and voice using this profile.
+        Arclight writes outreach in your agency&apos;s name and voice using this profile.
       </p>
       <ProfileForm profile={data} />
 
       <h1>Do not contact</h1>
       <p className="muted">
-        Businesses that asked not to be contacted. JARVIS never tracks, shows or writes messages for
-        them.
+        Businesses that asked not to be contacted. Arclight never tracks, shows or writes messages
+        for them.
       </p>
       <section className="card">
         <DoNotContactForm />

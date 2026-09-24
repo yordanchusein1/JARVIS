@@ -6,7 +6,7 @@ import { logoutAction } from './login/actions';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'JARVIS',
+  title: 'Arclight',
   description: 'AI Chief of Staff for agencies',
 };
 
@@ -17,7 +17,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
       <body>
         <header className="topbar">
           <Link href="/" className="brand">
-            JARVIS
+            Arclight
           </Link>
           {signedIn && (
             <nav className="nav">

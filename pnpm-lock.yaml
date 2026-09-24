@@ -35,15 +35,15 @@ importers:
 
   apps/api:
     dependencies:
+      '@arclight/core':
+        specifier: workspace:*
+        version: link:../../packages/core
       '@hono/node-server':
         specifier: ^2.1.1
         version: 2.1.1(hono@4.13.9)
       '@hono/zod-openapi':
         specifier: ^1.6.3
         version: 1.6.3(hono@4.13.9)(zod@4.6.5)
-      '@jarvis/core':
-        specifier: workspace:*
-        version: link:../../packages/core
       drizzle-orm:
         specifier: ^0.45.3
         version: 0.45.3(pg@8.23.0)(postgres@3.4.9)
@@ -57,13 +57,13 @@ importers:
         specifier: ^4.6.5
         version: 4.6.5
     devDependencies:
-      '@jarvis/sdk':
+      '@arclight/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
 
   apps/dashboard:
     dependencies:
-      '@jarvis/sdk':
+      '@arclight/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
       next:

@@ -29,7 +29,7 @@ export async function runMigrations(url: string): Promise<void> {
   // A single connection, so the session-level lock covers every migration query.
   const sql = postgres(url, { max: 1, onnotice: () => {} });
   try {
-    await sql`select pg_advisory_lock(hashtext('jarvis:migrations'))`;
+    await sql`select pg_advisory_lock(hashtext('arclight:migrations'))`;
     await migrate(drizzle(sql), { migrationsFolder });
   } finally {
     await sql.end();

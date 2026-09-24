@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import type { components } from '@jarvis/sdk';
-import { getJarvis } from '@/lib/jarvis';
+import type { components } from '@arclight/sdk';
+import { getArclight } from '@/lib/arclight';
 import { AutoRefresh } from '../../auto-refresh';
 import { AuditStatus, isAuditPending, Score } from '../../components';
 import { doNotContactAction, feedbackAction, reauditAction, statusAction } from './actions';
@@ -76,18 +76,18 @@ function SignalList({
 
 export default async function LeadPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const jarvis = await getJarvis();
-  if (!jarvis) notFound();
+  const arclight = await getArclight();
+  if (!arclight) notFound();
 
-  const { data: lead, response } = await jarvis.GET('/businesses/{id}', {
+  const { data: lead, response } = await arclight.GET('/businesses/{id}', {
     params: { path: { id } },
   });
   if (response.status === 404 || response.status === 400) notFound();
-  if (!lead) throw new Error('Could not load this lead from the JARVIS API.');
+  if (!lead) throw new Error('Could not load this lead from the Arclight API.');
 
   // Live Google details for businesses found through Places search. Never stored (Google's terms).
   const place = lead.placeId
-    ? (await jarvis.GET('/businesses/{id}/place', { params: { path: { id } } })).data
+    ? (await arclight.GET('/businesses/{id}/place', { params: { path: { id } } })).data
     : undefined;
   // A Google-listed phone number can be used to reach businesses without their own website.
   const contacts =
@@ -163,7 +163,7 @@ export default async function LeadPage({ params }: { params: Promise<{ id: strin
 
       {lead.doNotContact && (
         <p className="banner">
-          This business is on the do-not-contact list. JARVIS will not write messages for it.
+          This business is on the do-not-contact list. Arclight will not write messages for it.
         </p>
       )}
 
@@ -221,7 +221,7 @@ export default async function LeadPage({ params }: { params: Promise<{ id: strin
             <DraftButton id={lead.id} hasDrafts={lead.drafts.length > 0} />
           </div>
           <p className="muted small">
-            JARVIS never sends anything. Review each message, then send it yourself.
+            Arclight never sends anything. Review each message, then send it yourself.
           </p>
           {!lead.doNotContact &&
             lead.drafts.map((d) => <DraftCard key={d.id} draft={d} contacts={contacts} />)}

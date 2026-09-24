@@ -118,7 +118,7 @@ export async function runAudit(
           axis: 'need',
           key: 'unreachable',
           points: 40,
-          evidence: 'The website could not be loaded when JARVIS visited it.',
+          evidence: 'The website could not be loaded when Arclight visited it.',
           data: { error: describeError(reason) },
         });
       }

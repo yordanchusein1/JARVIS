@@ -2,7 +2,7 @@ import { lookup as dnsLookup, type LookupAddress } from 'node:dns';
 import { BlockList, isIP } from 'node:net';
 import { Agent, fetch } from 'undici';
 
-export const USER_AGENT = 'JARVIS-Audit/0.1 (+https://github.com/yordanchusein1/JARVIS)';
+export const USER_AGENT = 'Arclight-Audit/0.1 (+https://github.com/yordanchusein1/JARVIS)';
 
 export class UnsafeTargetError extends Error {
   override name = 'UnsafeTargetError';

@@ -1,5 +1,5 @@
 {
-  "name": "jarvis",
+  "name": "arclight",
   "private": true,
   "license": "AGPL-3.0-only",
   "type": "module",
@@ -8,13 +8,13 @@
     "node": ">=22.12.0"
   },
   "scripts": {
-    "dev:api": "pnpm --filter @jarvis/api dev",
-    "dev:worker": "pnpm --filter @jarvis/api dev:worker",
-    "dev:dashboard": "pnpm --filter @jarvis/dashboard dev",
-    "db:generate": "pnpm --filter @jarvis/core db:generate",
-    "db:migrate": "pnpm --filter @jarvis/core db:migrate",
-    "api-key:create": "pnpm --filter @jarvis/api api-key:create",
-    "sdk:generate": "pnpm --filter @jarvis/api openapi:export && pnpm --filter @jarvis/sdk generate",
+    "dev:api": "pnpm --filter @arclight/api dev",
+    "dev:worker": "pnpm --filter @arclight/api dev:worker",
+    "dev:dashboard": "pnpm --filter @arclight/dashboard dev",
+    "db:generate": "pnpm --filter @arclight/core db:generate",
+    "db:migrate": "pnpm --filter @arclight/core db:migrate",
+    "api-key:create": "pnpm --filter @arclight/api api-key:create",
+    "sdk:generate": "pnpm --filter @arclight/api openapi:export && pnpm --filter @arclight/sdk generate",
     "typecheck": "pnpm -r typecheck",
     "lint": "eslint .",
     "format": "prettier --write .",

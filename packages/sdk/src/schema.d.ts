@@ -145,7 +145,7 @@ export interface paths {
         put?: never;
         /**
          * Write WhatsApp and email drafts from the latest audit
-         * @description Drafts cite only facts from the audit. JARVIS never sends them; a person reviews and sends each message.
+         * @description Drafts cite only facts from the audit. Arclight never sends them; a person reviews and sends each message.
          */
         post: operations["draftMessages"];
         delete?: never;
@@ -314,7 +314,7 @@ export interface components {
                 details?: unknown;
             };
         };
-        /** @description Live data from Google Places. Google does not allow storing it, so it is never saved by JARVIS. */
+        /** @description Live data from Google Places. Google does not allow storing it, so it is never saved by Arclight. */
         Place: {
             placeId: string;
             name: string | null;

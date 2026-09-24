@@ -19,8 +19,8 @@ describe('isAllowedByRobots', () => {
     ).toBe(false);
   });
 
-  it('honours a rule aimed at JARVIS', async () => {
-    const body = 'User-agent: JARVIS-Audit\nDisallow: /\n\nUser-agent: *\nAllow: /';
+  it('honours a rule aimed at Arclight', async () => {
+    const body = 'User-agent: Arclight-Audit\nDisallow: /\n\nUser-agent: *\nAllow: /';
     expect(await isAllowedByRobots(robots(200, body), 'https://a.id/')).toBe(false);
   });
 

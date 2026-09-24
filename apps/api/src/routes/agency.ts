@@ -1,5 +1,5 @@
 import { createRoute, z } from '@hono/zod-openapi';
-import { getAgencyProfile, updateAgencyProfile, type Database } from '@jarvis/core';
+import { getAgencyProfile, updateAgencyProfile, type Database } from '@arclight/core';
 import { createRouter } from '../router.ts';
 import { AgencyProfileSchema, ErrorSchema, toAgencyProfileDto } from '../schemas.ts';
 

@@ -6,7 +6,7 @@ import {
   pgBossAuditQueue,
   runMigrations,
   startJobQueue,
-} from '@jarvis/core';
+} from '@arclight/core';
 import { z } from 'zod';
 import { createApp } from './app.ts';
 
@@ -34,7 +34,7 @@ if (!places) console.warn('GOOGLE_API_KEY is not set; Google Places search is di
 
 const { app } = createApp({ db, auditQueue: pgBossAuditQueue(boss), draftWriter, places });
 const server = serve({ fetch: app.fetch, port: env.PORT }, ({ port }) => {
-  console.log(`JARVIS API listening on http://localhost:${port}/v1`);
+  console.log(`Arclight API listening on http://localhost:${port}/v1`);
 });
 
 function shutdown() {

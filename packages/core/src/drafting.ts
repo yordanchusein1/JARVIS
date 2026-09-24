@@ -105,7 +105,7 @@ export function createClaudeDraftWriter({
 
 /**
  * Numbers in a draft that appear nowhere in the evidence or agency profile. A draft that cites a
- * number JARVIS never measured may be making something up, so the person sending it is warned.
+ * number Arclight never measured may be making something up, so the person sending it is warned.
  */
 export function unsupportedNumbers(text: string, sources: string[]): string[] {
   const known = new Set(sources.flatMap((s) => s.match(/\d+(?:[.,]\d+)?/g) ?? []));

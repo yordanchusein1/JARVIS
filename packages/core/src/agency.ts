@@ -35,7 +35,7 @@ export async function updateAgencyProfile(
   return profile;
 }
 
-/** Fields that must be filled in before JARVIS can write outreach in the agency's name. */
+/** Fields that must be filled in before Arclight can write outreach in the agency's name. */
 export function missingProfileFields(profile: AgencyProfile): string[] {
   return (['agencyName', 'senderName', 'services'] as const).filter((k) => !profile[k].trim());
 }

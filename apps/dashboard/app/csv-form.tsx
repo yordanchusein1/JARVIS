@@ -12,7 +12,7 @@ export function CsvForm() {
       </label>
       <input id="csv" name="csv" type="file" accept=".csv,text/csv" required />
       <p className="muted small">
-        JARVIS reads the column named website, url or domain (or any cell that looks like a
+        Arclight reads the column named website, url or domain (or any cell that looks like a
         website).
       </p>
       <button type="submit" className="button secondary" disabled={pending}>

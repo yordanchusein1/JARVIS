@@ -1,5 +1,5 @@
 {
-  "name": "@jarvis/dashboard",
+  "name": "@arclight/dashboard",
   "version": "0.0.0",
   "private": true,
   "license": "AGPL-3.0-only",
@@ -12,7 +12,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@jarvis/sdk": "workspace:*",
+    "@arclight/sdk": "workspace:*",
     "next": "^16.3.6",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",

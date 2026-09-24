@@ -21,7 +21,7 @@ export const leadStatus = pgEnum('lead_status', [
   'lost',
 ]);
 
-// How a business entered JARVIS. For `places`, only the place_id may be stored (see docs/DECISIONS.md, D3).
+// How a business entered Arclight. For `places`, only the place_id may be stored (see docs/DECISIONS.md, D3).
 export const businessSource = pgEnum('business_source', ['url', 'csv', 'places']);
 
 export const auditStatus = pgEnum('audit_status', ['queued', 'running', 'succeeded', 'failed']);

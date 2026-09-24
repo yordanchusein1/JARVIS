@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { SESSION_COOKIE, sessionSecret, verifySessionToken } from './lib/session';
 
 // Optimistic check that keeps signed-out visitors on the sign-in page. Every server-side call to
-// the JARVIS API checks the session again (lib/jarvis.ts), so this is not the only line of defence.
+// the Arclight API checks the session again (lib/arclight.ts), so this is not the only line of defence.
 export async function proxy(request: NextRequest) {
   const signedIn = await verifySessionToken(
     request.cookies.get(SESSION_COOKIE)?.value,

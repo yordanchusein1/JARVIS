@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import type { components } from '@jarvis/sdk';
+import type { components } from '@arclight/sdk';
 
 type Draft = components['schemas']['Draft'];
 type Contact = components['schemas']['Contact'];

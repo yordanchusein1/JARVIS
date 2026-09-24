@@ -78,7 +78,7 @@ describe('createSafeFetcher', () => {
     expect(page.status).toBe(200);
     expect(page.url).toBe(`http://public.test:${port}/final`);
     expect(page.redirects).toHaveLength(2);
-    expect(page.body).toContain('JARVIS-Audit');
+    expect(page.body).toContain('Arclight-Audit');
   });
 
   it('refuses hosts that resolve to blocked addresses', async () => {

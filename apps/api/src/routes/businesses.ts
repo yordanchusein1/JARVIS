@@ -16,7 +16,7 @@ import {
   type Database,
   type DraftWriter,
   type PlacesClient,
-} from '@jarvis/core';
+} from '@arclight/core';
 import { createRouter } from '../router.ts';
 import {
   AuditSchema,
@@ -174,7 +174,7 @@ const draftRoute = createRoute({
   operationId: 'draftMessages',
   summary: 'Write WhatsApp and email drafts from the latest audit',
   description:
-    'Drafts cite only facts from the audit. JARVIS never sends them; a person reviews and sends each message.',
+    'Drafts cite only facts from the audit. Arclight never sends them; a person reviews and sends each message.',
   tags,
   security,
   request: { params: idParam },

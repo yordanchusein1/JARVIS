@@ -33,7 +33,7 @@ sudo ufw enable
 ## 3. Start Arclight
 
 ```sh
-git clone https://github.com/yordanchusein1/JARVIS arclight
+git clone https://github.com/yordanchusein1/arclight arclight
 cd arclight
 cp .env.example .env
 nano .env   # fill in the values; POSTGRES_PASSWORD is required on a server

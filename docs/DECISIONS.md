@@ -92,6 +92,6 @@ _2026-09-24 · Accepted_
 
 _2026-09-24 · Accepted_
 
-**Decision:** The project, formerly developed under the codename JARVIS, is called Arclight. Packages are `@arclight/*` and API keys start with `arc_`. The GitHub repository keeps its current URL until it is renamed; GitHub redirects old links.
+**Decision:** The project, formerly developed under the codename JARVIS, is called Arclight. Packages are `@arclight/*` and API keys start with `arc_`. The GitHub repository was renamed to `arclight`; GitHub redirects old links.
 
 **Why:** "JARVIS" is a Marvel trademark and impossible to search for. Arclight keeps the spirit of an always-on assistant (the light of an arc reactor) without borrowing anyone's brand.

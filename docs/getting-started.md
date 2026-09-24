@@ -53,7 +53,7 @@ Arclight uses two Google APIs: **Places API (New)** to search Google Maps, and *
 ## 4. Download Arclight
 
 ```sh
-git clone https://github.com/yordanchusein1/JARVIS arclight
+git clone https://github.com/yordanchusein1/arclight arclight
 cd arclight
 ```
 
@@ -157,4 +157,4 @@ Your data lives in a Docker volume and survives restarts and updates. `docker co
 | "The language model could not write drafts" | Check your Anthropic key and credits. `docker compose logs api` shows the exact error.                                           |
 | An audit says "Audit failed"                | Open the lead to read the reason. Websites that point to private network addresses are refused on purpose.                       |
 
-Still stuck? [Open an issue](https://github.com/yordanchusein1/JARVIS/issues) with what you did and what you saw.
+Still stuck? [Open an issue](https://github.com/yordanchusein1/arclight/issues) with what you did and what you saw.

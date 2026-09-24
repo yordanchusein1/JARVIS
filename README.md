@@ -21,7 +21,7 @@
 </p>
 
 > [!NOTE]
-> **Early access.** Arclight is used today by one agency ([Vera & Co.](docs/VISION.md#origin)) and is changing quickly. Expect rough edges, and please [report them](https://github.com/yordanchusein1/JARVIS/issues).
+> **Early access.** Arclight is used today by one agency ([Vera & Co.](docs/VISION.md#origin)) and is changing quickly. Expect rough edges, and please [report them](https://github.com/yordanchusein1/arclight/issues).
 
 ![The Arclight dashboard: a list of leads ranked by priority, need and capacity](docs/images/leads.png)
 
@@ -48,7 +48,7 @@
 You need [Docker](https://docs.docker.com/get-docker/), a [Google Cloud API key](docs/getting-started.md#2-create-a-google-cloud-api-key) and an [Anthropic API key](docs/getting-started.md#3-create-an-anthropic-api-key).
 
 ```sh
-git clone https://github.com/yordanchusein1/JARVIS arclight && cd arclight
+git clone https://github.com/yordanchusein1/arclight arclight && cd arclight
 cp .env.example .env    # fill in the keys, DASHBOARD_PASSWORD and SESSION_SECRET
 docker compose up -d --build
 ```

@@ -42,6 +42,63 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/businesses/import": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Start tracking the websites listed in a CSV export
+         * @description Uses the column headed website, url or domain, or else every cell that looks like a website. At most 1000 websites per import.
+         */
+        post: operations["importBusinessesCsv"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/businesses/places": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Start tracking businesses picked from a Google Places search
+         * @description Only the Google place ID is stored. New businesses are queued for an audit.
+         */
+        post: operations["trackPlaces"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/businesses/{id}/place": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Live Google Places details of a business added from a Places search */
+        get: operations["getBusinessPlace"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/businesses/{id}": {
         parameters: {
             query?: never;
@@ -115,6 +172,95 @@ export interface paths {
         patch: operations["updateAgencyProfile"];
         trace?: never;
     };
+    "/places/search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Search Google Places for prospects, e.g. "klinik gigi Surabaya"
+         * @description Results come live from Google and are not stored. `businessId` is set when a result is already tracked.
+         */
+        get: operations["searchPlaces"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/do-not-contact": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Domains, emails and phone numbers that must never be contacted */
+        get: operations["listDoNotContact"];
+        put?: never;
+        /** Add a domain, email or phone number to the do-not-contact list */
+        post: operations["addDoNotContact"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/do-not-contact/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Remove an entry from the do-not-contact list */
+        delete: operations["removeDoNotContact"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scoring/signals": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Every signal seen so far, with its weight and how it relates to 👍/👎 feedback */
+        get: operations["listSignalInsights"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scoring/weights": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Replace the points of signals and recalculate all scores */
+        put: operations["updateScoringWeights"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -130,6 +276,11 @@ export interface components {
             displayName: string | null;
             /** @enum {string} */
             status: "new" | "contacted" | "replied" | "meeting" | "won" | "lost";
+            /**
+             * @description A person rated this lead 👍 or 👎
+             * @enum {string|null}
+             */
+            feedback: "good" | "bad" | null;
             /** @description Geometric mean of the latest need and capacity scores */
             priority: number | null;
             latestAudit: components["schemas"]["Audit"];
@@ -163,12 +314,25 @@ export interface components {
                 details?: unknown;
             };
         };
+        /** @description Live data from Google Places. Google does not allow storing it, so it is never saved by JARVIS. */
+        Place: {
+            placeId: string;
+            name: string | null;
+            address: string | null;
+            websiteUrl: string | null;
+            phone: string | null;
+            rating: number | null;
+            ratingCount: number | null;
+            mapsUrl: string | null;
+        };
         BusinessDetail: components["schemas"]["Business"] & {
             /** @description Signals from the latest audit, strongest first */
             signals: components["schemas"]["Signal"][];
             contacts: components["schemas"]["Contact"][];
             /** @description Latest draft per channel */
             drafts: components["schemas"]["Draft"][];
+            /** @description The website's domain is on the do-not-contact list */
+            doNotContact: boolean;
         };
         Signal: {
             /** @enum {string} */
@@ -212,6 +376,26 @@ export interface components {
              * @example id
              */
             language: string;
+        };
+        DoNotContact: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            kind: "domain" | "email" | "phone";
+            value: string;
+            reason: string | null;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        SignalInsight: {
+            key: string;
+            /** @enum {string} */
+            axis: "need" | "capacity";
+            defaultPoints: number;
+            points: number;
+            leads: number;
+            good: number;
+            bad: number;
         };
     };
     responses: never;
@@ -296,6 +480,12 @@ export interface operations {
                      *     ]
                      */
                     websites: string[];
+                    /**
+                     * @description Where the list came from
+                     * @default url
+                     * @enum {string}
+                     */
+                    source?: "url" | "csv";
                 };
             };
         };
@@ -318,6 +508,157 @@ export interface operations {
             };
             /** @description Missing or invalid API key */
             401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    importBusinessesCsv: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    csv: string;
+                };
+            };
+        };
+        responses: {
+            /** @description The tracked businesses */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["Business"][];
+                        created: number;
+                        skipped: {
+                            input: string;
+                            reason: string;
+                        }[];
+                    };
+                };
+            };
+            /** @description No websites found, or too many */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Missing or invalid API key */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    trackPlaces: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    placeIds: string[];
+                };
+            };
+        };
+        responses: {
+            /** @description The tracked businesses */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["Business"][];
+                        created: number;
+                        skipped: {
+                            input: string;
+                            reason: string;
+                        }[];
+                    };
+                };
+            };
+            /** @description Missing or invalid API key */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    getBusinessPlace: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Live place details (not stored) */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Place"];
+                };
+            };
+            /** @description Missing or invalid API key */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description No business with this id */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Google Places failed */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Google Places is not configured */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -379,7 +720,9 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": {
-                    status: components["schemas"]["LeadStatus"];
+                    status?: components["schemas"]["LeadStatus"];
+                    /** @enum {string|null} */
+                    feedback?: "good" | "bad" | null;
                 };
             };
         };
@@ -584,6 +927,242 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["AgencyProfile"];
                 };
+            };
+            /** @description Missing or invalid API key */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    searchPlaces: {
+        parameters: {
+            query: {
+                q: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Matching places */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: (components["schemas"]["Place"] & {
+                            /** Format: uuid */
+                            businessId: string | null;
+                        })[];
+                    };
+                };
+            };
+            /** @description Missing or invalid API key */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Google Places failed */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Google Places is not configured */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    listDoNotContact: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The list */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["DoNotContact"][];
+                    };
+                };
+            };
+            /** @description Missing or invalid API key */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    addDoNotContact: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @enum {string} */
+                    kind: "domain" | "email" | "phone";
+                    value: string;
+                    reason?: string;
+                };
+            };
+        };
+        responses: {
+            /** @description The entry */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DoNotContact"];
+                };
+            };
+            /** @description Invalid value */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Missing or invalid API key */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    removeDoNotContact: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Removed */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid API key */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description No such entry */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    listSignalInsights: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Signals */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["SignalInsight"][];
+                    };
+                };
+            };
+            /** @description Missing or invalid API key */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    updateScoringWeights: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    weights: {
+                        [key: string]: number;
+                    };
+                };
+            };
+        };
+        responses: {
+            /** @description Saved; scores were recalculated */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Missing or invalid API key */
             401: {

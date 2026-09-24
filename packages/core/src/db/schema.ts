@@ -39,6 +39,9 @@ export const contactKind = pgEnum('contact_kind', [
   'other',
 ]);
 
+// A person's judgement of a lead, used to calibrate scoring.
+export const leadFeedback = pgEnum('lead_feedback', ['good', 'bad']);
+
 export const doNotContactKind = pgEnum('do_not_contact_kind', ['domain', 'email', 'phone']);
 
 export const apiKeys = pgTable('api_keys', {
@@ -62,6 +65,7 @@ export const businesses = pgTable('businesses', {
   // Name as published on the business's own website, never copied from Google.
   displayName: text('display_name'),
   status: leadStatus('status').notNull().default('new'),
+  feedback: leadFeedback('feedback'),
   createdAt: createdAt(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 });
@@ -153,6 +157,8 @@ export const agencyProfile = pgTable('agency_profile', {
   tone: text('tone').notNull().default('friendly and professional'),
   // Language drafts are written in, as a BCP 47 tag such as "id" or "en".
   language: text('language').notNull().default('id'),
+  // Points per signal key that replace the built-in defaults, e.g. { "no_https": 10 }.
+  scoringWeights: jsonb('scoring_weights').$type<Record<string, number>>().notNull().default({}),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 });
 

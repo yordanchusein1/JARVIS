@@ -346,3 +346,24 @@ h2 {
   color: #b45309;
   margin: 0;
 }
+
+.grow {
+  flex: 1;
+  min-width: 200px;
+}
+
+.feedback .button.active {
+  border-color: var(--accent);
+}
+
+.banner {
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: 1px solid var(--error);
+  color: var(--error);
+  margin-bottom: 16px;
+}
+
+.weights input {
+  width: 5em;
+}

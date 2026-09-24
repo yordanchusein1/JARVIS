@@ -10,6 +10,7 @@ const DEFAULTS: AgencyProfile = {
   services: '',
   tone: 'friendly and professional',
   language: 'id',
+  scoringWeights: {},
   updatedAt: new Date(0),
 };
 

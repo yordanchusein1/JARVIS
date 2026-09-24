@@ -1,6 +1,7 @@
 import { desc, eq, inArray } from 'drizzle-orm';
 import type { Database } from './db/client.ts';
 import { activityLog, businesses } from './db/schema.ts';
+import { domainOfKey, findDoNotContact } from './do-not-contact.ts';
 import { InvalidWebsiteError, normalizeWebsite } from './website.ts';
 
 export type Business = typeof businesses.$inferSelect;
@@ -34,6 +35,18 @@ export async function trackWebsites(
     } catch (error) {
       if (!(error instanceof InvalidWebsiteError)) throw error;
       skipped.push({ input, reason: error.message });
+    }
+  }
+
+  const blocked = new Set(
+    (await findDoNotContact(db, { domains: [...byKey.keys()].map((k) => domainOfKey(k)!) })).map(
+      (e) => e.value,
+    ),
+  );
+  for (const [key, url] of byKey) {
+    if (blocked.has(domainOfKey(key)!)) {
+      byKey.delete(key);
+      skipped.push({ input: url, reason: 'On the do-not-contact list' });
     }
   }
 
@@ -96,4 +109,50 @@ export async function setLeadStatus(
     }
     return row ?? null;
   });
+}
+
+/** Starts tracking businesses picked from a Google Places search. Only the place ID is stored. */
+export async function trackPlaces(db: Database, placeIds: string[]): Promise<TrackWebsitesResult> {
+  const ids = [...new Set(placeIds.map((id) => id.trim()).filter(Boolean))];
+  if (ids.length === 0) return { businesses: [], createdIds: [], skipped: [] };
+
+  return db.transaction(async (tx) => {
+    const created = await tx
+      .insert(businesses)
+      .values(ids.map((placeId) => ({ source: 'places' as const, placeId })))
+      .onConflictDoNothing({ target: businesses.placeId })
+      .returning({ id: businesses.id });
+    if (created.length > 0) {
+      await tx.insert(activityLog).values(
+        created.map((b) => ({
+          businessId: b.id,
+          action: 'business.tracked',
+          details: { source: 'places' },
+        })),
+      );
+    }
+    const rows = await tx.select().from(businesses).where(inArray(businesses.placeId, ids));
+    return { businesses: rows, createdIds: created.map((b) => b.id), skipped: [] };
+  });
+}
+
+export type LeadFeedback = NonNullable<Business['feedback']>;
+
+/** Records whether a person thinks this is a good lead, to calibrate scoring. */
+export async function setLeadFeedback(
+  db: Database,
+  id: string,
+  feedback: LeadFeedback | null,
+): Promise<Business | null> {
+  const [row] = await db
+    .update(businesses)
+    .set({ feedback, updatedAt: new Date() })
+    .where(eq(businesses.id, id))
+    .returning();
+  if (row) {
+    await db
+      .insert(activityLog)
+      .values({ businessId: id, action: 'feedback.set', details: { feedback } });
+  }
+  return row ?? null;
 }

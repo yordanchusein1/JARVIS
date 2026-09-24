@@ -2,6 +2,7 @@ import { serve } from '@hono/node-server';
 import {
   connectDatabase,
   createClaudeDraftWriter,
+  createPlacesClient,
   pgBossAuditQueue,
   runMigrations,
   startJobQueue,
@@ -15,6 +16,7 @@ const env = z
     PORT: z.coerce.number().int().default(8787),
     ANTHROPIC_API_KEY: z.string().optional(),
     ANTHROPIC_MODEL: z.string().default('claude-opus-5'),
+    GOOGLE_API_KEY: z.string().optional(),
   })
   .parse(process.env);
 
@@ -27,7 +29,10 @@ const draftWriter = env.ANTHROPIC_API_KEY
   : undefined;
 if (!draftWriter) console.warn('ANTHROPIC_API_KEY is not set; drafting is disabled.');
 
-const { app } = createApp({ db, auditQueue: pgBossAuditQueue(boss), draftWriter });
+const places = env.GOOGLE_API_KEY ? createPlacesClient(env.GOOGLE_API_KEY) : undefined;
+if (!places) console.warn('GOOGLE_API_KEY is not set; Google Places search is disabled.');
+
+const { app } = createApp({ db, auditQueue: pgBossAuditQueue(boss), draftWriter, places });
 const server = serve({ fetch: app.fetch, port: env.PORT }, ({ port }) => {
   console.log(`JARVIS API listening on http://localhost:${port}/v1`);
 });

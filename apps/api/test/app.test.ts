@@ -4,6 +4,7 @@ import {
   runMigrations,
   schema,
   type DraftWriter,
+  type PlacesClient,
 } from '@jarvis/core';
 import { createJarvisClient } from '@jarvis/sdk';
 import { sql } from 'drizzle-orm';
@@ -23,7 +24,34 @@ const draftWriter: DraftWriter = async () => ({
   emailBody: 'Isi email',
   model: 'test-model',
 });
-const { app } = createApp({ db, auditQueue, draftWriter });
+const places: PlacesClient = {
+  searchText: async () => [
+    {
+      placeId: 'ChIJ1',
+      name: 'Klinik A',
+      address: 'Surabaya',
+      websiteUrl: 'https://a.co.id/',
+      phone: null,
+      rating: 4.8,
+      ratingCount: 812,
+      mapsUrl: null,
+    },
+  ],
+  getPlace: async (id) =>
+    id === 'ChIJ1'
+      ? {
+          placeId: 'ChIJ1',
+          name: 'Klinik A',
+          address: 'Surabaya',
+          websiteUrl: 'https://a.co.id/',
+          phone: '+62311',
+          rating: 4.8,
+          ratingCount: 812,
+          mapsUrl: null,
+        }
+      : null,
+};
+const { app } = createApp({ db, auditQueue, draftWriter, places });
 
 // The SDK talks to the app in-process, so these tests also cover the generated client.
 function client(apiKey: string) {
@@ -38,7 +66,7 @@ let jarvis = client('');
 let jarvisKey = '';
 
 beforeEach(async () => {
-  await db.execute(sql`TRUNCATE api_keys, businesses, agency_profile CASCADE`);
+  await db.execute(sql`TRUNCATE api_keys, businesses, agency_profile, do_not_contact CASCADE`);
   const key = (await createApiKey(db, 'test')).key;
   jarvis = client(key);
   jarvisKey = `Bearer ${key}`;
@@ -202,5 +230,77 @@ describe('pipeline and drafts', () => {
       headers: { authorization: jarvisKey },
     });
     expect(res.status).toBe(503);
+  });
+});
+
+describe('week 3', () => {
+  it('searches Google Places live and tracks picked places by ID', async () => {
+    const search = await jarvis.GET('/places/search', { params: { query: { q: 'klinik gigi' } } });
+    expect(search.data?.data[0]).toMatchObject({
+      placeId: 'ChIJ1',
+      businessId: null,
+      ratingCount: 812,
+    });
+
+    const { data } = await jarvis.POST('/businesses/places', { body: { placeIds: ['ChIJ1'] } });
+    expect(data?.created).toBe(1);
+    const business = data!.data[0]!;
+    expect(business).toMatchObject({ source: 'places', placeId: 'ChIJ1', websiteUrl: null });
+
+    const again = await jarvis.GET('/places/search', { params: { query: { q: 'klinik gigi' } } });
+    expect(again.data?.data[0]?.businessId).toBe(business.id);
+
+    const live = await jarvis.GET('/businesses/{id}/place', {
+      params: { path: { id: business.id } },
+    });
+    expect(live.data).toMatchObject({ name: 'Klinik A', phone: '+62311' });
+  });
+
+  it('imports websites from CSV', async () => {
+    const { data } = await jarvis.POST('/businesses/import', {
+      body: { csv: 'Nama,Website\nKlinik A,klinik-a.co.id\nKlinik B,klinik-b.co.id\n' },
+    });
+    expect(data?.created).toBe(2);
+    expect(data?.data.every((b) => b.source === 'csv')).toBe(true);
+    const empty = await jarvis.POST('/businesses/import', { body: { csv: 'Nama\nKlinik' } });
+    expect(empty.response.status).toBe(400);
+  });
+
+  it('manages the do-not-contact list', async () => {
+    const bad = await jarvis.POST('/do-not-contact', { body: { kind: 'email', value: 'nope' } });
+    expect(bad.response.status).toBe(400);
+
+    const { data: entry } = await jarvis.POST('/do-not-contact', {
+      body: { kind: 'domain', value: 'https://www.klinik.co.id', reason: 'Asked us to stop' },
+    });
+    expect(entry).toMatchObject({ kind: 'domain', value: 'klinik.co.id' });
+
+    const tracked = await jarvis.POST('/businesses', {
+      body: { websites: ['klinik.co.id'], source: 'csv' },
+    });
+    expect(tracked.data?.skipped[0]?.reason).toBe('On the do-not-contact list');
+
+    const removed = await jarvis.DELETE('/do-not-contact/{id}', {
+      params: { path: { id: entry!.id } },
+    });
+    expect(removed.response.status).toBe(204);
+    expect((await jarvis.GET('/do-not-contact')).data?.data).toEqual([]);
+  });
+
+  it('records feedback and updates scoring weights', async () => {
+    const { data } = await jarvis.POST('/businesses', { body: { websites: ['klinik.co.id'] } });
+    const id = data!.data[0]!.id;
+    const rated = await jarvis.PATCH('/businesses/{id}', {
+      params: { path: { id } },
+      body: { feedback: 'good' },
+    });
+    expect(rated.data).toMatchObject({ feedback: 'good', status: 'new' });
+
+    const empty = await jarvis.PATCH('/businesses/{id}', { params: { path: { id } }, body: {} });
+    expect(empty.response.status).toBe(400);
+
+    const saved = await jarvis.PUT('/scoring/weights', { body: { weights: { no_https: 5 } } });
+    expect(saved.response.status).toBe(204);
+    expect((await jarvis.GET('/scoring/signals')).data?.data).toEqual([]);
   });
 });

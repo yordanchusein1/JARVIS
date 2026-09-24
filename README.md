@@ -50,12 +50,12 @@ Find ──► Audit ──► Score ──► Draft ──► ✋ You send it �
 
 ## Getting started
 
-> Work in progress (v0.1, week 2). Add prospects by website address; JARVIS audits each website, scores the lead and writes WhatsApp and email drafts that you review and send yourself. Finding prospects through Google Places comes next.
+> Work in progress (v0.1, week 3). Find prospects on Google Maps, paste websites or import a CSV; JARVIS audits and scores each lead and writes WhatsApp and email drafts that you review and send yourself. Next: sign-in and deployment.
 
 ### With Docker
 
 ```sh
-cp .env.example .env              # set ANTHROPIC_API_KEY and PAGESPEED_API_KEY
+cp .env.example .env              # set ANTHROPIC_API_KEY and GOOGLE_API_KEY
 docker compose up -d --build
 # Create an API key for the dashboard and start it with the key
 JARVIS_API_KEY=$(docker compose exec -T api tsx src/cli/create-api-key.ts dashboard | tail -1)

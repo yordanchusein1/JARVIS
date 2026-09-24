@@ -80,7 +80,7 @@ describe('runAudit', () => {
     const lead = await getLead(db, businessId);
     expect(lead?.signals.map((s) => s.key)).toEqual(['unreachable']);
     expect(lead?.latestAudit?.notes).toEqual([
-      'Speed checks were skipped because no PageSpeed Insights API key is configured.',
+      'Speed checks were skipped because no Google API key is configured.',
     ]);
   });
 

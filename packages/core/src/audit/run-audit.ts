@@ -1,25 +1,49 @@
-import { and, eq, isNull } from 'drizzle-orm';
+import { and, eq, isNull, ne } from 'drizzle-orm';
+import { getAgencyProfile } from '../agency.ts';
 import type { Database } from '../db/client.ts';
 import { activityLog, audits, businesses, contactChannels, signals } from '../db/schema.ts';
 import { analyzePage, type PageAnalysis } from './page-checks.ts';
 import { pageSpeedSignals, type PageSpeedClient } from './pagespeed.ts';
 import { isAllowedByRobots } from './robots.ts';
 import { UnsafeTargetError, type PageFetcher } from './safe-fetch.ts';
+import type { PlaceSummary } from '../places.ts';
+import { normalizeWebsite } from '../website.ts';
 import type { SignalInput } from './types.ts';
 
 export interface AuditDependencies {
   fetchPage: PageFetcher;
   /** Omit when no PageSpeed Insights API key is configured. */
   pageSpeed?: PageSpeedClient;
+  /** Looks up a Google place live. Needed for businesses added from Google Places search. */
+  getPlace?: (placeId: string) => Promise<PlaceSummary | null>;
   countryCode?: string;
   now?: () => Date;
 }
 
 const clampScore = (points: number) => Math.max(0, Math.min(100, points));
 
-export function sumScores(list: SignalInput[]): { needScore: number; capacityScore: number } {
+/** Adds up signal points per axis; `weights` replaces the default points of a signal key. */
+/**
+ * Scores an audit. Without a website there is nothing to judge capacity from, so it is unknown
+ * (null) rather than zero; a zero would rank established businesses without a website last.
+ */
+export function scoreAudit(
+  list: Pick<SignalInput, 'axis' | 'key' | 'points'>[],
+  weights: Record<string, number> = {},
+): { needScore: number; capacityScore: number | null } {
+  const scores = sumScores(list, weights);
+  const noWebsite = list.some((s) => s.key === 'no_website');
+  return { ...scores, capacityScore: noWebsite ? null : scores.capacityScore };
+}
+
+export function sumScores(
+  list: Pick<SignalInput, 'axis' | 'key' | 'points'>[],
+  weights: Record<string, number> = {},
+): { needScore: number; capacityScore: number } {
   const total = (axis: SignalInput['axis']) =>
-    clampScore(list.filter((s) => s.axis === axis).reduce((sum, s) => sum + s.points, 0));
+    clampScore(
+      list.filter((s) => s.axis === axis).reduce((sum, s) => sum + (weights[s.key] ?? s.points), 0),
+    );
   return { needScore: total('need'), capacityScore: total('capacity') };
 }
 
@@ -48,47 +72,68 @@ export async function runAudit(
   await db.delete(signals).where(eq(signals.auditId, auditId));
 
   try {
-    const websiteUrl = business.websiteUrl;
-    if (!websiteUrl) throw new Error('This business has no website to audit');
-
     const notes: string[] = [];
     const found: SignalInput[] = [];
     let analysis: PageAnalysis | null = null;
+    // The address of the business's own website, confirmed by visiting it.
+    let verifiedWebsite: string | null = null;
 
-    const allowed = await isAllowedByRobots(deps.fetchPage, websiteUrl);
-    const [pageResult, speedResult] = await Promise.allSettled([
-      allowed ? deps.fetchPage(websiteUrl) : Promise.resolve(null),
-      deps.pageSpeed ? deps.pageSpeed(websiteUrl) : Promise.resolve(null),
-    ]);
+    let websiteUrl = business.websiteUrl;
+    if (!websiteUrl && business.placeId) {
+      if (!deps.getPlace) throw new Error('Google Places is not configured on the worker');
+      // Looked up live and never stored: only the place ID may be kept (docs/DECISIONS.md, D3).
+      const place = await deps.getPlace(business.placeId);
+      if (!place) throw new Error('The Google place no longer exists');
+      websiteUrl = place.websiteUrl;
+      if (!websiteUrl) {
+        found.push({
+          axis: 'need',
+          key: 'no_website',
+          points: 60,
+          evidence: 'The business has no website listed on its Google Maps profile.',
+        });
+      }
+    }
+    if (!websiteUrl && found.length === 0) throw new Error('This business has no website to audit');
 
-    if (!allowed) {
-      notes.push(
-        "The website's robots.txt asks automated tools not to visit it, so homepage checks were skipped.",
-      );
-    } else if (pageResult.status === 'fulfilled' && pageResult.value) {
-      analysis = analyzePage(pageResult.value, { now: now(), countryCode: deps.countryCode });
-      found.push(...analysis.signals);
-    } else if (pageResult.status === 'rejected') {
-      const reason = pageResult.reason as Error;
-      if (reason instanceof UnsafeTargetError) throw reason;
-      found.push({
-        axis: 'need',
-        key: 'unreachable',
-        points: 40,
-        evidence: 'The website could not be loaded when JARVIS visited it.',
-        data: { error: describeError(reason) },
-      });
+    if (websiteUrl) {
+      const allowed = await isAllowedByRobots(deps.fetchPage, websiteUrl);
+      const [pageResult, speedResult] = await Promise.allSettled([
+        allowed ? deps.fetchPage(websiteUrl) : Promise.resolve(null),
+        deps.pageSpeed ? deps.pageSpeed(websiteUrl) : Promise.resolve(null),
+      ]);
+
+      if (!allowed) {
+        notes.push(
+          "The website's robots.txt asks automated tools not to visit it, so homepage checks were skipped.",
+        );
+      } else if (pageResult.status === 'fulfilled' && pageResult.value) {
+        verifiedWebsite = pageResult.value.status < 400 ? pageResult.value.url : null;
+        analysis = analyzePage(pageResult.value, { now: now(), countryCode: deps.countryCode });
+        found.push(...analysis.signals);
+      } else if (pageResult.status === 'rejected') {
+        const reason = pageResult.reason as Error;
+        if (reason instanceof UnsafeTargetError) throw reason;
+        found.push({
+          axis: 'need',
+          key: 'unreachable',
+          points: 40,
+          evidence: 'The website could not be loaded when JARVIS visited it.',
+          data: { error: describeError(reason) },
+        });
+      }
+
+      if (!deps.pageSpeed) {
+        notes.push('Speed checks were skipped because no Google API key is configured.');
+      } else if (speedResult.status === 'fulfilled' && speedResult.value) {
+        found.push(...pageSpeedSignals(speedResult.value));
+      } else if (speedResult.status === 'rejected') {
+        notes.push(`Speed checks failed: ${describeError(speedResult.reason)}`);
+      }
     }
 
-    if (!deps.pageSpeed) {
-      notes.push('Speed checks were skipped because no PageSpeed Insights API key is configured.');
-    } else if (speedResult.status === 'fulfilled' && speedResult.value) {
-      found.push(...pageSpeedSignals(speedResult.value));
-    } else if (speedResult.status === 'rejected') {
-      notes.push(`Speed checks failed: ${describeError(speedResult.reason)}`);
-    }
-
-    const scores = sumScores(found);
+    const { scoringWeights } = await getAgencyProfile(db);
+    const scores = scoreAudit(found, scoringWeights);
 
     await db.transaction(async (tx) => {
       if (found.length > 0) {
@@ -99,6 +144,21 @@ export async function runAudit(
           .insert(contactChannels)
           .values(analysis.contacts.map((c) => ({ ...c, businessId: business.id })))
           .onConflictDoNothing();
+      }
+      const verified = verifiedWebsite ? tryNormalize(verifiedWebsite) : null;
+      if (verified && !business.websiteUrl) {
+        const { url, key } = verified;
+        // Skip if another tracked business already has this website.
+        const [taken] = await tx
+          .select({ id: businesses.id })
+          .from(businesses)
+          .where(and(eq(businesses.websiteKey, key), ne(businesses.id, business.id)));
+        if (!taken) {
+          await tx
+            .update(businesses)
+            .set({ websiteUrl: url, websiteKey: key, updatedAt: now() })
+            .where(eq(businesses.id, business.id));
+        }
       }
       if (analysis?.displayName) {
         await tx
@@ -135,4 +195,12 @@ function describeError(error: unknown): string {
   return cause?.code || cause?.message
     ? `${error.message} (${cause.code ?? cause.message})`
     : error.message;
+}
+
+function tryNormalize(url: string) {
+  try {
+    return normalizeWebsite(url);
+  } catch {
+    return null;
+  }
 }

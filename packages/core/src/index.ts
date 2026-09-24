@@ -3,8 +3,20 @@ export type { Database, DatabaseConnection } from './db/client.ts';
 export * as schema from './db/schema.ts';
 export { createApiKey, revokeApiKey, verifyApiKey } from './api-keys.ts';
 export type { ApiKey, CreatedApiKey } from './api-keys.ts';
-export { getBusiness, setLeadStatus, trackWebsites } from './businesses.ts';
-export type { Business, LeadStatus, SkippedWebsite, TrackWebsitesResult } from './businesses.ts';
+export {
+  getBusiness,
+  setLeadFeedback,
+  setLeadStatus,
+  trackPlaces,
+  trackWebsites,
+} from './businesses.ts';
+export type {
+  Business,
+  LeadFeedback,
+  LeadStatus,
+  SkippedWebsite,
+  TrackWebsitesResult,
+} from './businesses.ts';
 export { getLead, listLeads, priorityOf } from './leads.ts';
 export type { Audit, ContactChannel, LeadDetail, LeadSummary, Signal } from './leads.ts';
 export { InvalidWebsiteError, normalizeWebsite } from './website.ts';
@@ -27,3 +39,16 @@ export {
   unsupportedNumbers,
 } from './drafting.ts';
 export type { Draft, DraftRequest, DraftResult, DraftWriter } from './drafting.ts';
+export { createPlacesClient, parsePlace } from './places.ts';
+export type { PlacesClient, PlaceSummary } from './places.ts';
+export { parseCsv, websitesFromCsv } from './csv.ts';
+export {
+  addDoNotContact,
+  InvalidDoNotContactError,
+  listDoNotContact,
+  normalizeDoNotContact,
+  removeDoNotContact,
+} from './do-not-contact.ts';
+export type { DoNotContactEntry, DoNotContactKind } from './do-not-contact.ts';
+export { signalInsights, updateScoringWeights } from './scoring.ts';
+export type { SignalInsight } from './scoring.ts';

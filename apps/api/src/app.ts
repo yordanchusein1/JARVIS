@@ -1,15 +1,25 @@
 import { createRoute, z } from '@hono/zod-openapi';
-import { verifyApiKey, type AuditQueue, type Database, type DraftWriter } from '@jarvis/core';
+import {
+  verifyApiKey,
+  type AuditQueue,
+  type Database,
+  type DraftWriter,
+  type PlacesClient,
+} from '@jarvis/core';
 import { createMiddleware } from 'hono/factory';
 import { createRouter, type AppEnv } from './router.ts';
 import { agencyRoutes } from './routes/agency.ts';
 import { businessRoutes } from './routes/businesses.ts';
+import { placesRoutes } from './routes/places.ts';
+import { settingsRoutes } from './routes/settings.ts';
 
 export interface AppDependencies {
   db: Database;
   auditQueue: AuditQueue;
   /** Omit when no language model is configured; drafting then returns 503. */
   draftWriter?: DraftWriter;
+  /** Omit when no Google API key is configured; Places endpoints then return 503. */
+  places?: PlacesClient;
 }
 
 const PUBLIC_PATHS = new Set(['/v1/health', '/v1/openapi.json']);
@@ -39,7 +49,7 @@ const healthRoute = createRoute({
   },
 });
 
-export function createApp({ db, auditQueue, draftWriter }: AppDependencies) {
+export function createApp({ db, auditQueue, draftWriter, places }: AppDependencies) {
   const requireApiKey = createMiddleware<AppEnv>(async (c, next) => {
     if (PUBLIC_PATHS.has(c.req.path)) return next();
 
@@ -64,8 +74,10 @@ export function createApp({ db, auditQueue, draftWriter }: AppDependencies) {
   });
   v1.use('*', requireApiKey);
   v1.openapi(healthRoute, (c) => c.json({ status: 'ok' as const }, 200))
-    .route('/', businessRoutes(db, auditQueue, draftWriter))
+    .route('/', businessRoutes(db, auditQueue, draftWriter, places))
     .route('/', agencyRoutes(db))
+    .route('/', placesRoutes(db, places))
+    .route('/', settingsRoutes(db))
     .doc31('/openapi.json', { ...openApiInfo, servers: [{ url: '/v1' }] });
 
   const app = createRouter();

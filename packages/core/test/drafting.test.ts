@@ -152,7 +152,7 @@ describe('createClaudeDraftWriter', () => {
     });
 
     const result = await createClaudeDraftWriter({ client })({
-      agency: { ...PROFILE, updatedAt: new Date() },
+      agency: { ...PROFILE, scoringWeights: {}, updatedAt: new Date() },
       business: { name: 'Klinik', websiteUrl: 'https://klinik.co.id/' },
       evidence: [{ axis: 'need', text: 'No HTTPS.' }],
     });

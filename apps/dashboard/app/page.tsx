@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { getJarvis } from '@/lib/jarvis';
 import { AutoRefresh } from './auto-refresh';
 import { AuditStatus, isAuditPending, Score } from './components';
+import { CsvForm } from './csv-form';
 import { TrackForm } from './track-form';
 
 export const dynamic = 'force-dynamic';
@@ -26,8 +27,16 @@ export default async function LeadsPage() {
   return (
     <>
       <AutoRefresh active={leads.some((b) => isAuditPending(b.latestAudit))} />
-      <h1>Leads</h1>
-      <TrackForm />
+      <div className="section-header">
+        <h1>Leads</h1>
+        <Link href="/find" className="button">
+          Find prospects on Google
+        </Link>
+      </div>
+      <div className="columns">
+        <TrackForm />
+        <CsvForm />
+      </div>
       {error || !data ? (
         <p className="error">Could not load leads: {error?.error.message ?? 'API unreachable'}</p>
       ) : leads.length === 0 ? (
@@ -50,7 +59,9 @@ export default async function LeadsPage() {
                 <tr key={b.id}>
                   <td>
                     <Link href={`/leads/${b.id}`} className="lead-link">
-                      {b.displayName ?? b.websiteUrl ?? 'Unnamed business'}
+                      {b.displayName ??
+                        b.websiteUrl ??
+                        (b.placeId ? 'Google Maps business' : 'Unnamed business')}
                     </Link>
                     {b.displayName && b.websiteUrl && (
                       <div className="muted small">{b.websiteUrl}</div>
@@ -68,7 +79,10 @@ export default async function LeadsPage() {
                   <td>
                     <AuditStatus audit={b.latestAudit} />
                   </td>
-                  <td className="muted">{b.status}</td>
+                  <td className="muted">
+                    {b.status}
+                    {b.feedback === 'good' ? ' 👍' : b.feedback === 'bad' ? ' 👎' : ''}
+                  </td>
                 </tr>
               ))}
             </tbody>

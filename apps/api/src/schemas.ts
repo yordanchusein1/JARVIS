@@ -44,6 +44,10 @@ export const BusinessSchema = z
     websiteUrl: z.string().nullable().openapi({ example: 'https://klinik.co.id/' }),
     displayName: z.string().nullable(),
     status: z.enum(LEAD_STATUSES),
+    feedback: z
+      .enum(['good', 'bad'])
+      .nullable()
+      .openapi({ description: 'A person rated this lead 👍 or 👎' }),
     priority: score.openapi({
       description: 'Geometric mean of the latest need and capacity scores',
     }),
@@ -133,6 +137,9 @@ export const BusinessDetailSchema = BusinessSchema.extend({
     .openapi({ description: 'Signals from the latest audit, strongest first' }),
   contacts: z.array(ContactSchema),
   drafts: z.array(DraftSchema).openapi({ description: 'Latest draft per channel' }),
+  doNotContact: z
+    .boolean()
+    .openapi({ description: "The website's domain is on the do-not-contact list" }),
 }).openapi('BusinessDetail');
 
 export function toAuditDto(audit: Audit): z.infer<typeof AuditSchema> {
@@ -156,6 +163,7 @@ function toBusinessFields(business: Business) {
     websiteUrl: business.websiteUrl,
     displayName: business.displayName,
     status: business.status,
+    feedback: business.feedback,
     createdAt: business.createdAt.toISOString(),
     updatedAt: business.updatedAt.toISOString(),
   };
@@ -175,6 +183,7 @@ export function toBusinessDetailDto(
 ): z.infer<typeof BusinessDetailSchema> {
   return {
     drafts: drafts.map(toDraftDto),
+    doNotContact: lead.doNotContact,
     ...toBusinessDto(lead),
     signals: lead.signals.map((s: Signal) => ({
       axis: s.axis,
@@ -189,3 +198,41 @@ export function toBusinessDetailDto(
     })),
   };
 }
+
+export const PlaceSchema = z
+  .object({
+    placeId: z.string(),
+    name: z.string().nullable(),
+    address: z.string().nullable(),
+    websiteUrl: z.string().nullable(),
+    phone: z.string().nullable(),
+    rating: z.number().nullable(),
+    ratingCount: z.number().int().nullable(),
+    mapsUrl: z.string().nullable(),
+  })
+  .openapi('Place', {
+    description:
+      'Live data from Google Places. Google does not allow storing it, so it is never saved by JARVIS.',
+  });
+
+export const DoNotContactSchema = z
+  .object({
+    id: z.uuid(),
+    kind: z.enum(['domain', 'email', 'phone']),
+    value: z.string(),
+    reason: z.string().nullable(),
+    createdAt: z.iso.datetime(),
+  })
+  .openapi('DoNotContact');
+
+export const SignalInsightSchema = z
+  .object({
+    key: z.string(),
+    axis: z.enum(['need', 'capacity']),
+    defaultPoints: z.number().int(),
+    points: z.number().int(),
+    leads: z.number().int(),
+    good: z.number().int(),
+    bad: z.number().int(),
+  })
+  .openapi('SignalInsight');

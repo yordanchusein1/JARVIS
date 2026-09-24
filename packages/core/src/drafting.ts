@@ -125,6 +125,10 @@ export async function generateDrafts(
   const [lead, agency] = await Promise.all([getLead(db, businessId), getAgencyProfile(db)]);
   if (!lead) throw new DraftingNotReadyError('Business not found');
 
+  if (lead.doNotContact) {
+    throw new DraftingNotReadyError('This business is on the do-not-contact list.');
+  }
+
   const missing = missingProfileFields(agency);
   if (missing.length > 0) {
     throw new DraftingNotReadyError(

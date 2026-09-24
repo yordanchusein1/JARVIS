@@ -2,6 +2,7 @@ import { asc, desc, eq, getTableColumns, inArray, sql } from 'drizzle-orm';
 import type { Database } from './db/client.ts';
 import { audits, businesses, contactChannels, signals } from './db/schema.ts';
 import type { Business } from './businesses.ts';
+import { domainOfKey, findDoNotContact } from './do-not-contact.ts';
 
 export type Audit = typeof audits.$inferSelect;
 export type Signal = typeof signals.$inferSelect;
@@ -24,7 +25,10 @@ export interface LeadSummary {
 
 export interface LeadDetail extends LeadSummary {
   signals: Signal[];
+  /** Contact channels, excluding any on the do-not-contact list. */
   contacts: ContactChannel[];
+  /** True if the website's domain is on the do-not-contact list. */
+  doNotContact: boolean;
 }
 
 /** Businesses with their most recent audit, highest priority first. */
@@ -103,11 +107,24 @@ export async function getLead(db: Database, id: string): Promise<LeadDetail | nu
       .orderBy(asc(contactChannels.kind), asc(contactChannels.createdAt)),
   ]);
 
+  const blocked = await findDoNotContact(db, {
+    domains: [domainOfKey(business.websiteKey)].filter((d): d is string => !!d),
+    emails: contacts.filter((c) => c.kind === 'email').map((c) => c.value),
+    phones: contacts.filter((c) => c.kind === 'phone' || c.kind === 'whatsapp').map((c) => c.value),
+  });
+  const isBlocked = (c: ContactChannel) =>
+    blocked.some(
+      (e) =>
+        (e.kind === 'email' && c.kind === 'email' && e.value === c.value.toLowerCase()) ||
+        (e.kind === 'phone' && e.value === c.value.replace(/[^\d]/g, '')),
+    );
+
   return {
     business,
+    doNotContact: blocked.some((e) => e.kind === 'domain'),
     latestAudit: latestAudit ?? null,
     priority: priorityOf(latestAudit?.needScore ?? null, latestAudit?.capacityScore ?? null),
     signals: auditSignals,
-    contacts,
+    contacts: contacts.filter((c) => !isBlocked(c)),
   };
 }

@@ -2,6 +2,7 @@ import {
   AUDIT_QUEUE,
   connectDatabase,
   createPageSpeedClient,
+  createPlacesClient,
   createSafeFetcher,
   runAudit,
   runMigrations,
@@ -13,7 +14,8 @@ import { z } from 'zod';
 const env = z
   .object({
     DATABASE_URL: z.string().min(1),
-    PAGESPEED_API_KEY: z.string().optional(),
+    // One Google Cloud key with the PageSpeed Insights API and Places API (New) enabled.
+    GOOGLE_API_KEY: z.string().optional(),
     AUDIT_CONCURRENCY: z.coerce.number().int().min(1).max(20).default(3),
     DEFAULT_COUNTRY_CODE: z
       .string()
@@ -26,13 +28,15 @@ await runMigrations(env.DATABASE_URL);
 const { db, close } = connectDatabase(env.DATABASE_URL);
 const boss = await startJobQueue(env.DATABASE_URL);
 
+const places = env.GOOGLE_API_KEY ? createPlacesClient(env.GOOGLE_API_KEY) : undefined;
 const deps = {
   fetchPage: createSafeFetcher(),
-  pageSpeed: env.PAGESPEED_API_KEY ? createPageSpeedClient(env.PAGESPEED_API_KEY) : undefined,
+  pageSpeed: env.GOOGLE_API_KEY ? createPageSpeedClient(env.GOOGLE_API_KEY) : undefined,
+  getPlace: places ? (placeId: string) => places.getPlace(placeId) : undefined,
   countryCode: env.DEFAULT_COUNTRY_CODE,
 };
 if (!deps.pageSpeed) {
-  console.warn('PAGESPEED_API_KEY is not set; audits will skip speed checks.');
+  console.warn('GOOGLE_API_KEY is not set; audits skip speed checks and Places lookups.');
 }
 
 await boss.work<AuditJob>(

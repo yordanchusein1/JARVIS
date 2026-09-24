@@ -28,10 +28,10 @@ Each version must be usable on its own and must be used by Vera & Co. before the
 **Pipeline**
 
 - [x] Find: pasted URLs
-- [ ] Find: live Google Places text search (store `place_id` only), CSV import
+- [x] Find: live Google Places text search (store `place_id` only), CSV import
 - [x] Audit: PageSpeed Insights (mobile), HTTPS, viewport, outdated-site signals, contact or booking form, published contacts and social links; with SSRF protection and `robots.txt` handling
 - [x] Score: `need` and `capacity` with per-signal evidence, and priority ranking
-- [ ] Score: configurable weights and 👍/👎 feedback
+- [x] Score: configurable weights and 👍/👎 feedback
 - [x] Agency profile: name, services, tone, sender name
 - [x] Draft: WhatsApp and email variants grounded only in the recorded evidence (Claude), with a warning for numbers the audit did not measure
 - [x] Act: copy, `wa.me`, `mailto:`, open-profile buttons; manual status (new → contacted → replied → meeting → won/lost)
@@ -88,6 +88,8 @@ If the targets are missed, fix the qualification and messaging before building v
 - Don't promote the project publicly until v0.1 has been in real use for a month.
 
 ## Open decisions
+
+- **Capacity of businesses without a website.** JARVIS judges capacity from the website, so it is unknown for businesses found on Google Maps without one, which are often the best leads. Options: (a) Instagram Business Discovery signals (official API, planned for v0.2, needs Meta app review); (b) storing a coarse Google review-count bucket as a signal, which is a grey area under the Google Maps Platform Terms. Until decided, capacity shows as unknown and the Google rating is shown live on the lead page.
 
 - Public project name, needed before any package is published
 - CLA tooling and text, needed before the first external contribution is merged

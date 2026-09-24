@@ -4,7 +4,7 @@ import type { components } from '@jarvis/sdk';
 import { getJarvis } from '@/lib/jarvis';
 import { AutoRefresh } from '../../auto-refresh';
 import { AuditStatus, isAuditPending, Score } from '../../components';
-import { reauditAction, statusAction } from './actions';
+import { doNotContactAction, feedbackAction, reauditAction, statusAction } from './actions';
 import { DraftButton } from './draft-button';
 import { DraftCard } from './drafts';
 
@@ -85,6 +85,18 @@ export default async function LeadPage({ params }: { params: Promise<{ id: strin
   if (response.status === 404 || response.status === 400) notFound();
   if (!lead) throw new Error('Could not load this lead from the JARVIS API.');
 
+  // Live Google details for businesses found through Places search. Never stored (Google's terms).
+  const place = lead.placeId
+    ? (await jarvis.GET('/businesses/{id}/place', { params: { path: { id } } })).data
+    : undefined;
+  // A Google-listed phone number can be used to reach businesses without their own website.
+  const contacts =
+    place?.phone &&
+    !lead.doNotContact &&
+    !lead.contacts.some((c) => c.kind === 'phone' || c.kind === 'whatsapp')
+      ? [...lead.contacts, { kind: 'phone' as const, value: place.phone, sourceUrl: place.mapsUrl }]
+      : lead.contacts;
+
   const audit = lead.latestAudit;
   const pending = isAuditPending(audit);
   const reaudit = reauditAction.bind(null, lead.id);
@@ -98,7 +110,7 @@ export default async function LeadPage({ params }: { params: Promise<{ id: strin
       </p>
       <header className="lead-header">
         <div>
-          <h1>{lead.displayName ?? lead.websiteUrl ?? 'Unnamed business'}</h1>
+          <h1>{lead.displayName ?? place?.name ?? lead.websiteUrl ?? 'Unnamed business'}</h1>
           {lead.websiteUrl && (
             <a href={lead.websiteUrl} target="_blank" rel="noreferrer noopener" className="muted">
               {lead.websiteUrl}
@@ -149,6 +161,31 @@ export default async function LeadPage({ params }: { params: Promise<{ id: strin
         </div>
       </section>
 
+      {lead.doNotContact && (
+        <p className="banner">
+          This business is on the do-not-contact list. JARVIS will not write messages for it.
+        </p>
+      )}
+
+      {place && (
+        <section className="card">
+          <h2>On Google Maps</h2>
+          <p className="small">
+            {place.name} · {place.address}
+            {place.rating !== null && ` · ${place.rating} ★ from ${place.ratingCount ?? 0} reviews`}
+            {place.mapsUrl && (
+              <>
+                {' · '}
+                <a href={place.mapsUrl} target="_blank" rel="noreferrer noopener">
+                  Open in Google Maps
+                </a>
+              </>
+            )}
+          </p>
+          <p className="muted small">Shown live from Google and not stored.</p>
+        </section>
+      )}
+
       {audit?.status === 'failed' && <p className="error">The audit failed: {audit.error}</p>}
       {audit && audit.notes.length > 0 && (
         <ul className="notes small">
@@ -168,7 +205,11 @@ export default async function LeadPage({ params }: { params: Promise<{ id: strin
           <SignalList
             title="Why they can afford you"
             signals={lead.signals.filter((s) => s.axis === 'capacity')}
-            empty="No signs of an established business found on the website."
+            empty={
+              lead.signals.some((s) => s.key === 'no_website')
+                ? 'Unknown: there is no website to judge from. Check the Google rating above.'
+                : 'No signs of an established business found on the website.'
+            }
           />
         </div>
       )}
@@ -182,19 +223,47 @@ export default async function LeadPage({ params }: { params: Promise<{ id: strin
           <p className="muted small">
             JARVIS never sends anything. Review each message, then send it yourself.
           </p>
-          {lead.drafts.map((d) => (
-            <DraftCard key={d.id} draft={d} contacts={lead.contacts} />
-          ))}
+          {!lead.doNotContact &&
+            lead.drafts.map((d) => <DraftCard key={d.id} draft={d} contacts={contacts} />)}
         </section>
       )}
 
+      <section className="card feedback">
+        <h2>Is this a good lead?</h2>
+        <p className="muted small">
+          Your ratings show which signals predict good leads (Settings → Scoring).
+        </p>
+        <div className="actions">
+          {(['good', 'bad'] as const).map((value) => (
+            <form
+              key={value}
+              action={feedbackAction.bind(null, lead.id, lead.feedback === value ? null : value)}
+            >
+              <button
+                type="submit"
+                className={`button secondary${lead.feedback === value ? ' active' : ''}`}
+              >
+                {value === 'good' ? '👍 Good lead' : '👎 Not a fit'}
+              </button>
+            </form>
+          ))}
+          {lead.websiteUrl && !lead.doNotContact && (
+            <form action={doNotContactAction.bind(null, lead.id, lead.websiteUrl)}>
+              <button type="submit" className="button secondary">
+                Do not contact
+              </button>
+            </form>
+          )}
+        </div>
+      </section>
+
       <section className="card">
         <h2>Contact channels</h2>
-        {lead.contacts.length === 0 ? (
+        {contacts.length === 0 ? (
           <p className="muted">No contact channels published on the website.</p>
         ) : (
           <ul className="contacts">
-            {lead.contacts.map((c) => (
+            {contacts.map((c) => (
               <li key={`${c.kind}:${c.value}`}>
                 <span className="muted small">{CONTACT_LABELS[c.kind]}</span>
                 <a href={contactHref(c)} target="_blank" rel="noreferrer noopener">

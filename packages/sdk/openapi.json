@@ -68,6 +68,18 @@
               "lost"
             ]
           },
+          "feedback": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "good",
+              "bad",
+              null
+            ],
+            "description": "A person rated this lead 👍 or 👎"
+          },
           "priority": {
             "type": [
               "integer",
@@ -96,6 +108,7 @@
           "websiteUrl",
           "displayName",
           "status",
+          "feedback",
           "priority",
           "latestAudit",
           "createdAt",
@@ -200,6 +213,67 @@
           "error"
         ]
       },
+      "Place": {
+        "type": "object",
+        "properties": {
+          "placeId": {
+            "type": "string"
+          },
+          "name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "address": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "websiteUrl": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "phone": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "rating": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "ratingCount": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "mapsUrl": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "placeId",
+          "name",
+          "address",
+          "websiteUrl",
+          "phone",
+          "rating",
+          "ratingCount",
+          "mapsUrl"
+        ],
+        "description": "Live data from Google Places. Google does not allow storing it, so it is never saved by JARVIS."
+      },
       "BusinessDetail": {
         "allOf": [
           {
@@ -227,12 +301,17 @@
                   "$ref": "#/components/schemas/Draft"
                 },
                 "description": "Latest draft per channel"
+              },
+              "doNotContact": {
+                "type": "boolean",
+                "description": "The website's domain is on the do-not-contact list"
               }
             },
             "required": [
               "signals",
               "contacts",
-              "drafts"
+              "drafts",
+              "doNotContact"
             ]
           }
         ]
@@ -393,6 +472,82 @@
           "tone",
           "language"
         ]
+      },
+      "DoNotContact": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "domain",
+              "email",
+              "phone"
+            ]
+          },
+          "value": {
+            "type": "string"
+          },
+          "reason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "kind",
+          "value",
+          "reason",
+          "createdAt"
+        ]
+      },
+      "SignalInsight": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "axis": {
+            "type": "string",
+            "enum": [
+              "need",
+              "capacity"
+            ]
+          },
+          "defaultPoints": {
+            "type": "integer"
+          },
+          "points": {
+            "type": "integer"
+          },
+          "leads": {
+            "type": "integer"
+          },
+          "good": {
+            "type": "integer"
+          },
+          "bad": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "key",
+          "axis",
+          "defaultPoints",
+          "points",
+          "leads",
+          "good",
+          "bad"
+        ]
       }
     },
     "parameters": {}
@@ -533,6 +688,15 @@
                       "klinik.co.id",
                       "https://www.sekolah-contoh.sch.id"
                     ]
+                  },
+                  "source": {
+                    "type": "string",
+                    "enum": [
+                      "url",
+                      "csv"
+                    ],
+                    "default": "url",
+                    "description": "Where the list came from"
                   }
                 },
                 "required": [
@@ -589,6 +753,280 @@
           },
           "401": {
             "description": "Missing or invalid API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/businesses/import": {
+      "post": {
+        "operationId": "importBusinessesCsv",
+        "summary": "Start tracking the websites listed in a CSV export",
+        "description": "Uses the column headed website, url or domain, or else every cell that looks like a website. At most 1000 websites per import.",
+        "tags": [
+          "Businesses"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "csv": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1000000
+                  }
+                },
+                "required": [
+                  "csv"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The tracked businesses",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Business"
+                      }
+                    },
+                    "created": {
+                      "type": "integer"
+                    },
+                    "skipped": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "input": {
+                            "type": "string"
+                          },
+                          "reason": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "input",
+                          "reason"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "created",
+                    "skipped"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "No websites found, or too many",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/businesses/places": {
+      "post": {
+        "operationId": "trackPlaces",
+        "summary": "Start tracking businesses picked from a Google Places search",
+        "description": "Only the Google place ID is stored. New businesses are queued for an audit.",
+        "tags": [
+          "Businesses"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "placeIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 512
+                    },
+                    "minItems": 1,
+                    "maxItems": 20
+                  }
+                },
+                "required": [
+                  "placeIds"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The tracked businesses",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Business"
+                      }
+                    },
+                    "created": {
+                      "type": "integer"
+                    },
+                    "skipped": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "input": {
+                            "type": "string"
+                          },
+                          "reason": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "input",
+                          "reason"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "created",
+                    "skipped"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/businesses/{id}/place": {
+      "get": {
+        "operationId": "getBusinessPlace",
+        "summary": "Live Google Places details of a business added from a Places search",
+        "tags": [
+          "Businesses"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Live place details (not stored)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Place"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No business with this id",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Google Places failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Google Places is not configured",
             "content": {
               "application/json": {
                 "schema": {
@@ -687,11 +1125,19 @@
                 "properties": {
                   "status": {
                     "$ref": "#/components/schemas/LeadStatus"
+                  },
+                  "feedback": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "enum": [
+                      "good",
+                      "bad",
+                      null
+                    ]
                   }
-                },
-                "required": [
-                  "status"
-                ]
+                }
               }
             }
           }
@@ -979,6 +1425,379 @@
                 }
               }
             }
+          },
+          "401": {
+            "description": "Missing or invalid API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/places/search": {
+      "get": {
+        "operationId": "searchPlaces",
+        "summary": "Search Google Places for prospects, e.g. \"klinik gigi Surabaya\"",
+        "description": "Results come live from Google and are not stored. `businessId` is set when a result is already tracked.",
+        "tags": [
+          "Places"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 200
+            },
+            "required": true,
+            "name": "q",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Matching places",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "allOf": [
+                          {
+                            "$ref": "#/components/schemas/Place"
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "businessId": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "format": "uuid"
+                              }
+                            },
+                            "required": [
+                              "businessId"
+                            ]
+                          }
+                        ],
+                        "description": "Live data from Google Places. Google does not allow storing it, so it is never saved by JARVIS."
+                      }
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Google Places failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Google Places is not configured",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/do-not-contact": {
+      "get": {
+        "operationId": "listDoNotContact",
+        "summary": "Domains, emails and phone numbers that must never be contacted",
+        "tags": [
+          "Do not contact"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/DoNotContact"
+                      }
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "addDoNotContact",
+        "summary": "Add a domain, email or phone number to the do-not-contact list",
+        "tags": [
+          "Do not contact"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "enum": [
+                      "domain",
+                      "email",
+                      "phone"
+                    ]
+                  },
+                  "value": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 320
+                  },
+                  "reason": {
+                    "type": "string",
+                    "maxLength": 500
+                  }
+                },
+                "required": [
+                  "kind",
+                  "value"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The entry",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DoNotContact"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid value",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/do-not-contact/{id}": {
+      "delete": {
+        "operationId": "removeDoNotContact",
+        "summary": "Remove an entry from the do-not-contact list",
+        "tags": [
+          "Do not contact"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Removed"
+          },
+          "401": {
+            "description": "Missing or invalid API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No such entry",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/scoring/signals": {
+      "get": {
+        "operationId": "listSignalInsights",
+        "summary": "Every signal seen so far, with its weight and how it relates to 👍/👎 feedback",
+        "tags": [
+          "Scoring"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Signals",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/SignalInsight"
+                      }
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/scoring/weights": {
+      "put": {
+        "operationId": "updateScoringWeights",
+        "summary": "Replace the points of signals and recalculate all scores",
+        "tags": [
+          "Scoring"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "weights": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 100
+                    }
+                  }
+                },
+                "required": [
+                  "weights"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Saved; scores were recalculated"
           },
           "401": {
             "description": "Missing or invalid API key",

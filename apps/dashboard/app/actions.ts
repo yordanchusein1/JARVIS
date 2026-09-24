@@ -32,3 +32,21 @@ export async function trackWebsitesAction(_prev: TrackState, form: FormData): Pr
     skipped: data.skipped,
   };
 }
+
+export async function importCsvAction(_prev: TrackState, form: FormData): Promise<TrackState> {
+  const jarvis = getJarvis();
+  if (!jarvis) return { error: 'The dashboard is not connected to the JARVIS API.' };
+  const file = form.get('csv');
+  if (!(file instanceof File) || file.size === 0) return { error: 'Choose a CSV file.' };
+  if (file.size > 1_000_000) return { error: 'The file is larger than 1 MB.' };
+
+  const { data, error } = await jarvis.POST('/businesses/import', {
+    body: { csv: await file.text() },
+  });
+  if (!data) return { error: error?.error.message ?? 'Could not import the file.' };
+  revalidatePath('/');
+  return {
+    message: `Imported ${data.created} new business${data.created === 1 ? '' : 'es'}.`,
+    skipped: data.skipped,
+  };
+}

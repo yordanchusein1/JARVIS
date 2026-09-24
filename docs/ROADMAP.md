@@ -4,7 +4,16 @@ Each version must be usable on its own and must be used by Vera & Co. before the
 
 ## v0.1: Lead Hunter MVP
 
-**Goal:** go from *"find me prospects"* to *well-researched messages that a person sends*, in the first 2–3 weeks of development.
+**Goal:** go from *"find me prospects"* to *well-researched messages that a person sends*.
+
+**Time budget:** about 14 hours a week, for roughly 3–4 weeks (~50 hours). Each week ends with something Vera & Co. can use:
+
+| Week | Deliverable | Usable result |
+|---|---|---|
+| 1 | Foundation, URL import, website audit, lead list and detail with evidence | Audit any prospect's website from a pasted URL |
+| 2 | Scoring, agency profile, drafts, action buttons, manual status | End-to-end outreach from pasted URLs |
+| 3 | Places live search, CSV import, do-not-contact list, 👍/👎 feedback | Find new prospects without leaving JARVIS |
+| 4 | Buffer: hardening, deployment on the Vera & Co. server, fixes from real use | v0.1 in daily use |
 
 **Foundation**
 - [ ] pnpm monorepo: `apps/api`, `apps/dashboard`, `packages/core`, `packages/sdk`
@@ -26,8 +35,6 @@ Each version must be usable on its own and must be used by Vera & Co. before the
 - [ ] Search/import, lead list sorted by priority, lead detail with evidence and drafts, pipeline view, settings
 
 ### Success criteria (after 4 weeks of use by Vera & Co.)
-
-*Proposed. The project owner should confirm these numbers.*
 
 - At least 50 qualified leads contacted
 - At least 5 replies

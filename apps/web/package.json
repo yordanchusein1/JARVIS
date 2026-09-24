@@ -1,24 +1,21 @@
 {
-  "name": "@arclight/dashboard",
+  "name": "@arclight/web",
   "version": "0.0.0",
   "private": true,
   "license": "AGPL-3.0-only",
   "type": "module",
   "scripts": {
-    "dev": "next dev --port 3000",
+    "dev": "next dev --port 3100",
     "build": "next build",
-    "start": "next start --port 3000",
-    "typecheck": "next typegen && tsc",
-    "test": "vitest run"
+    "typecheck": "next typegen && tsc"
   },
   "dependencies": {
-    "@arclight/sdk": "workspace:*",
     "@fontsource-variable/inter": "^5.3.0",
+    "@fontsource-variable/jetbrains-mono": "^5.3.0",
     "@fontsource-variable/space-grotesk": "^5.3.0",
     "next": "^16.3.6",
     "react": "^19.3.0",
-    "react-dom": "^19.3.0",
-    "server-only": "^0.0.1"
+    "react-dom": "^19.3.0"
   },
   "devDependencies": {
     "@types/react": "^19.3.0",

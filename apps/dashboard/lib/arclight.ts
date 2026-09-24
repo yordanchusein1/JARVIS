@@ -9,8 +9,8 @@ import { requireSession } from './auth';
 export async function getArclight(): Promise<ArclightClient | null> {
   // Data access layer: nothing reaches the API without a valid admin session.
   await requireSession();
-  const baseUrl = process.env.Arclight_API_URL;
-  const apiKey = process.env.Arclight_API_KEY;
+  const baseUrl = process.env.ARCLIGHT_API_URL;
+  const apiKey = process.env.ARCLIGHT_API_KEY;
   if (!baseUrl || !apiKey) return null;
   return createArclightClient({ baseUrl, apiKey });
 }

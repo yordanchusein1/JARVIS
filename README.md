@@ -59,8 +59,8 @@ Find ──► Audit ──► Score ──► Draft ──► ✋ You send it �
 cp .env.example .env              # set DASHBOARD_PASSWORD, SESSION_SECRET, ANTHROPIC_API_KEY, GOOGLE_API_KEY
 docker compose up -d --build
 # Create an API key for the dashboard and start it with the key
-Arclight_API_KEY=$(docker compose exec -T api tsx src/cli/create-api-key.ts dashboard | tail -1)
-echo "Arclight_API_KEY=$Arclight_API_KEY" >> .env
+ARCLIGHT_API_KEY=$(docker compose exec -T api tsx src/cli/create-api-key.ts dashboard | tail -1)
+echo "ARCLIGHT_API_KEY=$ARCLIGHT_API_KEY" >> .env
 docker compose up -d dashboard
 ```
 
@@ -74,10 +74,10 @@ Requirements: Node.js 22.12+, pnpm 10 and PostgreSQL 16.
 pnpm install
 cp .env.example .env              # then set DATABASE_URL
 export $(grep -v '^#' .env | xargs)
-pnpm api-key:create dashboard     # put the printed key in .env as Arclight_API_KEY
+pnpm api-key:create dashboard     # put the printed key in .env as ARCLIGHT_API_KEY
 pnpm dev:api                      # http://localhost:8787/v1
 pnpm dev:worker                   # runs website audits
-pnpm dev:dashboard                # http://localhost:3000 (needs Arclight_API_URL and Arclight_API_KEY)
+pnpm dev:dashboard                # http://localhost:3000 (needs ARCLIGHT_API_URL and ARCLIGHT_API_KEY)
 ```
 
 | Command                                        | What it does                                                        |

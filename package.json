@@ -11,6 +11,7 @@
     "dev:api": "pnpm --filter @arclight/api dev",
     "dev:worker": "pnpm --filter @arclight/api dev:worker",
     "dev:dashboard": "pnpm --filter @arclight/dashboard dev",
+    "dev:web": "pnpm --filter @arclight/web dev",
     "db:generate": "pnpm --filter @arclight/core db:generate",
     "db:migrate": "pnpm --filter @arclight/core db:migrate",
     "api-key:create": "pnpm --filter @arclight/api api-key:create",

@@ -14,7 +14,7 @@ export default async function LeadsPage() {
       <div className="card">
         <h1>Connect the dashboard</h1>
         <p>
-          Set <code>Arclight_API_URL</code> and <code>Arclight_API_KEY</code>. Create a key with{' '}
+          Set <code>ARCLIGHT_API_URL</code> and <code>ARCLIGHT_API_KEY</code>. Create a key with{' '}
           <code>pnpm api-key:create dashboard</code>.
         </p>
       </div>

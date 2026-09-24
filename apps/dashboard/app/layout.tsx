@@ -3,6 +3,9 @@ import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { isSignedIn } from '@/lib/auth';
 import { logoutAction } from './login/actions';
+import '@fontsource-variable/inter';
+import '@fontsource-variable/space-grotesk';
+import { Logo } from '@/components/logo';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -16,8 +19,8 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
     <html lang="en">
       <body>
         <header className="topbar">
-          <Link href="/" className="brand">
-            Arclight
+          <Link href="/" className="brand" aria-label="Arclight home">
+            <Logo id="dashboard-logo" />
           </Link>
           {signedIn && (
             <nav className="nav">

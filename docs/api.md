@@ -77,6 +77,14 @@ Settings and their defaults: `runHour` (0–23, `7`), `maxNewPerRun` (1–50, `1
 
 A run reports `found` (places Google returned), `alreadyTracked`, `excluded` (by filters or the do-not-contact list) and `tracked` (new leads). A run that couldn't search, for example because Google refused the key, is still returned, with `"status": "failed"` and an `error`. Leads found by a hunt carry its `huntId`.
 
+### Chat
+
+| Method | Path    | Description                                                         |
+| ------ | ------- | ------------------------------------------------------------------- |
+| `POST` | `/chat` | Talk to Arclight in natural language; the answer streams back (SSE) |
+
+Send the whole conversation as `{ "messages": [{ "role": "user", "content": "What should I do today?" }] }` (the last message from the user, at most 50). Claude answers using Arclight's own data and actions: the briefing, leads, Google Maps search, tracking, drafts, the pipeline and hunts. It can't send messages to prospects. The response is a stream of server-sent events: `text` (`{"delta"}`, a piece of the answer), `tool` (`{"name", "status"}`, work in progress), `done` (`{"text"}`, the full answer to add to the conversation as an `assistant` message) and `error`. Arclight doesn't store conversations. Needs `ANTHROPIC_API_KEY` on the API (otherwise `503`).
+
 ### Daily briefing
 
 | Method | Path        | Description                                                                               |

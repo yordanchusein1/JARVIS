@@ -316,3 +316,47 @@
   background: var(--arc-bg);
   white-space: pre-wrap;
 }
+
+.arc-input {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 10px;
+  border: 1px solid var(--arc-border);
+  border-radius: 8px;
+  background: var(--arc-surface);
+  color: var(--arc-text);
+  font: inherit;
+}
+
+.arc-chat-log {
+  display: grid;
+  gap: 10px;
+  max-height: 60vh;
+  min-height: 160px;
+  overflow-y: auto;
+  padding: 4px;
+}
+
+.arc-chat-turn {
+  max-width: 85%;
+  padding: 10px 12px;
+  border-radius: 12px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.arc-chat-user {
+  justify-self: end;
+  background: var(--arc-accent);
+  color: var(--arc-accent-ink);
+}
+
+.arc-chat-assistant {
+  justify-self: start;
+  background: var(--arc-bg);
+}
+
+.arc-chat-form {
+  display: flex;
+  gap: 8px;
+}

@@ -9,6 +9,7 @@ COPY apps/api/package.json apps/api/
 COPY apps/dashboard/package.json apps/dashboard/
 COPY packages/core/package.json packages/core/
 COPY packages/sdk/package.json packages/sdk/
+COPY packages/react/package.json packages/react/
 RUN pnpm install --frozen-lockfile
 
 FROM deps AS api
@@ -24,6 +25,7 @@ CMD ["tsx", "src/server.ts"]
 FROM deps AS dashboard-build
 COPY tsconfig.base.json ./
 COPY packages/sdk packages/sdk
+COPY packages/react packages/react
 COPY apps/dashboard apps/dashboard
 RUN NEXT_OUTPUT=standalone pnpm --filter @arclight/dashboard build
 

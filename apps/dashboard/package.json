@@ -12,6 +12,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@arclighthq/react": "workspace:*",
     "@arclighthq/sdk": "workspace:*",
     "@fontsource-variable/inter": "^5.3.0",
     "@fontsource-variable/space-grotesk": "^5.3.0",

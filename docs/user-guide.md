@@ -7,6 +7,7 @@ This guide explains every screen of the Arclight dashboard and how Arclight deci
 - [Adding prospects](#adding-prospects)
 - [Hunts: finding leads on its own](#hunts-finding-leads-on-its-own)
 - [The daily briefing](#the-daily-briefing)
+- [Chat](#chat)
 - [Audits: what Arclight checks](#audits-what-arclight-checks)
 - [Scores and priority](#scores-and-priority)
 - [Writing and sending messages](#writing-and-sending-messages)
@@ -95,6 +96,17 @@ The top of **Leads** shows what happened in the last 24 hours and what needs you
 - A warning if a hunt failed, with the reason.
 
 Your own website or an AI agent can fetch the same briefing from the API (`GET /v1/briefing`, see the [API reference](api.md#daily-briefing)).
+
+## Chat
+
+**Chat** lets you ask Arclight in your own words, in Bahasa Indonesia or English:
+
+- _"Apa yang harus aku kerjakan hari ini?"_
+- _"Cari klinik gigi di Sidoarjo dengan minimal 50 ulasan, lalu lacak 5 yang terbaik."_
+- _"Tuliskan pesan untuk Klinik Gigi Senyum."_
+- _"Buat hunt untuk sekolah swasta di Bandung setiap jam 6 pagi."_
+
+It uses the same data and actions as the rest of the dashboard, and shows what it is doing while it works. It never sends a message: drafts it writes wait on the lead's page for you. Chat needs `ANTHROPIC_API_KEY`, and each question is a Claude request ([costs](faq.md#what-does-it-cost-to-run)). Conversations aren't saved; reloading the page starts a new one.
 
 ## Audits: what Arclight checks
 

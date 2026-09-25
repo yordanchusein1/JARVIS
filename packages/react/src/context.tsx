@@ -14,6 +14,8 @@ import { createArclightClient, type ArclightClient } from '@arclighthq/sdk';
 
 interface ArclightContextValue {
   client: ArclightClient;
+  /** Where the server handler is mounted, for requests the typed client can't make (streams). */
+  basePath: string;
   /** Builds the link to a lead's page in the host app, or null to show names without links. */
   leadHref: (id: string) => string | null;
 }
@@ -41,6 +43,7 @@ export function ArclightProvider({
     () => ({
       // No API key here: the handler on your server adds it.
       client: createArclightClient({ baseUrl: basePath }),
+      basePath: basePath.replace(/\/+$/, ''),
       leadHref: (id) => (leadUrl ? leadUrl.replace(':id', encodeURIComponent(id)) : null),
     }),
     [basePath, leadUrl],

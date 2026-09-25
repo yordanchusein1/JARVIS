@@ -74,3 +74,5 @@ export type { Hunt, HuntDependencies, HuntRun, HuntSettings, HuntSummary } from 
 export { getBriefing } from './briefing.ts';
 export type { Briefing, FollowUp } from './briefing.ts';
 export { isValidTimeZone, latestSlot, nextSlot } from './schedule.ts';
+export { chatTools, createClaudeChatModel, runChat } from './chat.ts';
+export type { ChatDependencies, ChatEvent, ChatMessage, ChatModel } from './chat.ts';

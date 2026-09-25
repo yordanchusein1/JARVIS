@@ -57,12 +57,18 @@ importers:
         specifier: ^4.6.5
         version: 4.6.5
     devDependencies:
+      '@anthropic-ai/sdk':
+        specifier: ^0.128.0
+        version: 0.128.0(zod@4.6.5)
       '@arclighthq/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
 
   apps/dashboard:
     dependencies:
+      '@arclighthq/react':
+        specifier: workspace:*
+        version: link:../../packages/react
       '@arclighthq/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk

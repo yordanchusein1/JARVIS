@@ -13,11 +13,11 @@ Arclight is configured with environment variables. With Docker Compose, put them
 
 ## Recommended
 
-| Variable            | Used by     | Default         | Description                                                                                                                                                             |
-| ------------------- | ----------- | --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `GOOGLE_API_KEY`    | API, worker | not set         | Google Cloud key with **Places API (New)** and **PageSpeed Insights API** enabled. Without it, Google Maps search, hunts, live Google details and speed checks are off. |
-| `ANTHROPIC_API_KEY` | API, worker | not set         | Anthropic key for writing drafts. The worker uses it for hunts with automatic drafting. Without it, drafting returns an error and everything else still works.          |
-| `ANTHROPIC_MODEL`   | API, worker | `claude-opus-5` | Claude model used for drafts.                                                                                                                                           |
+| Variable            | Used by     | Default         | Description                                                                                                                                                                 |
+| ------------------- | ----------- | --------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GOOGLE_API_KEY`    | API, worker | not set         | Google Cloud key with **Places API (New)** and **PageSpeed Insights API** enabled. Without it, Google Maps search, hunts, live Google details and speed checks are off.     |
+| `ANTHROPIC_API_KEY` | API, worker | not set         | Anthropic key for writing drafts and for chat. The worker uses it for hunts with automatic drafting. Without it, drafting returns an error and everything else still works. |
+| `ANTHROPIC_MODEL`   | API, worker | `claude-opus-5` | Claude model used for drafts.                                                                                                                                               |
 
 ## Optional
 

@@ -2364,6 +2364,100 @@
         }
       }
     },
+    "/chat": {
+      "post": {
+        "operationId": "chat",
+        "summary": "Talk to Arclight in natural language",
+        "description": "Claude answers using Arclight's own data and actions (briefing, leads, Google Maps search, drafts, pipeline, hunts). It never sends messages to prospects.\n\nThe response is a stream of server-sent events:\n\n- `text`: `{\"delta\": \"…\"}`, a piece of the answer\n- `tool`: `{\"name\": \"list_leads\", \"status\": \"start\" | \"done\" | \"error\"}`, work in progress\n- `done`: `{\"text\": \"…\"}`, the full answer; add it to `messages` as an `assistant` message for the next turn\n- `error`: `{\"message\": \"…\"}`\n\nSend the whole conversation each time; Arclight doesn't store it.",
+        "tags": [
+          "Chat"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "messages": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "role": {
+                          "type": "string",
+                          "enum": [
+                            "user",
+                            "assistant"
+                          ]
+                        },
+                        "content": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 20000
+                        }
+                      },
+                      "required": [
+                        "role",
+                        "content"
+                      ]
+                    },
+                    "minItems": 1,
+                    "maxItems": 50,
+                    "example": [
+                      {
+                        "role": "user",
+                        "content": "What should I do today?"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "messages"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "A stream of server-sent events",
+            "content": {
+              "text/event-stream": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "No language model is configured",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/do-not-contact": {
       "get": {
         "operationId": "listDoNotContact",

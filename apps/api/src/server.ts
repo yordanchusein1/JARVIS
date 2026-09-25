@@ -1,6 +1,7 @@
 import { serve } from '@hono/node-server';
 import {
   connectDatabase,
+  createClaudeChatModel,
   createClaudeDraftWriter,
   createPlacesClient,
   pgBossAuditQueue,
@@ -32,7 +33,17 @@ if (!draftWriter) console.warn('ANTHROPIC_API_KEY is not set; drafting is disabl
 const places = env.GOOGLE_API_KEY ? createPlacesClient(env.GOOGLE_API_KEY) : undefined;
 if (!places) console.warn('GOOGLE_API_KEY is not set; Google Places search is disabled.');
 
-const { app } = createApp({ db, auditQueue: pgBossAuditQueue(boss), draftWriter, places });
+const chatModel = env.ANTHROPIC_API_KEY
+  ? createClaudeChatModel({ model: env.ANTHROPIC_MODEL })
+  : undefined;
+
+const { app } = createApp({
+  db,
+  auditQueue: pgBossAuditQueue(boss),
+  draftWriter,
+  places,
+  chatModel,
+});
 const server = serve({ fetch: app.fetch, port: env.PORT }, ({ port }) => {
   console.log(`Arclight API listening on http://localhost:${port}/v1`);
 });

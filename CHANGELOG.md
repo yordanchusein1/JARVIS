@@ -10,6 +10,7 @@ Notable changes to Arclight. The project is in early access and doesn't publish 
 - **Daily briefing** at the top of the Leads page and at `GET /v1/briefing`: new leads, audits, drafts ready to send, follow-ups that are due and hunt results. Each lead that is ready to send has **Send on WhatsApp** and **Send by email** buttons that open the drafts, ready for you to send.
 - Agency **time zone** and **follow-up days** in Settings.
 - Google Maps searches can return up to 60 places (three pages) for hunts.
+- **MCP server** (`apps/mcp`, MIT): AI agents such as Claude and Hermes Agent can use Arclight as a tool, with tools for the briefing, leads, Google Maps search, tracking, drafts, the pipeline, the do-not-contact list and hunts. It has no tool that sends messages; `get_lead` returns WhatsApp and email links with the drafts filled in for the person to send. See [docs/mcp.md](docs/mcp.md).
 
 ### Changed
 

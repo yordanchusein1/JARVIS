@@ -64,7 +64,7 @@ If the targets are missed, fix the qualification and messaging before building v
 - [ ] `packages/react` (MIT): lead list, lead detail, pipeline, and chat components
 - [ ] Integration guide, with the Vera & Co. admin as the reference Next.js integration
 - [x] **Autonomous hunts:** saved Google Maps searches that the worker runs every day at a chosen hour. Each run tracks the most-reviewed new businesses (with limits and filters), audits them and, if enabled, drafts messages for leads above a priority threshold, ready for a person to send.
-- [ ] **MCP server** (`apps/mcp`, MIT): exposes Arclight as tools (search prospects, track, get lead with evidence, write drafts, update pipeline) so any AI agent (Claude, Hermes Agent and others) can use Arclight as its lead generation skill. It uses the same public API and API keys, and never sends messages (D4, D10)
+- [x] **MCP server** (`apps/mcp`, MIT): exposes Arclight as tools (search prospects, track, get lead with evidence, write drafts, update pipeline) so any AI agent (Claude, Hermes Agent and others) can use Arclight as its lead generation skill. It uses the same public API and API keys, and never sends messages (D4, D10)
 - [ ] Streaming chat endpoint for talking to Arclight in natural language, e.g. _"find 20 dental clinics in Surabaya that need a new website"_
 - [ ] Instagram Business Discovery signals, including capacity for businesses without a website (D9)
 - [x] In-app daily briefing (also at `GET /v1/briefing`): new leads, drafts ready to send with one-click WhatsApp and email buttons, follow-ups due and hunt results

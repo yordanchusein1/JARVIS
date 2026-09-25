@@ -44,6 +44,7 @@ docker run -d --name arclight-db -p 5432:5432 \
 | `packages/sdk`   | Typed API client generated from the OpenAPI document (MIT)            |
 | `apps/dashboard` | Next.js dashboard. Uses only the SDK, never `core` or the database.   |
 | `apps/web`       | Public website (static Next.js)                                       |
+| `apps/mcp`       | MCP server for AI agents (MIT). Uses only the SDK.                    |
 | `docs`           | Documentation, decisions, roadmap and the brand kit                   |
 
 ## Checks
@@ -65,7 +66,7 @@ When you change:
 
 ## Licensing and the CLA
 
-The engine, API, dashboard and website are AGPL-3.0; `packages/sdk` (and the planned `packages/react`) are MIT. Your contributions are licensed the same way.
+The engine, API, dashboard and website are AGPL-3.0; `packages/sdk`, `apps/mcp` (and the planned `packages/react`) are MIT. Your contributions are licensed the same way.
 
 Code contributions will also require signing a Contributor License Agreement, which keeps the option of a commercial edition open ([decision D6](docs/DECISIONS.md#d6-agpl-30-core-mit-client-libraries-cla-for-contributors)). The CLA process will be in place before the first external pull request is merged; you'll be asked to sign it on your pull request.
 

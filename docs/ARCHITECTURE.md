@@ -16,6 +16,7 @@ Arclight is a **headless engine**: a standalone service with a versioned HTTP AP
 │                                                                                  │
 │  packages/core    domain logic: discovery, audit, scoring, drafting, LLM          │
 │  packages/sdk     typed API client (MIT)                                         │
+│  apps/mcp         MCP server: Arclight as tools for AI agents, via the SDK (MIT) │
 │  apps/dashboard   Next.js built-in dashboard, which talks to the API via the SDK │
 └──────────────────────────────────────────────────────────────────────────────────┘
           ▲ HTTP (/v1)                               ▲ HTTP (/v1), server-side API key
@@ -31,6 +32,7 @@ arclight/
 ├── apps/
 │   ├── api/          # Hono HTTP server (/v1, OpenAPI) and worker entrypoint
 │   ├── dashboard/    # Next.js built-in dashboard with single-admin sign-in
+│   ├── mcp/          # MCP server for AI agents (MIT)
 │   └── web/          # Public website (static Next.js)
 ├── packages/
 │   ├── core/         # Framework-agnostic domain logic and database access
@@ -45,6 +47,7 @@ arclight/
 - **`apps/api`** is a thin HTTP layer over `core`. Validation schemas (zod) generate the OpenAPI spec. The same package has a second entrypoint that runs the background worker.
 - **`apps/dashboard`** must not import `core` or touch the database. It uses `packages/sdk` only. This rule keeps the API complete enough for any external website. Sign-in uses a signed, expiring session cookie that is checked in `proxy.ts` and again before every API call.
 - **`apps/web`** is the public landing page. It has no connection to the engine.
+- **`apps/mcp`** is a Model Context Protocol server (JSON-RPC over stdio) that runs next to an AI agent and calls the API with its own key. Like the dashboard, it uses only the SDK, and it has no tool that sends messages. See [AI agents (MCP)](mcp.md).
 
 ## Data sources
 

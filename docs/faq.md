@@ -79,7 +79,7 @@ Not yet from the settings. Drafting sits behind a small interface (`DraftWriter`
 
 ### Can AI agents use Arclight?
 
-An MCP server that lets agents such as Claude or Hermes Agent use Arclight as a tool is planned for v0.2. Today, agents and scripts can use the [HTTP API](api.md).
+Yes. Arclight's [MCP server](mcp.md) lets agents such as Claude or Hermes Agent search for prospects, read leads and their evidence, write drafts and manage hunts. Like Arclight itself, the agent never sends messages: it gives you the drafts and the links to send them. Scripts can also use the [HTTP API](api.md).
 
 ### Is Arclight related to Iron Man or Marvel?
 

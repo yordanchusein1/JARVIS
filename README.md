@@ -41,7 +41,7 @@
 - **Official data only.** Google Places is used for search, and only place IDs are stored, as Google's terms require. Maps and social networks are never scraped.
 - **Do-not-contact list.** Businesses that ask to be left alone are never tracked, shown or drafted again.
 - **Self-hosted.** Your leads stay on your server.
-- **Open.** A documented HTTP API, a typed SDK, and (planned) an MCP server so AI agents can use Arclight as a tool.
+- **Open.** A documented HTTP API, a typed SDK, and an [MCP server](docs/mcp.md) so AI agents such as Claude can use Arclight as a tool.
 
 ## Quick start
 
@@ -63,6 +63,7 @@ Then create an API key for the dashboard, add it to `.env` and open http://local
 | API and worker | `apps/api`       | Hono, OpenAPI 3.1                            | AGPL-3.0 |
 | Dashboard      | `apps/dashboard` | Next.js                                      | AGPL-3.0 |
 | SDK            | `packages/sdk`   | Typed client generated from the OpenAPI spec | MIT      |
+| MCP server     | `apps/mcp`       | Model Context Protocol server (stdio)        | MIT      |
 | Website        | `apps/web`       | Next.js (static)                             | AGPL-3.0 |
 
 The dashboard uses only the public API, the same way your own website or an AI agent would. Read more in [Architecture](docs/ARCHITECTURE.md) and the [decision log](docs/DECISIONS.md).
@@ -73,6 +74,6 @@ Issues, ideas and feedback are very welcome. See [CONTRIBUTING.md](CONTRIBUTING.
 
 ## License
 
-The engine, API, dashboard and website are licensed under [AGPL-3.0](LICENSE). The SDK in `packages/sdk` is [MIT](packages/sdk/LICENSE), so you can use it in closed-source admin panels.
+The engine, API, dashboard and website are licensed under [AGPL-3.0](LICENSE). The SDK in `packages/sdk` and the MCP server in `apps/mcp` are [MIT](packages/sdk/LICENSE), so you can use it in closed-source admin panels.
 
 Arclight is not affiliated with Marvel.

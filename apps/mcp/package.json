@@ -1,0 +1,19 @@
+{
+  "name": "@arclight/mcp",
+  "version": "0.0.0",
+  "private": true,
+  "description": "MCP server that lets AI agents use Arclight as a lead generation tool",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "arclight-mcp": "./src/stdio.ts"
+  },
+  "scripts": {
+    "start": "tsx src/stdio.ts",
+    "typecheck": "tsc",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@arclight/sdk": "workspace:*"
+  }
+}

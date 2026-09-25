@@ -11,13 +11,14 @@
 
 ## For developers
 
-| Guide                              | What it covers                                          |
-| ---------------------------------- | ------------------------------------------------------- |
-| [Configuration](configuration.md)  | Every environment variable                              |
-| [API](api.md)                      | Authentication, endpoints, errors and examples          |
-| [Embedding](embedding.md)          | Putting Arclight inside your own website or admin panel |
-| [Architecture](ARCHITECTURE.md)    | How the engine, API, worker and dashboard fit together  |
-| [Contributing](../CONTRIBUTING.md) | Development setup, tests and conventions                |
+| Guide                              | What it covers                                            |
+| ---------------------------------- | --------------------------------------------------------- |
+| [Configuration](configuration.md)  | Every environment variable                                |
+| [API](api.md)                      | Authentication, endpoints, errors and examples            |
+| [Embedding](embedding.md)          | Putting Arclight inside your own website or admin panel   |
+| [AI agents (MCP)](mcp.md)          | Using Arclight from Claude, Hermes Agent and other agents |
+| [Architecture](ARCHITECTURE.md)    | How the engine, API, worker and dashboard fit together    |
+| [Contributing](../CONTRIBUTING.md) | Development setup, tests and conventions                  |
 
 ## About the project
 

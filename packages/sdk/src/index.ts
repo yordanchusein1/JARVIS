@@ -4,6 +4,9 @@ import type { components, paths } from './schema.d.ts';
 export type { components, paths };
 export type Business = components['schemas']['Business'];
 export type ApiError = components['schemas']['Error'];
+export type Hunt = components['schemas']['Hunt'];
+export type HuntRun = components['schemas']['HuntRun'];
+export type Briefing = components['schemas']['Briefing'];
 
 export interface ArclightClientOptions {
   /** Base URL of the Arclight API, e.g. `http://localhost:8787`. */

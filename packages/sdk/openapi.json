@@ -44,6 +44,14 @@
               "null"
             ]
           },
+          "huntId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid",
+            "description": "The hunt that found this business"
+          },
           "websiteUrl": {
             "type": [
               "string",
@@ -105,6 +113,7 @@
           "id",
           "source",
           "placeId",
+          "huntId",
           "websiteUrl",
           "displayName",
           "status",
@@ -463,6 +472,18 @@
             "maxLength": 35,
             "example": "id",
             "description": "BCP 47 tag"
+          },
+          "timezone": {
+            "type": "string",
+            "maxLength": 64,
+            "example": "Asia/Jakarta",
+            "description": "IANA time zone for hunts and briefings"
+          },
+          "followUpDays": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 60,
+            "description": "Days without a reply after which a contacted lead is due for a follow-up"
           }
         },
         "required": [
@@ -470,7 +491,320 @@
           "senderName",
           "services",
           "tone",
-          "language"
+          "language",
+          "timezone",
+          "followUpDays"
+        ]
+      },
+      "Hunt": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/HuntSettings"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "leads": {
+                "type": "integer",
+                "description": "Businesses this hunt has found"
+              },
+              "lastRun": {
+                "$ref": "#/components/schemas/HuntRun"
+              },
+              "nextRunAt": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date-time",
+                "description": "When the next scheduled run is due; null while paused"
+              },
+              "createdAt": {
+                "type": "string",
+                "format": "date-time"
+              }
+            },
+            "required": [
+              "id",
+              "leads",
+              "lastRun",
+              "nextRunAt",
+              "createdAt"
+            ]
+          }
+        ]
+      },
+      "HuntRun": {
+        "type": [
+          "object",
+          "null"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "huntId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "trigger": {
+            "type": "string",
+            "enum": [
+              "schedule",
+              "manual"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "running",
+              "succeeded",
+              "failed"
+            ]
+          },
+          "error": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "found": {
+            "type": "integer",
+            "description": "Places Google returned"
+          },
+          "alreadyTracked": {
+            "type": "integer",
+            "description": "Places that were already leads"
+          },
+          "excluded": {
+            "type": "integer",
+            "description": "Places left out by the hunt's filters or the do-not-contact list"
+          },
+          "tracked": {
+            "type": "integer",
+            "description": "New leads started"
+          },
+          "startedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "finishedAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "huntId",
+          "trigger",
+          "status",
+          "error",
+          "found",
+          "alreadyTracked",
+          "excluded",
+          "tracked",
+          "startedAt",
+          "finishedAt"
+        ]
+      },
+      "HuntSettings": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 200,
+            "example": "klinik gigi Surabaya",
+            "description": "A Google Maps search"
+          },
+          "active": {
+            "type": "boolean",
+            "description": "Paused hunts do not run on their schedule"
+          },
+          "runHour": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 23,
+            "description": "Hour of the day, in the agency's time zone, at which the hunt runs"
+          },
+          "maxNewPerRun": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "At most this many new leads per run, most-reviewed first"
+          },
+          "minReviews": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100000,
+            "description": "Skip places with fewer Google reviews. Checked live, never stored."
+          },
+          "includeNoWebsite": {
+            "type": "boolean",
+            "description": "Also track places without a website"
+          },
+          "autoDraft": {
+            "type": "boolean",
+            "description": "Write drafts automatically for new leads that reach autoDraftMinPriority. Drafts are never sent."
+          },
+          "autoDraftMinPriority": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100
+          }
+        },
+        "required": [
+          "query",
+          "active",
+          "runHour",
+          "maxNewPerRun",
+          "minReviews",
+          "includeNoWebsite",
+          "autoDraft",
+          "autoDraftMinPriority"
+        ]
+      },
+      "Briefing": {
+        "type": "object",
+        "properties": {
+          "since": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "until": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "newLeads": {
+            "type": "integer",
+            "description": "Businesses tracked in the period"
+          },
+          "audited": {
+            "type": "integer"
+          },
+          "auditsFailed": {
+            "type": "integer"
+          },
+          "draftsWritten": {
+            "type": "integer",
+            "description": "Leads that got drafts in the period"
+          },
+          "topNewLeads": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Business"
+            },
+            "description": "The best leads found in the period (at most 5)"
+          },
+          "readyToSend": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Business"
+            },
+            "description": "New leads with drafts waiting to be reviewed and sent, best first (at most 5)"
+          },
+          "readyToSendTotal": {
+            "type": "integer"
+          },
+          "followUps": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "business": {
+                  "$ref": "#/components/schemas/Business"
+                },
+                "contactedAt": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              },
+              "required": [
+                "business",
+                "contactedAt"
+              ]
+            },
+            "description": "Contacted leads with no reply after the follow-up days, oldest first (at most 10)"
+          },
+          "followUpsTotal": {
+            "type": "integer"
+          },
+          "huntRuns": {
+            "type": "array",
+            "items": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/HuntRun"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "query": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "query"
+                  ]
+                }
+              ]
+            }
+          },
+          "pipeline": {
+            "type": "object",
+            "properties": {
+              "new": {
+                "type": "integer"
+              },
+              "contacted": {
+                "type": "integer"
+              },
+              "replied": {
+                "type": "integer"
+              },
+              "meeting": {
+                "type": "integer"
+              },
+              "won": {
+                "type": "integer"
+              },
+              "lost": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "new",
+              "contacted",
+              "replied",
+              "meeting",
+              "won",
+              "lost"
+            ],
+            "description": "Leads per pipeline stage, all time"
+          }
+        },
+        "required": [
+          "since",
+          "until",
+          "newLeads",
+          "audited",
+          "auditsFailed",
+          "draftsWritten",
+          "topNewLeads",
+          "readyToSend",
+          "readyToSendTotal",
+          "followUps",
+          "followUpsTotal",
+          "huntRuns",
+          "pipeline"
         ]
       },
       "DoNotContact": {
@@ -1409,6 +1743,18 @@
                     "maxLength": 35,
                     "example": "id",
                     "description": "BCP 47 tag"
+                  },
+                  "timezone": {
+                    "type": "string",
+                    "maxLength": 64,
+                    "example": "Asia/Jakarta",
+                    "description": "IANA time zone for hunts and briefings"
+                  },
+                  "followUpDays": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 60,
+                    "description": "Days without a reply after which a contacted lead is due for a follow-up"
                   }
                 }
               }
@@ -1528,6 +1874,485 @@
           },
           "503": {
             "description": "Google Places is not configured",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/hunts": {
+      "get": {
+        "operationId": "listHunts",
+        "summary": "List hunts: saved Google Maps searches that find new leads every day",
+        "tags": [
+          "Hunts"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Hunts, newest first",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Hunt"
+                      }
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "createHunt",
+        "summary": "Create a hunt",
+        "description": "The hunt first runs the next time the clock reaches `runHour` in the agency's time zone. Only the settings you omit take their defaults.",
+        "tags": [
+          "Hunts"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 200,
+                    "example": "klinik gigi Surabaya",
+                    "description": "A Google Maps search"
+                  },
+                  "active": {
+                    "type": "boolean",
+                    "description": "Paused hunts do not run on their schedule"
+                  },
+                  "runHour": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 23,
+                    "description": "Hour of the day, in the agency's time zone, at which the hunt runs"
+                  },
+                  "maxNewPerRun": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "At most this many new leads per run, most-reviewed first"
+                  },
+                  "minReviews": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 100000,
+                    "description": "Skip places with fewer Google reviews. Checked live, never stored."
+                  },
+                  "includeNoWebsite": {
+                    "type": "boolean",
+                    "description": "Also track places without a website"
+                  },
+                  "autoDraft": {
+                    "type": "boolean",
+                    "description": "Write drafts automatically for new leads that reach autoDraftMinPriority. Drafts are never sent."
+                  },
+                  "autoDraftMinPriority": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 100
+                  }
+                },
+                "required": [
+                  "query"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The new hunt",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hunt"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/hunts/{id}": {
+      "get": {
+        "operationId": "getHunt",
+        "summary": "Get a hunt with its recent runs",
+        "tags": [
+          "Hunts"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The hunt",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Hunt"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "runs": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/HuntRun"
+                          },
+                          "description": "The last 10 runs, newest first"
+                        }
+                      },
+                      "required": [
+                        "runs"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No hunt with this id",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "operationId": "updateHunt",
+        "summary": "Change, pause or resume a hunt",
+        "tags": [
+          "Hunts"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 200,
+                    "example": "klinik gigi Surabaya",
+                    "description": "A Google Maps search"
+                  },
+                  "active": {
+                    "type": "boolean",
+                    "description": "Paused hunts do not run on their schedule"
+                  },
+                  "runHour": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 23,
+                    "description": "Hour of the day, in the agency's time zone, at which the hunt runs"
+                  },
+                  "maxNewPerRun": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "At most this many new leads per run, most-reviewed first"
+                  },
+                  "minReviews": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 100000,
+                    "description": "Skip places with fewer Google reviews. Checked live, never stored."
+                  },
+                  "includeNoWebsite": {
+                    "type": "boolean",
+                    "description": "Also track places without a website"
+                  },
+                  "autoDraft": {
+                    "type": "boolean",
+                    "description": "Write drafts automatically for new leads that reach autoDraftMinPriority. Drafts are never sent."
+                  },
+                  "autoDraftMinPriority": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 100
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The updated hunt",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Hunt"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No hunt with this id",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "deleteHunt",
+        "summary": "Delete a hunt and its run history. The leads it found stay.",
+        "tags": [
+          "Hunts"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Deleted"
+          },
+          "401": {
+            "description": "Missing or invalid API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No hunt with this id",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/hunts/{id}/runs": {
+      "post": {
+        "operationId": "runHunt",
+        "summary": "Run a hunt now",
+        "description": "Searches Google Places, starts tracking the best new businesses and queues their audits. A run that fails (for example because Google refused the request) is returned with `status: \"failed\"` and an `error`.",
+        "tags": [
+          "Hunts"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "The finished run",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HuntRun"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No hunt with this id",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/briefing": {
+      "get": {
+        "operationId": "getBriefing",
+        "summary": "What happened recently and what needs attention now",
+        "description": "Counts for the period since `since` (default: the last 24 hours), the best new leads, drafts waiting to be sent, follow-ups that are due and recent hunt runs.",
+        "tags": [
+          "Briefing"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "example": "2026-09-24T00:00:00Z"
+            },
+            "required": false,
+            "name": "since",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The briefing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Briefing"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key",
             "content": {
               "application/json": {
                 "schema": {

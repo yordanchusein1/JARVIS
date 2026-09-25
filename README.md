@@ -23,15 +23,15 @@
 > [!NOTE]
 > **Early access.** Arclight is used today by one agency ([Vera & Co.](docs/VISION.md#origin)) and is changing quickly. Expect rough edges, and please [report them](https://github.com/yordanchusein1/arclight/issues).
 
-![The Arclight dashboard: a list of leads ranked by priority, need and capacity](docs/images/leads.png)
+![The Arclight dashboard: the daily briefing above a list of leads ranked by priority, need and capacity](docs/images/leads.png)
 
 ## What it does
 
-1. **Find.** Search Google Maps for businesses such as "dental clinics in Surabaya", paste a list of websites, or import a CSV.
+1. **Find.** Search Google Maps for businesses such as "dental clinics in Surabaya", paste a list of websites, or import a CSV. Or save the search as a **hunt**, and Arclight looks for new businesses every morning on its own.
 2. **Audit.** Arclight visits each business's own website and measures what matters: speed on phones, HTTPS, outdated technology, contact and booking forms, published contacts and social links.
 3. **Score.** Every lead gets a **need** score (how much they need you) and a **capacity** score (whether they are established enough to pay). Their geometric mean, **priority**, puts the best leads first.
 4. **Draft.** Claude writes a WhatsApp message and an email in your agency's voice that cite only what was measured. Numbers that the audit never measured are flagged.
-5. **You send.** One click opens WhatsApp or your email client with the message filled in. Track each lead from _new_ to _won_.
+5. **You send.** A daily briefing lists the leads with messages ready and the ones due for a follow-up. One click opens WhatsApp or your email client with the message filled in. Track each lead from _new_ to _won_.
 
 ![A lead with its audit evidence and the drafted WhatsApp message and email](docs/images/lead.png)
 

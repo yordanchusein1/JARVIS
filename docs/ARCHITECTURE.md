@@ -1,6 +1,6 @@
 # Architecture
 
-> This document describes Arclight as built for v0.1 (early access). The reasons behind major choices are in [DECISIONS.md](DECISIONS.md).
+> This document describes Arclight as built for v0.1 (early access), plus hunts and the daily briefing from v0.2. The reasons behind major choices are in [DECISIONS.md](DECISIONS.md).
 
 ## Overview
 
@@ -10,7 +10,7 @@ Arclight is a **headless engine**: a standalone service with a versioned HTTP AP
 ┌──────────────────────────── Arclight (this repository) ──────────────────────────┐
 │                                                                                  │
 │  apps/api  (Hono)  ──enqueue──►  pg-boss queue  ──►  apps/api worker process     │
-│   /v1/* + OpenAPI                                    audit · score · draft       │
+│   /v1/* + OpenAPI                                    audit · score · draft · hunt│
 │        │                                                    │                    │
 │        └──────────────►  PostgreSQL  ◄──────────────────────┘                    │
 │                                                                                  │
@@ -50,7 +50,7 @@ arclight/
 
 | Source                                                         | How it is used                                                                                                                                                                 | What is stored                                                                                                          |
 | -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------- |
-| **Google Places API (New)**                                    | Live text search from the dashboard, e.g. "dental clinic, Surabaya". Details such as rating are fetched live when shown.                                                       | **`place_id` only.** The Google Maps Platform Terms forbid copying and saving business names, addresses or reviews.     |
+| **Google Places API (New)**                                    | Live text search from the dashboard and by hunts, e.g. "dental clinic, Surabaya". Details such as rating are fetched live when shown or used to rank a hunt's results.         | **`place_id` only.** The Google Maps Platform Terms forbid copying and saving business names, addresses or reviews.     |
 | **The business's own website**                                 | Page fetches (honouring `robots.txt`) plus the PageSpeed Insights API, which is free but needs an API key.                                                                     | Audit results, and the contact channels and social profile links that the business publishes there.                     |
 | **Manual input**                                               | Pasted website URLs or a CSV upload.                                                                                                                                           | What the user provides.                                                                                                 |
 | **Instagram Graph API: Business Discovery** _(v0.2, optional)_ | Public business or creator accounts found through links on the business's website. Requires the agency's own Instagram business account and a Meta app that has passed review. | Follower count, post count and the date of the latest post, used as capacity signals and refreshed rather than hoarded. |
@@ -75,6 +75,15 @@ search/import ─► track (place_id or URL) ─► audit ─► score ─► dr
 3. **Score.** `need` and `capacity` each run from 0 to 100, and every contributing signal carries a human-readable piece of evidence (e.g. `"LCP 8.9 s on mobile"`). Weights are configurable. Users can rate a lead 👍 or 👎 to calibrate the weights over time.
 4. **Draft.** The LLM writes WhatsApp and email variants grounded **only** in the recorded evidence and the agency profile (services, tone, sender name).
 5. **Act.** The UI offers copy, `wa.me`, `mailto:` and open-profile links. The user sends the message and updates the status. The system sends nothing.
+
+## Hunts and the daily briefing
+
+A hunt is a saved search that Arclight runs on its own, which makes Arclight proactive without letting it contact anyone ([D12](DECISIONS.md#d12-arclight-acts-on-its-own-up-to-the-draft-and-no-further)).
+
+- **Scheduling.** The worker registers a pg-boss cron job (`hunt-tick`) every five minutes. Each tick computes, for every active hunt, the latest daily slot (`runHour` in the agency's time zone) and claims it with a conditional update of `hunts.last_scheduled_for`. A slot therefore runs once even with several workers, and a worker that was down catches up once when it returns. Creating, resuming or re-timing a hunt sets the claimed slot to the latest past one, so it waits for the next.
+- **A run** searches Places live (up to 60 results), drops places already tracked (by place ID or website), on the do-not-contact list (domain or phone) or outside the hunt's filters, ranks the rest by their live review count and tracks the top `maxNewPerRun` by place ID, tagged with the hunt. Their audits are queued as usual. Every run is recorded in `hunt_runs`, including failures.
+- **Automatic drafts.** After an audit, the worker drafts messages for a lead when its hunt has `autoDraft` on, the lead is still `new`, has no drafts yet and its priority reaches the threshold. Failures are recorded in the activity log; drafts are never sent.
+- **The briefing** is computed on request from existing tables: businesses and audits in the period, `drafts.generated` and `status.changed` entries in the activity log, and hunt runs. Nothing extra is stored.
 
 ## Embedding Arclight in any website
 

@@ -192,6 +192,86 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/hunts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List hunts: saved Google Maps searches that find new leads every day */
+        get: operations["listHunts"];
+        put?: never;
+        /**
+         * Create a hunt
+         * @description The hunt first runs the next time the clock reaches `runHour` in the agency's time zone. Only the settings you omit take their defaults.
+         */
+        post: operations["createHunt"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/hunts/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a hunt with its recent runs */
+        get: operations["getHunt"];
+        put?: never;
+        post?: never;
+        /** Delete a hunt and its run history. The leads it found stay. */
+        delete: operations["deleteHunt"];
+        options?: never;
+        head?: never;
+        /** Change, pause or resume a hunt */
+        patch: operations["updateHunt"];
+        trace?: never;
+    };
+    "/hunts/{id}/runs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Run a hunt now
+         * @description Searches Google Places, starts tracking the best new businesses and queues their audits. A run that fails (for example because Google refused the request) is returned with `status: "failed"` and an `error`.
+         */
+        post: operations["runHunt"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/briefing": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * What happened recently and what needs attention now
+         * @description Counts for the period since `since` (default: the last 24 hours), the best new leads, drafts waiting to be sent, follow-ups that are due and recent hunt runs.
+         */
+        get: operations["getBriefing"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/do-not-contact": {
         parameters: {
             query?: never;
@@ -271,6 +351,11 @@ export interface components {
             /** @enum {string} */
             source: "url" | "csv" | "places";
             placeId: string | null;
+            /**
+             * Format: uuid
+             * @description The hunt that found this business
+             */
+            huntId: string | null;
             /** @example https://klinik.co.id/ */
             websiteUrl: string | null;
             displayName: string | null;
@@ -376,6 +461,106 @@ export interface components {
              * @example id
              */
             language: string;
+            /**
+             * @description IANA time zone for hunts and briefings
+             * @example Asia/Jakarta
+             */
+            timezone: string;
+            /** @description Days without a reply after which a contacted lead is due for a follow-up */
+            followUpDays: number;
+        };
+        Hunt: components["schemas"]["HuntSettings"] & {
+            /** Format: uuid */
+            id: string;
+            /** @description Businesses this hunt has found */
+            leads: number;
+            lastRun: components["schemas"]["HuntRun"];
+            /**
+             * Format: date-time
+             * @description When the next scheduled run is due; null while paused
+             */
+            nextRunAt: string | null;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        HuntRun: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            huntId: string;
+            /** @enum {string} */
+            trigger: "schedule" | "manual";
+            /** @enum {string} */
+            status: "running" | "succeeded" | "failed";
+            error: string | null;
+            /** @description Places Google returned */
+            found: number;
+            /** @description Places that were already leads */
+            alreadyTracked: number;
+            /** @description Places left out by the hunt's filters or the do-not-contact list */
+            excluded: number;
+            /** @description New leads started */
+            tracked: number;
+            /** Format: date-time */
+            startedAt: string;
+            /** Format: date-time */
+            finishedAt: string | null;
+        } | null;
+        HuntSettings: {
+            /**
+             * @description A Google Maps search
+             * @example klinik gigi Surabaya
+             */
+            query: string;
+            /** @description Paused hunts do not run on their schedule */
+            active: boolean;
+            /** @description Hour of the day, in the agency's time zone, at which the hunt runs */
+            runHour: number;
+            /** @description At most this many new leads per run, most-reviewed first */
+            maxNewPerRun: number;
+            /** @description Skip places with fewer Google reviews. Checked live, never stored. */
+            minReviews: number;
+            /** @description Also track places without a website */
+            includeNoWebsite: boolean;
+            /** @description Write drafts automatically for new leads that reach autoDraftMinPriority. Drafts are never sent. */
+            autoDraft: boolean;
+            autoDraftMinPriority: number;
+        };
+        Briefing: {
+            /** Format: date-time */
+            since: string;
+            /** Format: date-time */
+            until: string;
+            /** @description Businesses tracked in the period */
+            newLeads: number;
+            audited: number;
+            auditsFailed: number;
+            /** @description Leads that got drafts in the period */
+            draftsWritten: number;
+            /** @description The best leads found in the period (at most 5) */
+            topNewLeads: components["schemas"]["Business"][];
+            /** @description New leads with drafts waiting to be reviewed and sent, best first (at most 5) */
+            readyToSend: components["schemas"]["Business"][];
+            readyToSendTotal: number;
+            /** @description Contacted leads with no reply after the follow-up days, oldest first (at most 10) */
+            followUps: {
+                business: components["schemas"]["Business"];
+                /** Format: date-time */
+                contactedAt: string;
+            }[];
+            followUpsTotal: number;
+            huntRuns: (components["schemas"]["HuntRun"] & {
+                query: string;
+            })[];
+            /** @description Leads per pipeline stage, all time */
+            pipeline: {
+                new: number;
+                contacted: number;
+                replied: number;
+                meeting: number;
+                won: number;
+                lost: number;
+            };
         };
         DoNotContact: {
             /** Format: uuid */
@@ -915,6 +1100,13 @@ export interface operations {
                      * @example id
                      */
                     language?: string;
+                    /**
+                     * @description IANA time zone for hunts and briefings
+                     * @example Asia/Jakarta
+                     */
+                    timezone?: string;
+                    /** @description Days without a reply after which a contacted lead is due for a follow-up */
+                    followUpDays?: number;
                 };
             };
         };
@@ -984,6 +1176,304 @@ export interface operations {
             };
             /** @description Google Places is not configured */
             503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    listHunts: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Hunts, newest first */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["Hunt"][];
+                    };
+                };
+            };
+            /** @description Missing or invalid API key */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    createHunt: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /**
+                     * @description A Google Maps search
+                     * @example klinik gigi Surabaya
+                     */
+                    query: string;
+                    /** @description Paused hunts do not run on their schedule */
+                    active?: boolean;
+                    /** @description Hour of the day, in the agency's time zone, at which the hunt runs */
+                    runHour?: number;
+                    /** @description At most this many new leads per run, most-reviewed first */
+                    maxNewPerRun?: number;
+                    /** @description Skip places with fewer Google reviews. Checked live, never stored. */
+                    minReviews?: number;
+                    /** @description Also track places without a website */
+                    includeNoWebsite?: boolean;
+                    /** @description Write drafts automatically for new leads that reach autoDraftMinPriority. Drafts are never sent. */
+                    autoDraft?: boolean;
+                    autoDraftMinPriority?: number;
+                };
+            };
+        };
+        responses: {
+            /** @description The new hunt */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Hunt"];
+                };
+            };
+            /** @description Missing or invalid API key */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    getHunt: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The hunt */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Hunt"] & {
+                        /** @description The last 10 runs, newest first */
+                        runs: components["schemas"]["HuntRun"][];
+                    };
+                };
+            };
+            /** @description Missing or invalid API key */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description No hunt with this id */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    deleteHunt: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Deleted */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid API key */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description No hunt with this id */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    updateHunt: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /**
+                     * @description A Google Maps search
+                     * @example klinik gigi Surabaya
+                     */
+                    query?: string;
+                    /** @description Paused hunts do not run on their schedule */
+                    active?: boolean;
+                    /** @description Hour of the day, in the agency's time zone, at which the hunt runs */
+                    runHour?: number;
+                    /** @description At most this many new leads per run, most-reviewed first */
+                    maxNewPerRun?: number;
+                    /** @description Skip places with fewer Google reviews. Checked live, never stored. */
+                    minReviews?: number;
+                    /** @description Also track places without a website */
+                    includeNoWebsite?: boolean;
+                    /** @description Write drafts automatically for new leads that reach autoDraftMinPriority. Drafts are never sent. */
+                    autoDraft?: boolean;
+                    autoDraftMinPriority?: number;
+                };
+            };
+        };
+        responses: {
+            /** @description The updated hunt */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Hunt"];
+                };
+            };
+            /** @description Missing or invalid API key */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description No hunt with this id */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    runHunt: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The finished run */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HuntRun"];
+                };
+            };
+            /** @description Missing or invalid API key */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description No hunt with this id */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    getBriefing: {
+        parameters: {
+            query?: {
+                since?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The briefing */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Briefing"];
+                };
+            };
+            /** @description Missing or invalid API key */
+            401: {
                 headers: {
                     [name: string]: unknown;
                 };

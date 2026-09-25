@@ -2,6 +2,25 @@
 
 Notable changes to Arclight. The project is in early access and doesn't publish numbered releases yet; entries are grouped by milestone.
 
+## v0.2 — in development
+
+### Added
+
+- **Hunts**: saved Google Maps searches that run every day at a chosen hour in the agency's time zone. Each run tracks up to a set number of new businesses, most-reviewed first, skipping ones that are already leads, on the do-not-contact list, below a minimum number of reviews or (optionally) without a website. Hunts can write drafts automatically for leads above a priority threshold; nothing is ever sent. API: `/v1/hunts`.
+- **Daily briefing** at the top of the Leads page and at `GET /v1/briefing`: new leads, audits, drafts ready to send, follow-ups that are due and hunt results. Each lead that is ready to send has **Send on WhatsApp** and **Send by email** buttons that open the drafts, ready for you to send.
+- Agency **time zone** and **follow-up days** in Settings.
+- Google Maps searches can return up to 60 places (three pages) for hunts.
+
+### Changed
+
+- Pasting websites and importing CSV files moved from Leads to Find, next to Google Maps search. Find links a search to a new hunt.
+- The worker uses `ANTHROPIC_API_KEY` and `ANTHROPIC_MODEL` too, for automatic drafts.
+
+### Fixed
+
+- A phone number on the do-not-contact list now matches with or without the country code (`0812…` and `+62812…`).
+- Settings forms keep what you typed when saving fails.
+
 ## v0.1 (early access) — unreleased
 
 ### Added

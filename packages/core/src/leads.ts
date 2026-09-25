@@ -2,7 +2,7 @@ import { asc, desc, eq, getTableColumns, inArray, sql } from 'drizzle-orm';
 import type { Database } from './db/client.ts';
 import { audits, businesses, contactChannels, signals } from './db/schema.ts';
 import type { Business } from './businesses.ts';
-import { domainOfKey, findDoNotContact } from './do-not-contact.ts';
+import { domainOfKey, findDoNotContact, samePhone } from './do-not-contact.ts';
 
 export type Audit = typeof audits.$inferSelect;
 export type Signal = typeof signals.$inferSelect;
@@ -116,7 +116,9 @@ export async function getLead(db: Database, id: string): Promise<LeadDetail | nu
     blocked.some(
       (e) =>
         (e.kind === 'email' && c.kind === 'email' && e.value === c.value.toLowerCase()) ||
-        (e.kind === 'phone' && e.value === c.value.replace(/[^\d]/g, '')),
+        (e.kind === 'phone' &&
+          (c.kind === 'phone' || c.kind === 'whatsapp') &&
+          samePhone(e.value, c.value)),
     );
 
   return {

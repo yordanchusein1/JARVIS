@@ -13,11 +13,11 @@ Arclight is configured with environment variables. With Docker Compose, put them
 
 ## Recommended
 
-| Variable            | Used by     | Default         | Description                                                                                                                                                      |
-| ------------------- | ----------- | --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `GOOGLE_API_KEY`    | API, worker | not set         | Google Cloud key with **Places API (New)** and **PageSpeed Insights API** enabled. Without it, Google Maps search, live Google details and speed checks are off. |
-| `ANTHROPIC_API_KEY` | API         | not set         | Anthropic key for writing drafts. Without it, drafting returns an error and everything else still works.                                                         |
-| `ANTHROPIC_MODEL`   | API         | `claude-opus-5` | Claude model used for drafts.                                                                                                                                    |
+| Variable            | Used by     | Default         | Description                                                                                                                                                             |
+| ------------------- | ----------- | --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GOOGLE_API_KEY`    | API, worker | not set         | Google Cloud key with **Places API (New)** and **PageSpeed Insights API** enabled. Without it, Google Maps search, hunts, live Google details and speed checks are off. |
+| `ANTHROPIC_API_KEY` | API, worker | not set         | Anthropic key for writing drafts. The worker uses it for hunts with automatic drafting. Without it, drafting returns an error and everything else still works.          |
+| `ANTHROPIC_MODEL`   | API, worker | `claude-opus-5` | Claude model used for drafts.                                                                                                                                           |
 
 ## Optional
 
@@ -29,6 +29,8 @@ Arclight is configured with environment variables. With Docker Compose, put them
 | `ARCLIGHT_API_URL`     | Dashboard   | `http://api:8787`     | Where the dashboard reaches the API. Compose sets this for you.                    |
 | `DATABASE_URL`         | API, worker | set by Compose        | PostgreSQL connection string. Only needed when running outside Docker.             |
 | `SITE_URL`             | Website     | Vercel production URL | Absolute URL of the public website, used for social previews.                      |
+
+The agency's **time zone** and **follow-up days**, used by hunts and the daily briefing, are set in the dashboard under **Settings**, not in `.env`.
 
 ## Applying changes
 

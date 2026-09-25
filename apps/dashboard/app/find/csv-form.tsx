@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useActionState } from 'react';
 import { importCsvAction, type TrackState } from './actions';
 
@@ -19,7 +20,11 @@ export function CsvForm() {
         {pending ? 'Importing…' : 'Import'}
       </button>
       {state.error && <p className="error">{state.error}</p>}
-      {state.message && <p className="success">{state.message}</p>}
+      {state.message && (
+        <p className="success">
+          {state.message} <Link href="/">See leads</Link>
+        </p>
+      )}
       {state.skipped && state.skipped.length > 0 && (
         <p className="muted small">
           Skipped {state.skipped.length} (invalid or on the do-not-contact list).

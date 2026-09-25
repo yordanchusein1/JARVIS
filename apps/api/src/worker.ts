@@ -1,10 +1,15 @@
 import {
   AUDIT_QUEUE,
+  autoDraftAfterAudit,
   connectDatabase,
+  createClaudeDraftWriter,
   createPageSpeedClient,
   createPlacesClient,
   createSafeFetcher,
+  HUNT_TICK_QUEUE,
+  pgBossAuditQueue,
   runAudit,
+  runDueHunts,
   runMigrations,
   startJobQueue,
   type AuditJob,
@@ -16,6 +21,9 @@ const env = z
     DATABASE_URL: z.string().min(1),
     // One Google Cloud key with the PageSpeed Insights API and Places API (New) enabled.
     GOOGLE_API_KEY: z.string().optional(),
+    // Used only for hunts with automatic drafting.
+    ANTHROPIC_API_KEY: z.string().optional(),
+    ANTHROPIC_MODEL: z.string().default('claude-opus-5'),
     AUDIT_CONCURRENCY: z.coerce.number().int().min(1).max(20).default(3),
     DEFAULT_COUNTRY_CODE: z
       .string()
@@ -36,8 +44,14 @@ const deps = {
   countryCode: env.DEFAULT_COUNTRY_CODE,
 };
 if (!deps.pageSpeed) {
-  console.warn('GOOGLE_API_KEY is not set; audits skip speed checks and Places lookups.');
+  console.warn(
+    'GOOGLE_API_KEY is not set; audits skip speed checks and Places lookups, and hunts fail.',
+  );
 }
+
+const draftWriter = env.ANTHROPIC_API_KEY
+  ? createClaudeDraftWriter({ model: env.ANTHROPIC_MODEL })
+  : undefined;
 
 await boss.work<AuditJob>(
   AUDIT_QUEUE,
@@ -45,11 +59,26 @@ await boss.work<AuditJob>(
   async ([job]) => {
     if (!job) return;
     await runAudit(db, job.data.auditId, deps);
+    if (draftWriter) await autoDraftAfterAudit(db, job.data.auditId, draftWriter);
   },
 );
 console.log(
   `Arclight worker processing "${AUDIT_QUEUE}" jobs (concurrency ${env.AUDIT_CONCURRENCY})`,
 );
+
+// Hunts: every few minutes, run the ones whose daily hour has come.
+const auditQueue = pgBossAuditQueue(boss);
+await boss.work(HUNT_TICK_QUEUE, async () => {
+  const runs = await runDueHunts(db, { places, auditQueue });
+  for (const run of runs) {
+    console.log(
+      run.status === 'succeeded'
+        ? `Hunt ${run.huntId}: ${run.tracked} new of ${run.found} found`
+        : `Hunt ${run.huntId} failed: ${run.error}`,
+    );
+  }
+});
+await boss.schedule(HUNT_TICK_QUEUE, '*/5 * * * *');
 
 async function shutdown() {
   await boss.stop({ graceful: true });

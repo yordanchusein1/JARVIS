@@ -22,7 +22,7 @@ export default async function SettingsPage() {
       <p className="muted">
         Arclight writes outreach in your agency&apos;s name and voice using this profile.
       </p>
-      <ProfileForm profile={data} />
+      <ProfileForm profile={data} timeZones={Intl.supportedValuesOf('timeZone')} />
 
       <h1>Do not contact</h1>
       <p className="muted">

@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import type { components } from '@arclight/sdk';
 import { getArclight } from '@/lib/arclight';
+import { contactsWithGooglePhone } from '@/lib/lead-contacts';
 import { AutoRefresh } from '../../auto-refresh';
 import { AuditStatus, isAuditPending, Score } from '../../components';
 import { doNotContactAction, feedbackAction, reauditAction, statusAction } from './actions';
@@ -86,16 +87,7 @@ export default async function LeadPage({ params }: { params: Promise<{ id: strin
   if (!lead) throw new Error('Could not load this lead from the Arclight API.');
 
   // Live Google details for businesses found through Places search. Never stored (Google's terms).
-  const place = lead.placeId
-    ? (await arclight.GET('/businesses/{id}/place', { params: { path: { id } } })).data
-    : undefined;
-  // A Google-listed phone number can be used to reach businesses without their own website.
-  const contacts =
-    place?.phone &&
-    !lead.doNotContact &&
-    !lead.contacts.some((c) => c.kind === 'phone' || c.kind === 'whatsapp')
-      ? [...lead.contacts, { kind: 'phone' as const, value: place.phone, sourceUrl: place.mapsUrl }]
-      : lead.contacts;
+  const { contacts, place } = await contactsWithGooglePhone(arclight, lead);
 
   const audit = lead.latestAudit;
   const pending = isAuditPending(audit);

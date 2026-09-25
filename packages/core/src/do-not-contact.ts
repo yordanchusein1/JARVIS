@@ -81,20 +81,30 @@ export async function findDoNotContact(
           emails.map((e) => e.toLowerCase()),
         ),
       ),
-    phones.length &&
-      and(
-        eq(doNotContact.kind, 'phone'),
-        inArray(
-          doNotContact.value,
-          phones.map((p) => p.replace(/[^\d]/g, '')),
-        ),
-      ),
+    // Phone numbers are compared in code, because the same number may be written with a
+    // country code or a trunk "0" (see samePhone).
+    phones.length && eq(doNotContact.kind, 'phone'),
   ].filter((c) => !!c);
   if (clauses.length === 0) return [];
-  return db
+  const rows = await db
     .select()
     .from(doNotContact)
     .where(or(...clauses));
+  return rows.filter((e) => e.kind !== 'phone' || phones.some((p) => samePhone(e.value, p)));
+}
+
+/**
+ * Whether two phone numbers are the same line, e.g. "0812 3456 7890" and "+62 812-3456-7890".
+ * Numbers match when they are equal after dropping a trunk "0" and a country code of up to
+ * three digits.
+ */
+export function samePhone(a: string, b: string): boolean {
+  const national = (n: string) => n.replace(/[^\d]/g, '').replace(/^0+/, '');
+  const x = national(a);
+  const y = national(b);
+  if (x === y) return x.length > 0;
+  const [short, long] = x.length < y.length ? [x, y] : [y, x];
+  return short.length >= 7 && long.length - short.length <= 3 && long.endsWith(short);
 }
 
 /** The registrable part of a website key, e.g. "klinik.co.id/cabang" → "klinik.co.id". */

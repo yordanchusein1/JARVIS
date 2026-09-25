@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useActionState } from 'react';
 import { trackWebsitesAction, type TrackState } from './actions';
 
@@ -25,7 +26,11 @@ export function TrackForm() {
         {pending ? 'Adding…' : 'Add websites'}
       </button>
       {state.error && <p className="error">{state.error}</p>}
-      {state.message && <p className="success">{state.message}</p>}
+      {state.message && (
+        <p className="success">
+          {state.message} <Link href="/">See leads</Link>
+        </p>
+      )}
       {state.skipped && state.skipped.length > 0 && (
         <ul className="error small">
           {state.skipped.map((s) => (

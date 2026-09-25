@@ -95,3 +95,11 @@ _2026-09-24 · Accepted_
 **Decision:** The project, formerly developed under the codename JARVIS, is called Arclight. Packages are `@arclight/*` and API keys start with `arc_`. The GitHub repository was renamed to `arclight`; GitHub redirects old links.
 
 **Why:** "JARVIS" is a Marvel trademark and impossible to search for. Arclight keeps the spirit of an always-on assistant (the light of an arc reactor) without borrowing anyone's brand.
+
+### D12: Arclight acts on its own up to the draft, and no further
+
+_2026-09-25 · Accepted_
+
+**Decision:** Arclight may work without being asked: hunts search, track, audit and draft on a schedule, and the daily briefing reports the results. It never contacts a prospect on its own; a person reviews and sends every message (D4). Each hunt has a daily cap on new leads, and automatic drafting is opt-in per hunt with a priority threshold.
+
+**Why:** Finding and researching leads is the slow part of outreach, and it is safe to automate because mistakes stay inside the agency. Contacting a business is not: a wrong or badly timed message costs the agency's reputation and can break anti-spam rules. The caps keep the cost of Google and Claude calls predictable and the daily list short enough to review properly.

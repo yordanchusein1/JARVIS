@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import { getArclight } from '@/lib/arclight';
 import { trackPlacesAction } from './actions';
+import { CsvForm } from './csv-form';
+import { TrackForm } from './track-form';
 
 export const dynamic = 'force-dynamic';
 
@@ -51,6 +53,12 @@ export default async function FindPage({
       {result?.error && <p className="error">{result.error.error.message}</p>}
       {query && result?.data && places.length === 0 && (
         <p className="muted">No businesses found.</p>
+      )}
+      {places.length > 0 && (
+        <p className="muted small hint">
+          Want Arclight to run this search every day on its own?{' '}
+          <Link href={`/hunts?query=${encodeURIComponent(query)}#new`}>Turn it into a hunt</Link>.
+        </p>
       )}
 
       {places.length > 0 && (
@@ -115,6 +123,12 @@ export default async function FindPage({
           </p>
         </form>
       )}
+
+      <h2 className="section-title">Or add websites yourself</h2>
+      <div className="columns">
+        <TrackForm />
+        <CsvForm />
+      </div>
     </>
   );
 }

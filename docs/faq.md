@@ -6,6 +6,10 @@
 
 No, and it never will on its own. Arclight writes drafts; a person reads them and sends them with one click through WhatsApp or their email program. Automated cold messaging gets WhatsApp numbers banned and damages email domains, and a small agency needs well-researched messages more than a high volume of them. See [decision D4](DECISIONS.md#d4-no-automated-sending-in-v01).
 
+### Does Arclight work without me opening it?
+
+Yes, with [hunts](user-guide.md#hunts-finding-leads-on-its-own). A hunt searches Google Maps every morning, adds the best new businesses, audits them and can write drafts for the strongest ones. The briefing at the top of **Leads** shows the results. It still never sends a message: that stays your decision ([D12](DECISIONS.md#d12-arclight-acts-on-its-own-up-to-the-draft-and-no-further)).
+
 ### Which kinds of agencies is it for?
 
 Arclight's checks are tuned for **web agencies** first: they look for problems a website agency can fix. Marketing, SEO and creative agencies can use it today with manual judgement, and dedicated checks for them are on the [roadmap](ROADMAP.md).
@@ -36,6 +40,10 @@ Arclight itself is free and open source. You pay the services it uses:
 | Server                        | A small VPS, if you don't run it on your own computer                                                                                                                  |
 
 To spend less on drafts, set `ANTHROPIC_MODEL` to a smaller Claude model. Check how the drafts read before relying on it.
+
+### How much does a hunt use?
+
+Each run makes one to three Google Places searches (20 places each). Each new lead it adds costs one Google Places details lookup and one PageSpeed test during its audit, and, with automatic drafting on, one Claude request if its priority is high enough. With the default of 10 new leads a day, one hunt makes roughly 400 Places requests a month. **New leads per run** is the main dial: lower it to spend less.
 
 ## Data, privacy and law
 

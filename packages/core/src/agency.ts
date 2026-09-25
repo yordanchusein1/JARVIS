@@ -11,6 +11,8 @@ const DEFAULTS: AgencyProfile = {
   tone: 'friendly and professional',
   language: 'id',
   scoringWeights: {},
+  timezone: 'Asia/Jakarta',
+  followUpDays: 3,
   updatedAt: new Date(0),
 };
 

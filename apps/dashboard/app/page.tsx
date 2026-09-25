@@ -1,9 +1,10 @@
 import Link from 'next/link';
 import { getArclight } from '@/lib/arclight';
+import { contactsWithGooglePhone } from '@/lib/lead-contacts';
+import { sendLinks, type SendLink } from '@/lib/send-links';
 import { AutoRefresh } from './auto-refresh';
+import { BriefingPanel } from './briefing';
 import { AuditStatus, isAuditPending, Score } from './components';
-import { CsvForm } from './csv-form';
-import { TrackForm } from './track-form';
 
 export const dynamic = 'force-dynamic';
 
@@ -21,26 +22,50 @@ export default async function LeadsPage() {
     );
   }
 
-  const { data, error } = await arclight.GET('/businesses', { params: { query: { limit: 100 } } });
+  const [{ data, error }, briefing, profile, hunts] = await Promise.all([
+    arclight.GET('/businesses', { params: { query: { limit: 100 } } }),
+    arclight.GET('/briefing'),
+    arclight.GET('/agency-profile'),
+    arclight.GET('/hunts'),
+  ]);
   const leads = data?.data ?? [];
+
+  // WhatsApp and email links with the drafts filled in, for the leads that are ready to send.
+  const sendOptions: Record<string, SendLink[]> = {};
+  await Promise.all(
+    (briefing.data?.readyToSend ?? []).map(async ({ id }) => {
+      const { data: lead } = await arclight.GET('/businesses/{id}', { params: { path: { id } } });
+      if (!lead || lead.doNotContact) return;
+      const { contacts } = await contactsWithGooglePhone(arclight, lead);
+      sendOptions[id] = lead.drafts.flatMap((d) => sendLinks(d, contacts).slice(0, 1));
+    }),
+  );
 
   return (
     <>
       <AutoRefresh active={leads.some((b) => isAuditPending(b.latestAudit))} />
+      {briefing.data && profile.data && (
+        <BriefingPanel
+          briefing={briefing.data}
+          timeZone={profile.data.timezone}
+          senderName={profile.data.senderName}
+          hasHunts={(hunts.data?.data.length ?? 0) > 0}
+          sendOptions={sendOptions}
+        />
+      )}
       <div className="section-header">
         <h1>Leads</h1>
         <Link href="/find" className="button">
-          Find prospects on Google
+          Add prospects
         </Link>
-      </div>
-      <div className="columns">
-        <TrackForm />
-        <CsvForm />
       </div>
       {error || !data ? (
         <p className="error">Could not load leads: {error?.error.message ?? 'API unreachable'}</p>
       ) : leads.length === 0 ? (
-        <p className="muted">No leads yet. Add a prospect&apos;s website above.</p>
+        <p className="muted">
+          No leads yet. <Link href="/find">Find prospects</Link> or{' '}
+          <Link href="/hunts">set up a hunt</Link>.
+        </p>
       ) : (
         <div className="table-wrap">
           <table className="table">

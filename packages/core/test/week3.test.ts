@@ -157,7 +157,7 @@ describe('do-not-contact', () => {
       { businessId: okId, kind: 'email', value: 'owner@ok.co.id' },
       { businessId: okId, kind: 'whatsapp', value: '+6281234567890' },
     ]);
-    await addDoNotContact(db, 'phone', '0812-3456-7890'.replace(/^0/, '62'));
+    await addDoNotContact(db, 'phone', '0812-3456-7890');
     expect((await getLead(db, okId))?.contacts.map((c) => c.value)).toEqual(['owner@ok.co.id']);
 
     await addDoNotContact(db, 'domain', 'ok.co.id');

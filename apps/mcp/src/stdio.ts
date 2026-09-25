@@ -1,4 +1,4 @@
-#!/usr/bin/env -S npx tsx
+#!/usr/bin/env node
 // Runs the Arclight MCP server over stdio, for Claude Desktop, Claude Code and other MCP clients.
 // Messages go through stdout; logs go to stderr so they never corrupt the protocol stream.
 import { createInterface } from 'node:readline';

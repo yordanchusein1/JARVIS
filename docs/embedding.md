@@ -29,8 +29,11 @@ Browser: <Briefing />, <LeadList />, …
 Your server: createArclightHandler ── checks authorize(), adds the API key ──► Arclight API /v1
 ```
 
-> [!NOTE]
-> `@arclight/react` and `@arclight/sdk` aren't published to npm yet. Until they are, copy `packages/react` and `packages/sdk` from this repository into your project (for example as workspace packages), and add both to `transpilePackages` in `next.config`.
+Install it in your admin project:
+
+```sh
+npm install @arclight/react
+```
 
 **1. Add the handler** as a catch-all route. `authorize` decides who may use Arclight; use your own admin check.
 

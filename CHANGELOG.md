@@ -12,6 +12,7 @@ Notable changes to Arclight. The project is in early access and doesn't publish 
 - Google Maps searches can return up to 60 places (three pages) for hunts.
 - **MCP server** (`apps/mcp`, MIT): AI agents such as Claude and Hermes Agent can use Arclight as a tool, with tools for the briefing, leads, Google Maps search, tracking, drafts, the pipeline, the do-not-contact list and hunts. It has no tool that sends messages; `get_lead` returns WhatsApp and email links with the drafts filled in for the person to send. See [docs/mcp.md](docs/mcp.md).
 - **React components** (`packages/react`, MIT): `Briefing`, `LeadList`, `LeadDetail` and `Pipeline` for embedding Arclight in any React admin panel, and `createArclightHandler` for the server, which adds the API key after the host's own sign-in check and refuses cross-site changes. See [Embedding](docs/embedding.md#react-components).
+- The SDK, React components and MCP server can be published to npm as `@arclight/sdk`, `@arclight/react` and `@arclight/mcp`. The MCP server then runs with `npx -y @arclight/mcp`. See [Publishing](docs/publishing.md).
 
 ### Changed
 

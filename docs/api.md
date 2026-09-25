@@ -205,23 +205,23 @@ curl http://localhost:8787/v1/briefing -H "Authorization: Bearer $ARCLIGHT_API_K
 
 ## TypeScript SDK
 
-[`packages/sdk`](../packages/sdk) is a typed client generated from the OpenAPI document (MIT-licensed). It isn't published to npm yet; until it is, copy the package or generate the same client for your instance:
+[`@arclight/sdk`](https://www.npmjs.com/package/@arclight/sdk) is a typed client generated from the OpenAPI document (MIT-licensed, source in [`packages/sdk`](../packages/sdk)):
 
 ```sh
-npm install openapi-fetch
-npx openapi-typescript http://localhost:8787/v1/openapi.json -o arclight-schema.d.ts
+npm install @arclight/sdk
 ```
 
 ```ts
-import createClient from 'openapi-fetch';
-import type { paths } from './arclight-schema';
+import { createArclightClient } from '@arclight/sdk';
 
-const arclight = createClient<paths>({
-  baseUrl: `${process.env.ARCLIGHT_API_URL}/v1`,
-  headers: { Authorization: `Bearer ${process.env.ARCLIGHT_API_KEY}` },
+const arclight = createArclightClient({
+  baseUrl: process.env.ARCLIGHT_API_URL!,
+  apiKey: process.env.ARCLIGHT_API_KEY!,
 });
 
 const { data, error } = await arclight.GET('/businesses', { params: { query: { limit: 20 } } });
 ```
+
+The SDK matches the API of the same release. If you run a different version of Arclight, generate types for your own instance instead: `npx openapi-typescript http://localhost:8787/v1/openapi.json -o arclight-schema.d.ts`, used with `openapi-fetch`.
 
 See [Embedding](embedding.md) for a complete example inside a website.

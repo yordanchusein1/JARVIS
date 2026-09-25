@@ -1,21 +1,53 @@
 {
   "name": "@arclight/sdk",
-  "version": "0.0.0",
-  "private": true,
+  "version": "0.1.0",
   "description": "Typed client for the Arclight HTTP API",
   "license": "MIT",
+  "keywords": [
+    "arclight",
+    "lead generation",
+    "agency",
+    "api client",
+    "openapi"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yordanchusein1/arclight.git",
+    "directory": "packages/sdk"
+  },
+  "homepage": "https://github.com/yordanchusein1/arclight#readme",
+  "bugs": "https://github.com/yordanchusein1/arclight/issues",
   "type": "module",
   "exports": {
     ".": "./src/index.ts"
   },
   "scripts": {
     "generate": "openapi-typescript openapi.json -o src/schema.d.ts",
-    "typecheck": "tsc"
+    "typecheck": "tsc",
+    "build": "rm -rf dist && tsc -p tsconfig.build.json && cp src/schema.d.ts dist/",
+    "prepublishOnly": "pnpm run build"
   },
   "dependencies": {
     "openapi-fetch": "^0.17.0"
   },
   "devDependencies": {
     "openapi-typescript": "^7.13.0"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "import": "./dist/index.js"
+      }
+    }
+  },
+  "engines": {
+    "node": ">=22.12.0"
   }
 }

@@ -14,6 +14,7 @@ Notable changes to Arclight. The project is in early access and doesn't publish 
 - **React components** (`packages/react`, MIT): `Briefing`, `LeadList`, `LeadDetail` and `Pipeline` for embedding Arclight in any React admin panel, and `createArclightHandler` for the server, which adds the API key after the host's own sign-in check and refuses cross-site changes. See [Embedding](docs/embedding.md#react-components).
 - The SDK, React components and MCP server can be published to npm as `@arclighthq/sdk`, `@arclighthq/react` and `@arclighthq/mcp`. The MCP server then runs with `npx -y @arclighthq/mcp`. See [Publishing](docs/publishing.md).
 - **Chat** (`POST /v1/chat`, the dashboard's Chat page and `<Chat />` in `@arclighthq/react`): ask Arclight in natural language. Claude answers with streaming, using Arclight's briefing, leads, Google Maps search, tracking, drafts, pipeline and hunts. It cannot send messages.
+- **Instagram signals** through Meta's official Business Discovery API: follower count and posting activity become capacity and need signals, which also gives businesses without a website a capacity. Enter a lead's Instagram account on its page (or `instagram` in `PATCH /v1/businesses/{id}`). See [Instagram signals](docs/instagram.md).
 
 ### Changed
 

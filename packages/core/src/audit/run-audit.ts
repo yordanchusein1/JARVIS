@@ -6,6 +6,7 @@ import { analyzePage, type PageAnalysis } from './page-checks.ts';
 import { pageSpeedSignals, type PageSpeedClient } from './pagespeed.ts';
 import { isAllowedByRobots } from './robots.ts';
 import { UnsafeTargetError, type PageFetcher } from './safe-fetch.ts';
+import { instagramSignals, instagramUsername, type InstagramClient } from '../instagram.ts';
 import type { PlaceSummary } from '../places.ts';
 import { normalizeWebsite } from '../website.ts';
 import type { SignalInput } from './types.ts';
@@ -17,6 +18,8 @@ export interface AuditDependencies {
   /** Looks up a Google place live. Needed for businesses added from Google Places search. */
   getPlace?: (placeId: string) => Promise<PlaceSummary | null>;
   countryCode?: string;
+  /** Omit when no Instagram access is configured; Instagram checks are then skipped. */
+  instagram?: InstagramClient;
   now?: () => Date;
 }
 
@@ -24,16 +27,18 @@ const clampScore = (points: number) => Math.max(0, Math.min(100, points));
 
 /** Adds up signal points per axis; `weights` replaces the default points of a signal key. */
 /**
- * Scores an audit. Without a website there is nothing to judge capacity from, so it is unknown
- * (null) rather than zero; a zero would rank established businesses without a website last.
+ * Scores an audit. Without a website or Instagram signals there is nothing to judge capacity from,
+ * so it is unknown (null) rather than zero; a zero would rank established businesses without a
+ * website last.
  */
 export function scoreAudit(
   list: Pick<SignalInput, 'axis' | 'key' | 'points'>[],
   weights: Record<string, number> = {},
 ): { needScore: number; capacityScore: number | null } {
   const scores = sumScores(list, weights);
-  const noWebsite = list.some((s) => s.key === 'no_website');
-  return { ...scores, capacityScore: noWebsite ? null : scores.capacityScore };
+  const unknown =
+    list.some((s) => s.key === 'no_website') && !list.some((s) => s.axis === 'capacity');
+  return { ...scores, capacityScore: unknown ? null : scores.capacityScore };
 }
 
 export function sumScores(
@@ -129,6 +134,33 @@ export async function runAudit(
         found.push(...pageSpeedSignals(speedResult.value));
       } else if (speedResult.status === 'rejected') {
         notes.push(`Speed checks failed: ${describeError(speedResult.reason)}`);
+      }
+    }
+
+    // Instagram: an account linked from the website, or one a person added to the lead.
+    const known = await db
+      .select({ value: contactChannels.value })
+      .from(contactChannels)
+      .where(
+        and(eq(contactChannels.businessId, business.id), eq(contactChannels.kind, 'instagram')),
+      );
+    const username = [...(analysis?.contacts ?? []), ...known]
+      .filter((c) => !('kind' in c) || c.kind === 'instagram')
+      .map((c) => instagramUsername(c.value))
+      .find((u): u is string => !!u);
+    if (username && !deps.instagram) {
+      notes.push('Instagram checks were skipped because no Instagram access is configured.');
+    } else if (username && deps.instagram) {
+      try {
+        const profile = await deps.instagram.businessDiscovery(username);
+        if (profile) found.push(...instagramSignals(profile, now()));
+        else {
+          notes.push(
+            `@${username} is not an Instagram business or creator account, so Arclight can't read it.`,
+          );
+        }
+      } catch (error) {
+        notes.push(`Instagram checks failed: ${describeError(error)}`);
       }
     }
 

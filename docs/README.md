@@ -2,12 +2,13 @@
 
 ## For agencies
 
-| Guide                                 | What it covers                                                             |
-| ------------------------------------- | -------------------------------------------------------------------------- |
-| [Getting started](getting-started.md) | Install Arclight on your computer or server, step by step                  |
-| [User guide](user-guide.md)           | Finding prospects, reading audits and scores, writing and sending messages |
-| [FAQ](faq.md)                         | Costs, legal questions, data and privacy                                   |
-| [Deployment](deployment.md)           | Running Arclight on a server with HTTPS, backups and updates               |
+| Guide                                 | What it covers                                                                   |
+| ------------------------------------- | -------------------------------------------------------------------------------- |
+| [Getting started](getting-started.md) | Install Arclight on your computer or server, step by step                        |
+| [User guide](user-guide.md)           | Finding prospects, reading audits and scores, writing and sending messages       |
+| [Instagram signals](instagram.md)     | Reading businesses' Instagram followers and activity, and setting up Meta access |
+| [FAQ](faq.md)                         | Costs, legal questions, data and privacy                                         |
+| [Deployment](deployment.md)           | Running Arclight on a server with HTTPS, backups and updates                     |
 
 ## For developers
 

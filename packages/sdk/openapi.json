@@ -1470,6 +1470,15 @@
                       "bad",
                       null
                     ]
+                  },
+                  "instagram": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "maxLength": 200,
+                    "description": "Instagram username or profile link the business uses; null removes it. Setting it queues a new audit.",
+                    "example": "klinik.senyum"
                   }
                 }
               }
@@ -1483,6 +1492,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Business"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Instagram account",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
                 }
               }
             }

@@ -460,3 +460,29 @@ describe('chat', () => {
     expect(res.status).toBe(503);
   });
 });
+
+describe('instagram', () => {
+  it('stores an Instagram account on a lead and queues an audit', async () => {
+    const { data: tracked } = await arclight.POST('/businesses', {
+      body: { websites: ['ig.co.id'] },
+    });
+    const id = tracked!.data[0]!.id;
+    queued.length = 0;
+    const bad = await arclight.PATCH('/businesses/{id}', {
+      params: { path: { id } },
+      body: { instagram: 'not a handle!' },
+    });
+    expect(bad.response.status).toBe(400);
+    await arclight.PATCH('/businesses/{id}', {
+      params: { path: { id } },
+      body: { instagram: 'https://instagram.com/Klinik.IG' },
+    });
+    expect(queued).toHaveLength(1);
+    const { data } = await arclight.GET('/businesses/{id}', { params: { path: { id } } });
+    expect(data?.contacts).toContainEqual({
+      kind: 'instagram',
+      value: 'https://instagram.com/klinik.ig',
+      sourceUrl: null,
+    });
+  });
+});

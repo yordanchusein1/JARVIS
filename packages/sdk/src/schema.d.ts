@@ -937,6 +937,11 @@ export interface operations {
                     status?: components["schemas"]["LeadStatus"];
                     /** @enum {string|null} */
                     feedback?: "good" | "bad" | null;
+                    /**
+                     * @description Instagram username or profile link the business uses; null removes it. Setting it queues a new audit.
+                     * @example klinik.senyum
+                     */
+                    instagram?: string | null;
                 };
             };
         };
@@ -948,6 +953,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Business"];
+                };
+            };
+            /** @description Invalid Instagram account */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
                 };
             };
             /** @description Missing or invalid API key */

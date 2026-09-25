@@ -1,6 +1,7 @@
-import { desc, eq, inArray } from 'drizzle-orm';
+import { and, desc, eq, inArray, isNull } from 'drizzle-orm';
 import type { Database } from './db/client.ts';
-import { activityLog, businesses } from './db/schema.ts';
+import { activityLog, businesses, contactChannels } from './db/schema.ts';
+import { instagramUsername } from './instagram.ts';
 import { domainOfKey, findDoNotContact } from './do-not-contact.ts';
 import { InvalidWebsiteError, normalizeWebsite } from './website.ts';
 
@@ -159,4 +160,44 @@ export async function setLeadFeedback(
       .values({ businessId: id, action: 'feedback.set', details: { feedback } });
   }
   return row ?? null;
+}
+
+export class InvalidInstagramError extends Error {
+  override name = 'InvalidInstagramError';
+}
+
+/**
+ * Sets the Instagram account a person knows for a lead, e.g. for a business without a website,
+ * so audits can read its public numbers. `null` removes it. Accounts found on the business's own
+ * website are kept either way.
+ */
+export async function setLeadInstagram(
+  db: Database,
+  id: string,
+  value: string | null,
+): Promise<void> {
+  const username = value === null || !value.trim() ? null : instagramUsername(value);
+  if (value !== null && value.trim() && !username) {
+    throw new InvalidInstagramError('Not an Instagram username or profile link');
+  }
+  await db.transaction(async (tx) => {
+    await tx
+      .delete(contactChannels)
+      .where(
+        and(
+          eq(contactChannels.businessId, id),
+          eq(contactChannels.kind, 'instagram'),
+          isNull(contactChannels.sourceUrl),
+        ),
+      );
+    if (username) {
+      await tx
+        .insert(contactChannels)
+        .values({ businessId: id, kind: 'instagram', value: `https://instagram.com/${username}` })
+        .onConflictDoNothing();
+    }
+    await tx
+      .insert(activityLog)
+      .values({ businessId: id, action: 'instagram.set', details: { username } });
+  });
 }

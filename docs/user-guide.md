@@ -132,14 +132,16 @@ For each business Arclight visits the homepage of its website, asks Google PageS
 
 ### Capacity: why they can afford you
 
-| Signal               | Points | Evidence example                                      |
-| -------------------- | -----: | ----------------------------------------------------- |
-| `careers_page`       |     20 | Has a careers page ("Karir"), so it is hiring.        |
-| `multiple_locations` |     20 | Mentions multiple locations: "3 cabang di Surabaya…"  |
-| `own_domain`         |     10 | Has its own domain (klinik.co.id).                    |
-| `business_email`     |     10 | Uses an email address on its own domain.              |
-| `team_page`          |     10 | Presents its team on the website ("Tim Dokter").      |
-| `social_presence`    |   5–15 | Links to its Instagram and Facebook from the website. |
+| Signal                | Points | Evidence example                                                                        |
+| --------------------- | -----: | --------------------------------------------------------------------------------------- |
+| `careers_page`        |     20 | Has a careers page ("Karir"), so it is hiring.                                          |
+| `multiple_locations`  |     20 | Mentions multiple locations: "3 cabang di Surabaya…"                                    |
+| `own_domain`          |     10 | Has its own domain (klinik.co.id).                                                      |
+| `business_email`      |     10 | Uses an email address on its own domain.                                                |
+| `team_page`           |     10 | Presents its team on the website ("Tim Dokter").                                        |
+| `social_presence`     |   5–15 | Links to its Instagram and Facebook from the website.                                   |
+| `instagram_followers` |   5–25 | Has 12,400 followers on Instagram (@klinik.senyum). ([Instagram signals](instagram.md)) |
+| `instagram_active`    |     10 | Posted on Instagram 5 days ago (@klinik.senyum).                                        |
 
 Arclight also collects the **contact channels** the business publishes on its homepage: email addresses, phone and WhatsApp numbers, and Instagram, Facebook, TikTok and LinkedIn profiles.
 
@@ -157,7 +159,7 @@ Arclight also collects the **contact channels** the business publishes on its ho
 
 The geometric mean rewards leads that score on _both_ sides. A thriving business with a perfect website (high capacity, no need) and a tiny business with a broken one (high need, no capacity) both rank below an established business with visible problems.
 
-**Businesses without a website** have an unknown capacity (shown as "—"): there is no website to judge from, so their priority is also unknown and they appear after scored leads. Their Google rating on the lead page is your best guide. Instagram signals planned for v0.2 will fill this gap.
+**Businesses without a website** have an unknown capacity (shown as "—"): there is no website to judge from, so their priority is also unknown and they appear after scored leads. If you [set up Instagram signals](instagram.md), a business's Instagram followers and activity give it a capacity; enter its Instagram account on the lead's page if the audit didn't find one. Otherwise its Google rating on the lead page is your best guide.
 
 Colours: green is 60 or more, amber 30–59, grey below 30.
 

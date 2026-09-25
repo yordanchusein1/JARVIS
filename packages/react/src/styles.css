@@ -1,8 +1,9 @@
 /*
- * Default look for @arclighthq/react. Every colour is a custom property on .arc-root, so a host app
- * can restyle the components by overriding them, e.g. .arc-root { --arc-accent: #7c3aed; }.
+ * Default look for @arclighthq/react. Every colour is a custom property. The defaults sit in
+ * :where() so they have no specificity: a host app restyles the components with a plain rule in
+ * any stylesheet, loaded before or after this one, e.g. .arc-root { --arc-accent: #7c3aed; }.
  */
-.arc-root {
+:where(.arc-root) {
   --arc-bg: #f5f8fc;
   --arc-surface: #ffffff;
   --arc-text: #0a1220;
@@ -19,7 +20,7 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  .arc-root:not([data-theme='light']) {
+  :where(.arc-root:not([data-theme='light'])) {
     --arc-bg: #04070c;
     --arc-surface: #080d15;
     --arc-text: #e8eef6;
@@ -31,6 +32,19 @@
     --arc-warning: #fbbf24;
     --arc-error: #ff5a76;
   }
+}
+
+:where(.arc-root[data-theme='dark']) {
+  --arc-bg: #04070c;
+  --arc-surface: #080d15;
+  --arc-text: #e8eef6;
+  --arc-muted: #8b9ab0;
+  --arc-border: #172233;
+  --arc-accent: #3fd0ff;
+  --arc-accent-ink: #04070c;
+  --arc-success: #34d399;
+  --arc-warning: #fbbf24;
+  --arc-error: #ff5a76;
 }
 
 .arc-root *,
@@ -315,4 +329,48 @@
   border-radius: 8px;
   background: var(--arc-bg);
   white-space: pre-wrap;
+}
+
+.arc-input {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 10px;
+  border: 1px solid var(--arc-border);
+  border-radius: 8px;
+  background: var(--arc-surface);
+  color: var(--arc-text);
+  font: inherit;
+}
+
+.arc-chat-log {
+  display: grid;
+  gap: 10px;
+  max-height: 60vh;
+  min-height: 160px;
+  overflow-y: auto;
+  padding: 4px;
+}
+
+.arc-chat-turn {
+  max-width: 85%;
+  padding: 10px 12px;
+  border-radius: 12px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.arc-chat-user {
+  justify-self: end;
+  background: var(--arc-accent);
+  color: var(--arc-accent-ink);
+}
+
+.arc-chat-assistant {
+  justify-self: start;
+  background: var(--arc-bg);
+}
+
+.arc-chat-form {
+  display: flex;
+  gap: 8px;
 }

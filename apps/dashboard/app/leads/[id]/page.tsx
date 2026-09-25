@@ -6,6 +6,7 @@ import { contactsWithGooglePhone } from '@/lib/lead-contacts';
 import { AutoRefresh } from '../../auto-refresh';
 import { AuditStatus, isAuditPending, Score } from '../../components';
 import { doNotContactAction, feedbackAction, reauditAction, statusAction } from './actions';
+import { InstagramForm } from './instagram-form';
 import { DraftButton } from './draft-button';
 import { DraftCard } from './drafts';
 
@@ -265,6 +266,15 @@ export default async function LeadPage({ params }: { params: Promise<{ id: strin
             ))}
           </ul>
         )}
+        <p className="muted small">
+          Instagram account, if you know it. Arclight reads its public follower count and activity
+          through Instagram&apos;s official API, which also gives a capacity to businesses without a
+          website.
+        </p>
+        <InstagramForm
+          id={lead.id}
+          current={lead.contacts.find((c) => c.kind === 'instagram' && !c.sourceUrl)?.value ?? null}
+        />
       </section>
     </>
   );

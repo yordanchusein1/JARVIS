@@ -2,6 +2,7 @@ import { createRoute, z } from '@hono/zod-openapi';
 import {
   verifyApiKey,
   type AuditQueue,
+  type ChatModel,
   type Database,
   type DraftWriter,
   type PlacesClient,
@@ -10,6 +11,7 @@ import { createMiddleware } from 'hono/factory';
 import { createRouter, type AppEnv } from './router.ts';
 import { agencyRoutes } from './routes/agency.ts';
 import { briefingRoutes } from './routes/briefing.ts';
+import { chatRoutes } from './routes/chat.ts';
 import { businessRoutes } from './routes/businesses.ts';
 import { huntRoutes } from './routes/hunts.ts';
 import { placesRoutes } from './routes/places.ts';
@@ -22,6 +24,8 @@ export interface AppDependencies {
   draftWriter?: DraftWriter;
   /** Omit when no Google API key is configured; Places endpoints then return 503. */
   places?: PlacesClient;
+  /** Omit when no language model is configured; chat then returns 503. */
+  chatModel?: ChatModel;
 }
 
 const PUBLIC_PATHS = new Set(['/v1/health', '/v1/openapi.json']);
@@ -30,7 +34,7 @@ export const openApiInfo = {
   openapi: '3.1.0',
   info: {
     title: 'Arclight API',
-    version: '0.1.0',
+    version: '0.2.0',
     description:
       'HTTP API of the Arclight engine. Call it from your server with an API key; never expose the key to browsers.',
     license: { name: 'AGPL-3.0-only', identifier: 'AGPL-3.0-only' },
@@ -51,7 +55,7 @@ const healthRoute = createRoute({
   },
 });
 
-export function createApp({ db, auditQueue, draftWriter, places }: AppDependencies) {
+export function createApp({ db, auditQueue, draftWriter, places, chatModel }: AppDependencies) {
   const requireApiKey = createMiddleware<AppEnv>(async (c, next) => {
     if (PUBLIC_PATHS.has(c.req.path)) return next();
 
@@ -81,6 +85,7 @@ export function createApp({ db, auditQueue, draftWriter, places }: AppDependenci
     .route('/', placesRoutes(db, places))
     .route('/', huntRoutes(db, auditQueue, places))
     .route('/', briefingRoutes(db))
+    .route('/', chatRoutes({ db, auditQueue, places, draftWriter }, chatModel))
     .route('/', settingsRoutes(db))
     .doc31('/openapi.json', { ...openApiInfo, servers: [{ url: '/v1' }] });
 

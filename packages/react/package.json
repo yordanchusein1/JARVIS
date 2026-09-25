@@ -1,6 +1,6 @@
 {
   "name": "@arclighthq/react",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "React components and a server handler for embedding Arclight in any admin panel",
   "license": "MIT",
   "keywords": [

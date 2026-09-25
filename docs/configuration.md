@@ -13,22 +13,25 @@ Arclight is configured with environment variables. With Docker Compose, put them
 
 ## Recommended
 
-| Variable            | Used by     | Default         | Description                                                                                                                                                             |
-| ------------------- | ----------- | --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `GOOGLE_API_KEY`    | API, worker | not set         | Google Cloud key with **Places API (New)** and **PageSpeed Insights API** enabled. Without it, Google Maps search, hunts, live Google details and speed checks are off. |
-| `ANTHROPIC_API_KEY` | API, worker | not set         | Anthropic key for writing drafts. The worker uses it for hunts with automatic drafting. Without it, drafting returns an error and everything else still works.          |
-| `ANTHROPIC_MODEL`   | API, worker | `claude-opus-5` | Claude model used for drafts.                                                                                                                                           |
+| Variable            | Used by     | Default         | Description                                                                                                                                                                 |
+| ------------------- | ----------- | --------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GOOGLE_API_KEY`    | API, worker | not set         | Google Cloud key with **Places API (New)** and **PageSpeed Insights API** enabled. Without it, Google Maps search, hunts, live Google details and speed checks are off.     |
+| `ANTHROPIC_API_KEY` | API, worker | not set         | Anthropic key for writing drafts and for chat. The worker uses it for hunts with automatic drafting. Without it, drafting returns an error and everything else still works. |
+| `ANTHROPIC_MODEL`   | API, worker | `claude-opus-5` | Claude model used for drafts.                                                                                                                                               |
 
 ## Optional
 
-| Variable               | Used by     | Default               | Description                                                                        |
-| ---------------------- | ----------- | --------------------- | ---------------------------------------------------------------------------------- |
-| `AUDIT_CONCURRENCY`    | Worker      | `3`                   | Audits that run at the same time (1–20).                                           |
-| `DEFAULT_COUNTRY_CODE` | Worker      | `62`                  | Calling code added to local phone numbers found on websites, e.g. 0812… → +62812…. |
-| `PORT`                 | API         | `8787`                | Port the API listens on.                                                           |
-| `ARCLIGHT_API_URL`     | Dashboard   | `http://api:8787`     | Where the dashboard reaches the API. Compose sets this for you.                    |
-| `DATABASE_URL`         | API, worker | set by Compose        | PostgreSQL connection string. Only needed when running outside Docker.             |
-| `SITE_URL`             | Website     | Vercel production URL | Absolute URL of the public website, used for social previews.                      |
+| Variable                        | Used by     | Default               | Description                                                                             |
+| ------------------------------- | ----------- | --------------------- | --------------------------------------------------------------------------------------- |
+| `INSTAGRAM_ACCESS_TOKEN`        | Worker      | not set               | Meta access token for Instagram Business Discovery ([Instagram signals](instagram.md)). |
+| `INSTAGRAM_BUSINESS_ACCOUNT_ID` | Worker      | not set               | Your agency's Instagram business account ID, used with the token.                       |
+| `INSTAGRAM_GRAPH_VERSION`       | Worker      | `v23.0`               | Graph API version to call.                                                              |
+| `AUDIT_CONCURRENCY`             | Worker      | `3`                   | Audits that run at the same time (1–20).                                                |
+| `DEFAULT_COUNTRY_CODE`          | Worker      | `62`                  | Calling code added to local phone numbers found on websites, e.g. 0812… → +62812….      |
+| `PORT`                          | API         | `8787`                | Port the API listens on.                                                                |
+| `ARCLIGHT_API_URL`              | Dashboard   | `http://api:8787`     | Where the dashboard reaches the API. Compose sets this for you.                         |
+| `DATABASE_URL`                  | API, worker | set by Compose        | PostgreSQL connection string. Only needed when running outside Docker.                  |
+| `SITE_URL`                      | Website     | Vercel production URL | Absolute URL of the public website, used for social previews.                           |
 
 The agency's **time zone** and **follow-up days**, used by hunts and the daily briefing, are set in the dashboard under **Settings**, not in `.env`.
 

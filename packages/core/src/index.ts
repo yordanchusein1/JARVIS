@@ -5,7 +5,9 @@ export { createApiKey, revokeApiKey, verifyApiKey } from './api-keys.ts';
 export type { ApiKey, CreatedApiKey } from './api-keys.ts';
 export {
   getBusiness,
+  InvalidInstagramError,
   setLeadFeedback,
+  setLeadInstagram,
   setLeadStatus,
   trackPlaces,
   trackWebsites,
@@ -74,3 +76,12 @@ export type { Hunt, HuntDependencies, HuntRun, HuntSettings, HuntSummary } from 
 export { getBriefing } from './briefing.ts';
 export type { Briefing, FollowUp } from './briefing.ts';
 export { isValidTimeZone, latestSlot, nextSlot } from './schedule.ts';
+export { chatTools, createClaudeChatModel, runChat } from './chat.ts';
+export type { ChatDependencies, ChatEvent, ChatMessage, ChatModel } from './chat.ts';
+export {
+  createInstagramClient,
+  InstagramError,
+  instagramSignals,
+  instagramUsername,
+} from './instagram.ts';
+export type { InstagramClient, InstagramProfile } from './instagram.ts';

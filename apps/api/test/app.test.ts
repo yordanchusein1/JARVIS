@@ -3,9 +3,11 @@ import {
   connectDatabase,
   runMigrations,
   schema,
+  type ChatModel,
   type DraftWriter,
   type PlacesClient,
 } from '@arclight/core';
+import type Anthropic from '@anthropic-ai/sdk';
 import { createArclightClient } from '@arclighthq/sdk';
 import { sql } from 'drizzle-orm';
 import { afterAll, beforeEach, describe, expect, it } from 'vitest';
@@ -51,7 +53,21 @@ const places: PlacesClient = {
         }
       : null,
 };
-const { app } = createApp({ db, auditQueue, draftWriter, places });
+const chatModel: ChatModel = async ({ messages }, onText) => {
+  const last = messages.at(-1)!;
+  if (last.role === 'user' && typeof last.content === 'string') {
+    return {
+      stop_reason: 'tool_use',
+      content: [{ type: 'tool_use', id: 't1', name: 'list_leads', input: {} }],
+    } as Anthropic.Beta.BetaMessage;
+  }
+  onText('Belum ada lead.');
+  return {
+    stop_reason: 'end_turn',
+    content: [{ type: 'text', text: 'Belum ada lead.', citations: null }],
+  } as Anthropic.Beta.BetaMessage;
+};
+const { app } = createApp({ db, auditQueue, draftWriter, places, chatModel });
 
 // The SDK talks to the app in-process, so these tests also cover the generated client.
 function client(apiKey: string) {
@@ -410,5 +426,63 @@ describe('hunts and briefing', () => {
     expect(later.data?.newLeads).toBe(0);
     const invalid = await arclight.GET('/briefing', { params: { query: { since: 'yesterday' } } });
     expect(invalid.response.status).toBe(400);
+  });
+});
+
+describe('chat', () => {
+  it('streams the answer as server-sent events', async () => {
+    const res = await app.request('/v1/chat', {
+      method: 'POST',
+      headers: { authorization: arclightKey, 'content-type': 'application/json' },
+      body: JSON.stringify({ messages: [{ role: 'user', content: 'Ada lead baru?' }] }),
+    });
+    expect(res.status).toBe(200);
+    expect(res.headers.get('content-type')).toContain('text/event-stream');
+    const body = await res.text();
+    expect(body).toContain('event: tool\ndata: {"name":"list_leads","status":"start"}');
+    expect(body).toContain('event: text\ndata: {"delta":"Belum ada lead."}');
+    expect(body.indexOf('event: done')).toBeGreaterThan(body.indexOf('event: text'));
+  });
+
+  it('validates the conversation and needs a model', async () => {
+    const bad = await app.request('/v1/chat', {
+      method: 'POST',
+      headers: { authorization: arclightKey, 'content-type': 'application/json' },
+      body: JSON.stringify({ messages: [{ role: 'assistant', content: 'Hi' }] }),
+    });
+    expect(bad.status).toBe(400);
+    const { app: bare } = createApp({ db, auditQueue });
+    const res = await bare.request('/v1/chat', {
+      method: 'POST',
+      headers: { authorization: arclightKey, 'content-type': 'application/json' },
+      body: JSON.stringify({ messages: [{ role: 'user', content: 'Hi' }] }),
+    });
+    expect(res.status).toBe(503);
+  });
+});
+
+describe('instagram', () => {
+  it('stores an Instagram account on a lead and queues an audit', async () => {
+    const { data: tracked } = await arclight.POST('/businesses', {
+      body: { websites: ['ig.co.id'] },
+    });
+    const id = tracked!.data[0]!.id;
+    queued.length = 0;
+    const bad = await arclight.PATCH('/businesses/{id}', {
+      params: { path: { id } },
+      body: { instagram: 'not a handle!' },
+    });
+    expect(bad.response.status).toBe(400);
+    await arclight.PATCH('/businesses/{id}', {
+      params: { path: { id } },
+      body: { instagram: 'https://instagram.com/Klinik.IG' },
+    });
+    expect(queued).toHaveLength(1);
+    const { data } = await arclight.GET('/businesses/{id}', { params: { path: { id } } });
+    expect(data?.contacts).toContainEqual({
+      kind: 'instagram',
+      value: 'https://instagram.com/klinik.ig',
+      sourceUrl: null,
+    });
   });
 });

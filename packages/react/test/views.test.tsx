@@ -123,3 +123,23 @@ describe('views', () => {
     expect(blocked).not.toContain('Write new drafts');
   });
 });
+
+describe('readEvents', () => {
+  it('parses server-sent events split across chunks', async () => {
+    const { readEvents } = await import('../src/chat.tsx');
+    const encoder = new TextEncoder();
+    const body = new ReadableStream<Uint8Array>({
+      start(controller) {
+        controller.enqueue(encoder.encode('event: text\ndata: {"delta":"Ha'));
+        controller.enqueue(encoder.encode('lo"}\n\nevent: done\ndata: {"text":"Halo"}\n\n'));
+        controller.close();
+      },
+    });
+    const events = [];
+    for await (const e of readEvents(body)) events.push(e);
+    expect(events).toEqual([
+      { event: 'text', data: { delta: 'Halo' } },
+      { event: 'done', data: { text: 'Halo' } },
+    ]);
+  });
+});

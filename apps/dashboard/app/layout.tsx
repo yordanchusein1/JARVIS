@@ -27,6 +27,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
               <Link href="/">Leads</Link>
               <Link href="/find">Find</Link>
               <Link href="/hunts">Hunts</Link>
+              <Link href="/chat">Chat</Link>
               <Link href="/settings">Settings</Link>
               <form action={logoutAction}>
                 <button type="submit" className="link-button">

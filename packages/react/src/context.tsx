@@ -14,6 +14,8 @@ import { createArclightClient, type ArclightClient } from '@arclighthq/sdk';
 
 interface ArclightContextValue {
   client: ArclightClient;
+  /** Where the server handler is mounted, for requests the typed client can't make (streams). */
+  basePath: string;
   /** Builds the link to a lead's page in the host app, or null to show names without links. */
   leadHref: (id: string) => string | null;
 }
@@ -28,6 +30,8 @@ export interface ArclightProviderProps {
    * Without it, lead names are shown without links.
    */
   leadUrl?: string;
+  /** `light` or `dark` to fix the colours; by default they follow the system setting. */
+  theme?: 'light' | 'dark';
   children: ReactNode;
 }
 
@@ -35,19 +39,23 @@ export interface ArclightProviderProps {
 export function ArclightProvider({
   basePath = '/api/arclight',
   leadUrl,
+  theme,
   children,
 }: ArclightProviderProps) {
   const value = useMemo<ArclightContextValue>(
     () => ({
       // No API key here: the handler on your server adds it.
       client: createArclightClient({ baseUrl: basePath }),
+      basePath: basePath.replace(/\/+$/, ''),
       leadHref: (id) => (leadUrl ? leadUrl.replace(':id', encodeURIComponent(id)) : null),
     }),
     [basePath, leadUrl],
   );
   return (
     <ArclightContext.Provider value={value}>
-      <div className="arc-root">{children}</div>
+      <div className="arc-root" data-theme={theme}>
+        {children}
+      </div>
     </ArclightContext.Provider>
   );
 }

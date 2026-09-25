@@ -24,7 +24,7 @@ Google's terms don't allow storing names or other details from Google Maps. Arcl
 
 ### Why is capacity "—" for some leads?
 
-Arclight judges capacity from a business's website. Businesses without one have an unknown capacity until Instagram signals arrive in v0.2. Use the Google rating shown on the lead's page in the meantime.
+Arclight judges capacity from a business's website. Businesses without one have an unknown capacity unless Arclight can read their Instagram account ([Instagram signals](instagram.md)). Otherwise, use the Google rating shown on the lead's page.
 
 ## Costs
 

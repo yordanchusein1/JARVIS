@@ -94,34 +94,32 @@ const PRINCIPLES = [
 const ROADMAP = [
   {
     phase: 'Now',
-    version: 'v0.1 · Early access',
+    version: 'v0.2 · Early access',
     items: [
-      'Google Maps search, website lists and CSV import',
-      'Evidence-based website audits',
-      'Need, capacity and priority scores',
-      'WhatsApp and email drafts with Claude',
-      'Pipeline, do-not-contact list and score tuning',
+      'Hunts that search Google Maps every day on their own',
+      'Evidence-based audits and need, capacity and priority scores',
+      'WhatsApp and email drafts with Claude, and a daily briefing',
+      'Chat, an MCP server and drop-in React components',
+      'Instagram signals, do-not-contact list and score tuning',
     ],
   },
   {
     phase: 'Next',
-    version: 'v0.2 · Autopilot',
+    version: 'v0.3',
     items: [
-      'Autonomous hunts on a schedule',
-      'A daily briefing of new leads and replies',
-      'MCP server for Claude, Hermes Agent and other agents',
-      'Drop-in React components for your own admin',
-      'Instagram signals',
+      'Plugins for marketing, SEO and creative agencies',
+      'Team accounts and roles',
+      'Embeds for WordPress, Laravel and other sites',
+      'Optional email sending with deliverability safeguards',
     ],
   },
   {
     phase: 'Later',
-    version: 'v0.3+',
+    version: 'v0.4+',
     items: [
-      'Plugins for marketing, SEO and creative agencies',
-      'Team accounts and roles',
       'Agency memory: services, portfolio, pricing',
       'Proposal and report drafting',
+      'WhatsApp and Slack commands',
     ],
   },
 ];
@@ -362,9 +360,7 @@ export default function Home() {
                 </a>
               </article>
               <article className="way">
-                <p className="way-kicker">
-                  AI agents <span className="soon">Coming in v0.2</span>
-                </p>
+                <p className="way-kicker">AI agents</p>
                 <h3>A tool for any agent</h3>
                 <p>
                   An MCP server lets Claude, Hermes Agent and others use Arclight as their lead
@@ -392,7 +388,7 @@ export default function Home() {
               index="06"
               eyebrow="Roadmap"
               title="From co-pilot to autopilot."
-              lead="Today Arclight works when you ask. Next, it hunts on its own and briefs you every morning. You still decide who gets a message."
+              lead="Arclight hunts on its own and briefs you every morning. Next, it learns your agency and works for more kinds of agencies. You still decide who gets a message."
             />
             <div className="phases">
               {ROADMAP.map((phase) => (

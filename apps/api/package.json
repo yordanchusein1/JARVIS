@@ -24,6 +24,7 @@
     "zod": "^4.6.5"
   },
   "devDependencies": {
-    "@arclighthq/sdk": "workspace:*"
+    "@arclighthq/sdk": "workspace:*",
+    "@anthropic-ai/sdk": "^0.128.0"
   }
 }

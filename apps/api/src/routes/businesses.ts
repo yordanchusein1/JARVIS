@@ -4,10 +4,12 @@ import {
   generateDrafts,
   getBusiness,
   getLead,
+  InvalidInstagramError,
   latestDrafts,
   listLeads,
   requestAudits,
   setLeadFeedback,
+  setLeadInstagram,
   setLeadStatus,
   trackPlaces,
   trackWebsites,
@@ -154,15 +156,22 @@ const updateRoute = createRoute({
           .object({
             status: LeadStatusSchema.optional(),
             feedback: z.enum(['good', 'bad']).nullable().optional(),
+            instagram: z.string().max(200).nullable().optional().openapi({
+              description:
+                'Instagram username or profile link the business uses; null removes it. Setting it queues a new audit.',
+              example: 'klinik.senyum',
+            }),
           })
-          .refine((b) => b.status !== undefined || b.feedback !== undefined, {
-            message: 'Provide status or feedback',
-          }),
+          .refine(
+            (b) => b.status !== undefined || b.feedback !== undefined || b.instagram !== undefined,
+            { message: 'Provide status, feedback or instagram' },
+          ),
       ),
     },
   },
   responses: {
     200: { description: 'The updated business', content: json(BusinessSchema) },
+    400: { description: 'Invalid Instagram account', content: json(ErrorSchema) },
     ...notFound,
     ...unauthorized,
   },
@@ -342,8 +351,19 @@ export function businessRoutes(
     })
     .openapi(updateRoute, async (c) => {
       const { id } = c.req.valid('param');
-      const { status, feedback } = c.req.valid('json');
+      const { status, feedback, instagram } = c.req.valid('json');
       if (!(await getBusiness(db, id))) return c.json(notFoundBody, 404);
+      if (instagram !== undefined) {
+        try {
+          await setLeadInstagram(db, id, instagram);
+        } catch (error) {
+          if (error instanceof InvalidInstagramError) {
+            return c.json({ error: { code: 'invalid_request', message: error.message } }, 400);
+          }
+          throw error;
+        }
+        await requestAudits(db, auditQueue, [id]);
+      }
       if (status !== undefined) await setLeadStatus(db, id, status);
       if (feedback !== undefined) await setLeadFeedback(db, id, feedback);
       const [lead] = await listLeads(db, { ids: [id] });

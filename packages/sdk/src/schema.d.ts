@@ -272,6 +272,35 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/chat": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Talk to Arclight in natural language
+         * @description Claude answers using Arclight's own data and actions (briefing, leads, Google Maps search, drafts, pipeline, hunts). It never sends messages to prospects.
+         *
+         *     The response is a stream of server-sent events:
+         *
+         *     - `text`: `{"delta": "…"}`, a piece of the answer
+         *     - `tool`: `{"name": "list_leads", "status": "start" | "done" | "error"}`, work in progress
+         *     - `done`: `{"text": "…"}`, the full answer; add it to `messages` as an `assistant` message for the next turn
+         *     - `error`: `{"message": "…"}`
+         *
+         *     Send the whole conversation each time; Arclight doesn't store it.
+         */
+        post: operations["chat"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/do-not-contact": {
         parameters: {
             query?: never;
@@ -908,6 +937,11 @@ export interface operations {
                     status?: components["schemas"]["LeadStatus"];
                     /** @enum {string|null} */
                     feedback?: "good" | "bad" | null;
+                    /**
+                     * @description Instagram username or profile link the business uses; null removes it. Setting it queues a new audit.
+                     * @example klinik.senyum
+                     */
+                    instagram?: string | null;
                 };
             };
         };
@@ -919,6 +953,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Business"];
+                };
+            };
+            /** @description Invalid Instagram account */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
                 };
             };
             /** @description Missing or invalid API key */
@@ -1474,6 +1517,62 @@ export interface operations {
             };
             /** @description Missing or invalid API key */
             401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    chat: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /**
+                     * @example [
+                     *       {
+                     *         "role": "user",
+                     *         "content": "What should I do today?"
+                     *       }
+                     *     ]
+                     */
+                    messages: {
+                        /** @enum {string} */
+                        role: "user" | "assistant";
+                        content: string;
+                    }[];
+                };
+            };
+        };
+        responses: {
+            /** @description A stream of server-sent events */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/event-stream": string;
+                };
+            };
+            /** @description Missing or invalid API key */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description No language model is configured */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };

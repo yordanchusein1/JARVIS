@@ -87,12 +87,13 @@ export default async function LeadPage({ params }: { params: Promise<{ id: strin
 }
 ```
 
-| Component           | Shows                                                                                                   |
-| ------------------- | ------------------------------------------------------------------------------------------------------- |
-| `<Briefing />`      | New leads, drafts ready to send with **Send on WhatsApp** and **Send by email** buttons, follow-ups due |
-| `<LeadList />`      | Leads by priority; refreshes itself while audits run                                                    |
-| `<LeadDetail id />` | Scores, the evidence behind them, drafts with send buttons, status, **Write messages**, **Audit again** |
-| `<Pipeline />`      | Leads in columns by stage; changing a lead's stage saves it                                             |
+| Component           | Shows                                                                                                       |
+| ------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `<Briefing />`      | New leads, drafts ready to send with **Send on WhatsApp** and **Send by email** buttons, follow-ups due     |
+| `<LeadList />`      | Leads by priority; refreshes itself while audits run                                                        |
+| `<LeadDetail id />` | Scores, the evidence behind them, drafts with send buttons, status, **Write messages**, **Audit again**     |
+| `<Pipeline />`      | Leads in columns by stage; changing a lead's stage saves it                                                 |
+| `<Chat />`          | A conversation with Arclight that streams its answers; it can look up leads, search, draft and manage hunts |
 
 `ArclightProvider` takes `basePath` (where the handler is mounted, default `/api/arclight`) and `leadUrl` (your lead page, with `:id`; without it, names aren't links).
 
@@ -105,7 +106,27 @@ export default async function LeadPage({ params }: { params: Promise<{ id: strin
 }
 ```
 
-It follows the system's light or dark mode; add `data-theme="light"` to a parent `.arc-root` to force light. For full control, the presentational parts (`BriefingView`, `LeadListView`, `LeadDetailView`, `PipelineView`, `Score`, …) are exported too and take data as props.
+It follows the system's light or dark mode; pass `theme="light"` or `theme="dark"` to `ArclightProvider` to fix it. For full control, the presentational parts (`BriefingView`, `LeadListView`, `LeadDetailView`, `PipelineView`, `Score`, …) are exported too and take data as props.
+
+## Reference integration: a Next.js admin on Vercel
+
+[`examples/nextjs-admin`](../examples/nextjs-admin) is a complete, runnable admin with Arclight built in: the briefing, leads, a lead page, the pipeline and chat, in about 100 lines. This is how an agency admin such as Vera & Co.'s, a Next.js app on Vercel, uses Arclight:
+
+```
+Vercel: your admin (Next.js)                         Your server (VPS): Arclight
+  pages with <Briefing />, <LeadList />, …             dashboard, API, worker, PostgreSQL
+  app/api/arclight/[...path]  ── HTTPS + API key ──►   https://api.arclight.youragency.com/v1
+```
+
+1. **Run Arclight on a server** with HTTPS for the API ([Deployment](deployment.md), including the `api.` hostname). Vercel can't run Arclight's worker and database, and your admin must reach the API over the internet.
+2. **Create an API key** for the admin: `docker compose exec api tsx src/cli/create-api-key.ts admin`.
+3. **Add environment variables** in the Vercel project (**Settings → Environment Variables**): `ARCLIGHT_API_URL=https://api.arclight.youragency.com` and `ARCLIGHT_API_KEY=arc_…`. Don't prefix them with `NEXT_PUBLIC_`; they must stay on the server.
+4. **Install** `@arclighthq/react` and copy the example's route (`app/api/arclight/[...path]/route.ts`) and the pages you want.
+5. **Connect your sign-in:** in the route's `authorize`, call your admin's own session check. Only people who pass it can reach Arclight.
+6. **Match your look** with `.arc-root { --arc-accent: …; }`, and set `theme="light"` or `"dark"` on `ArclightProvider` if your admin doesn't follow the system setting.
+7. Deploy, open the admin, and check that the briefing loads. If it says "Sign in to use Arclight", `authorize` returned false; "The Arclight API is not reachable" means the URL or HTTPS is wrong.
+
+The API key in Vercel gives full access to your leads, like the dashboard's. Create a separate key per app so you can replace one without touching the others.
 
 ## Build your own views (Next.js)
 

@@ -7,6 +7,7 @@ This guide explains every screen of the Arclight dashboard and how Arclight deci
 - [Adding prospects](#adding-prospects)
 - [Hunts: finding leads on its own](#hunts-finding-leads-on-its-own)
 - [The daily briefing](#the-daily-briefing)
+- [Chat](#chat)
 - [Audits: what Arclight checks](#audits-what-arclight-checks)
 - [Scores and priority](#scores-and-priority)
 - [Writing and sending messages](#writing-and-sending-messages)
@@ -96,6 +97,17 @@ The top of **Leads** shows what happened in the last 24 hours and what needs you
 
 Your own website or an AI agent can fetch the same briefing from the API (`GET /v1/briefing`, see the [API reference](api.md#daily-briefing)).
 
+## Chat
+
+**Chat** lets you ask Arclight in your own words, in Bahasa Indonesia or English:
+
+- _"Apa yang harus aku kerjakan hari ini?"_
+- _"Cari klinik gigi di Sidoarjo dengan minimal 50 ulasan, lalu lacak 5 yang terbaik."_
+- _"Tuliskan pesan untuk Klinik Gigi Senyum."_
+- _"Buat hunt untuk sekolah swasta di Bandung setiap jam 6 pagi."_
+
+It uses the same data and actions as the rest of the dashboard, and shows what it is doing while it works. It never sends a message: drafts it writes wait on the lead's page for you. Chat needs `ANTHROPIC_API_KEY`, and each question is a Claude request ([costs](faq.md#what-does-it-cost-to-run)). Conversations aren't saved; reloading the page starts a new one.
+
 ## Audits: what Arclight checks
 
 For each business Arclight visits the homepage of its website, asks Google PageSpeed Insights how it performs on phones, and records **signals**. Every signal comes with a sentence of evidence, and only these sentences may be used in messages.
@@ -120,14 +132,16 @@ For each business Arclight visits the homepage of its website, asks Google PageS
 
 ### Capacity: why they can afford you
 
-| Signal               | Points | Evidence example                                      |
-| -------------------- | -----: | ----------------------------------------------------- |
-| `careers_page`       |     20 | Has a careers page ("Karir"), so it is hiring.        |
-| `multiple_locations` |     20 | Mentions multiple locations: "3 cabang di Surabaya…"  |
-| `own_domain`         |     10 | Has its own domain (klinik.co.id).                    |
-| `business_email`     |     10 | Uses an email address on its own domain.              |
-| `team_page`          |     10 | Presents its team on the website ("Tim Dokter").      |
-| `social_presence`    |   5–15 | Links to its Instagram and Facebook from the website. |
+| Signal                | Points | Evidence example                                                                        |
+| --------------------- | -----: | --------------------------------------------------------------------------------------- |
+| `careers_page`        |     20 | Has a careers page ("Karir"), so it is hiring.                                          |
+| `multiple_locations`  |     20 | Mentions multiple locations: "3 cabang di Surabaya…"                                    |
+| `own_domain`          |     10 | Has its own domain (klinik.co.id).                                                      |
+| `business_email`      |     10 | Uses an email address on its own domain.                                                |
+| `team_page`           |     10 | Presents its team on the website ("Tim Dokter").                                        |
+| `social_presence`     |   5–15 | Links to its Instagram and Facebook from the website.                                   |
+| `instagram_followers` |   5–25 | Has 12,400 followers on Instagram (@klinik.senyum). ([Instagram signals](instagram.md)) |
+| `instagram_active`    |     10 | Posted on Instagram 5 days ago (@klinik.senyum).                                        |
 
 Arclight also collects the **contact channels** the business publishes on its homepage: email addresses, phone and WhatsApp numbers, and Instagram, Facebook, TikTok and LinkedIn profiles.
 
@@ -145,7 +159,7 @@ Arclight also collects the **contact channels** the business publishes on its ho
 
 The geometric mean rewards leads that score on _both_ sides. A thriving business with a perfect website (high capacity, no need) and a tiny business with a broken one (high need, no capacity) both rank below an established business with visible problems.
 
-**Businesses without a website** have an unknown capacity (shown as "—"): there is no website to judge from, so their priority is also unknown and they appear after scored leads. Their Google rating on the lead page is your best guide. Instagram signals planned for v0.2 will fill this gap.
+**Businesses without a website** have an unknown capacity (shown as "—"): there is no website to judge from, so their priority is also unknown and they appear after scored leads. If you [set up Instagram signals](instagram.md), a business's Instagram followers and activity give it a capacity; enter its Instagram account on the lead's page if the audit didn't find one. Otherwise its Google rating on the lead page is your best guide.
 
 Colours: green is 60 or more, amber 30–59, grey below 30.
 

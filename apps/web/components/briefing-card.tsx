@@ -1,20 +1,16 @@
-// A preview of the daily briefing planned for v0.2.
+// An illustration of the daily briefing in the dashboard.
 
 const ITEMS = [
   { value: '12', label: 'new qualified leads found overnight' },
-  { value: '3', label: 'replies waiting for you' },
+  { value: '3', label: 'messages ready to send' },
   { value: '2', label: 'follow-ups due today' },
 ];
 
 export function BriefingCard() {
   return (
-    <div
-      className="briefing"
-      aria-label="Illustrative preview of the daily briefing, coming in v0.2"
-    >
+    <div className="briefing" aria-label="Illustration of the daily briefing">
       <p className="briefing-head">
         <span className="hud-label">07:00 · Daily briefing</span>
-        <span className="soon">Coming in v0.2</span>
       </p>
       <p className="briefing-hello">Good morning. While you were away:</p>
       <ul className="briefing-stats">

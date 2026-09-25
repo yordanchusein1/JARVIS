@@ -58,3 +58,20 @@ export async function doNotContactAction(id: string, website: string): Promise<v
   revalidatePath(`/leads/${id}`);
   revalidatePath('/');
 }
+
+export async function instagramAction(
+  id: string,
+  _prev: { error?: string; message?: string },
+  form: FormData,
+): Promise<{ error?: string; message?: string }> {
+  const arclight = await getArclight();
+  if (!arclight) return { error: 'The dashboard is not connected to the Arclight API.' };
+  const value = String(form.get('instagram') ?? '').trim();
+  const { error } = await arclight.PATCH('/businesses/{id}', {
+    params: { path: { id } },
+    body: { instagram: value || null },
+  });
+  if (error) return { error: error.error.message };
+  revalidatePath(`/leads/${id}`);
+  return { message: value ? 'Saved. Arclight is auditing again with Instagram.' : 'Removed.' };
+}

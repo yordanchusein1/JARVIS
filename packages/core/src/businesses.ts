@@ -112,14 +112,18 @@ export async function setLeadStatus(
 }
 
 /** Starts tracking businesses picked from a Google Places search. Only the place ID is stored. */
-export async function trackPlaces(db: Database, placeIds: string[]): Promise<TrackWebsitesResult> {
+export async function trackPlaces(
+  db: Database,
+  placeIds: string[],
+  { huntId }: { /** The hunt that found these places. */ huntId?: string } = {},
+): Promise<TrackWebsitesResult> {
   const ids = [...new Set(placeIds.map((id) => id.trim()).filter(Boolean))];
   if (ids.length === 0) return { businesses: [], createdIds: [], skipped: [] };
 
   return db.transaction(async (tx) => {
     const created = await tx
       .insert(businesses)
-      .values(ids.map((placeId) => ({ source: 'places' as const, placeId })))
+      .values(ids.map((placeId) => ({ source: 'places' as const, placeId, huntId })))
       .onConflictDoNothing({ target: businesses.placeId })
       .returning({ id: businesses.id });
     if (created.length > 0) {
@@ -127,7 +131,7 @@ export async function trackPlaces(db: Database, placeIds: string[]): Promise<Tra
         created.map((b) => ({
           businessId: b.id,
           action: 'business.tracked',
-          details: { source: 'places' },
+          details: huntId ? { source: 'places', huntId } : { source: 'places' },
         })),
       );
     }

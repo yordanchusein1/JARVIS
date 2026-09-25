@@ -131,6 +131,7 @@ Open **http://localhost:3000** and sign in with your `DASHBOARD_PASSWORD`.
 4. Open a lead to see **why they need you** and **why they can afford you**, with the evidence for each point.
 5. Click **Write messages**. Read the WhatsApp message and the email, fix anything you'd say differently, then use **Open WhatsApp** or **Open email** to send it yourself.
 6. Move the lead to **Contacted** in the pipeline.
+7. **Hunts.** When a search keeps giving good leads, click **Turn it into a hunt** on Find. Arclight then runs it every morning and the briefing at the top of **Leads** tells you what it found.
 
 The [user guide](user-guide.md) explains every screen and score in detail.
 

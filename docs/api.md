@@ -60,12 +60,37 @@ New businesses are audited automatically. Audits run in the background; poll `GE
 | ------ | ---------------- | --------------------------------------------------------------------------------------------------------------- |
 | `GET`  | `/places/search` | Search Google Maps: `?q=dental clinic Surabaya`. Results are live and include `businessId` when already tracked |
 
+### Hunts
+
+A hunt is a saved Google Maps search that the worker runs every day at `runHour` in the agency's time zone ([user guide](user-guide.md#hunts-finding-leads-on-its-own)).
+
+| Method   | Path               | Description                                                                                 |
+| -------- | ------------------ | ------------------------------------------------------------------------------------------- |
+| `GET`    | `/hunts`           | All hunts with `lastRun`, `nextRunAt` (`null` while paused) and the number of `leads` found |
+| `POST`   | `/hunts`           | Create one: `{ "query": "klinik gigi Surabaya" }` plus any settings below (returns `201`)   |
+| `GET`    | `/hunts/{id}`      | One hunt with its last 10 `runs`                                                            |
+| `PATCH`  | `/hunts/{id}`      | Change settings; `{ "active": false }` pauses it                                            |
+| `DELETE` | `/hunts/{id}`      | Delete the hunt and its runs. Leads it found stay, with `huntId: null`.                     |
+| `POST`   | `/hunts/{id}/runs` | Run it now and wait for the result (returns `201` with the run)                             |
+
+Settings and their defaults: `runHour` (0–23, `7`), `maxNewPerRun` (1–50, `10`), `minReviews` (`0`), `includeNoWebsite` (`true`), `autoDraft` (`false`), `autoDraftMinPriority` (0–100, `50`), `active` (`true`).
+
+A run reports `found` (places Google returned), `alreadyTracked`, `excluded` (by filters or the do-not-contact list) and `tracked` (new leads). A run that couldn't search, for example because Google refused the key, is still returned, with `"status": "failed"` and an `error`. Leads found by a hunt carry its `huntId`.
+
+### Daily briefing
+
+| Method | Path        | Description                                                                               |
+| ------ | ----------- | ----------------------------------------------------------------------------------------- |
+| `GET`  | `/briefing` | What happened since `?since=` (ISO 8601; default: the last 24 hours) and what needs doing |
+
+The response has counts for the period (`newLeads`, `audited`, `auditsFailed`, `draftsWritten`), the best `topNewLeads`, the `readyToSend` leads (new, with drafts, best first) and the `followUps` that are due (contacted longer ago than the agency's `followUpDays`, oldest first), each with a total, plus the period's `huntRuns` and the number of leads in each `pipeline` stage.
+
 ### Agency
 
-| Method  | Path              | Description                                           |
-| ------- | ----------------- | ----------------------------------------------------- |
-| `GET`   | `/agency-profile` | Agency name, sender name, services, tone and language |
-| `PATCH` | `/agency-profile` | Update any of those fields                            |
+| Method  | Path              | Description                                                                                                   |
+| ------- | ----------------- | ------------------------------------------------------------------------------------------------------------- |
+| `GET`   | `/agency-profile` | Agency name, sender name, services, tone, language, `timezone` (IANA, e.g. `Asia/Jakarta`) and `followUpDays` |
+| `PATCH` | `/agency-profile` | Update any of those fields                                                                                    |
 
 ### Do not contact
 
@@ -140,6 +165,42 @@ Write drafts:
 ```sh
 curl -X POST http://localhost:8787/v1/businesses/<id>/drafts \
   -H "Authorization: Bearer $ARCLIGHT_API_KEY"
+```
+
+Hunt for dental clinics every morning at 6, writing drafts for strong leads:
+
+```sh
+curl -X POST http://localhost:8787/v1/hunts \
+  -H "Authorization: Bearer $ARCLIGHT_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"query": "klinik gigi Surabaya", "runHour": 6, "minReviews": 20, "autoDraft": true}'
+```
+
+Show the briefing on your own admin page (response shortened):
+
+```sh
+curl http://localhost:8787/v1/briefing -H "Authorization: Bearer $ARCLIGHT_API_KEY"
+```
+
+```json
+{
+  "since": "2026-09-24T03:00:00.000Z",
+  "until": "2026-09-25T03:00:00.000Z",
+  "newLeads": 5,
+  "audited": 5,
+  "auditsFailed": 0,
+  "draftsWritten": 1,
+  "readyToSend": [{ "id": "0b6f…", "displayName": "Klinik Gigi Senyum Sehat", "priority": 87 }],
+  "readyToSendTotal": 1,
+  "followUps": [
+    {
+      "business": { "displayName": "Hotel Arjuna Batu" },
+      "contactedAt": "2026-09-21T03:00:00.000Z"
+    }
+  ],
+  "followUpsTotal": 1,
+  "pipeline": { "new": 4, "contacted": 1, "replied": 0, "meeting": 0, "won": 0, "lost": 0 }
+}
 ```
 
 ## TypeScript SDK

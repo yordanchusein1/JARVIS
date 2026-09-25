@@ -2,15 +2,16 @@
 
 import { useActionState } from 'react';
 import type { components } from '@arclight/sdk';
+import { submitKeepingInput } from '../submit';
 import { saveProfileAction, type ProfileState } from './actions';
 
 type Profile = components['schemas']['AgencyProfile'];
 
-export function ProfileForm({ profile }: { profile: Profile }) {
+export function ProfileForm({ profile, timeZones }: { profile: Profile; timeZones: string[] }) {
   const [state, action, pending] = useActionState<ProfileState, FormData>(saveProfileAction, {});
 
   return (
-    <form action={action} className="card">
+    <form onSubmit={submitKeepingInput(action)} className="card">
       <label className="label" htmlFor="agencyName">
         Agency name
       </label>
@@ -65,6 +66,42 @@ export function ProfileForm({ profile }: { profile: Profile }) {
         <option value="id">Bahasa Indonesia</option>
         <option value="en">English</option>
       </select>
+
+      <label className="label" htmlFor="timezone">
+        Time zone
+      </label>
+      <input
+        className="input"
+        id="timezone"
+        name="timezone"
+        list="timezones"
+        defaultValue={profile.timezone}
+        placeholder="Asia/Jakarta"
+        required
+      />
+      <datalist id="timezones">
+        {timeZones.map((tz) => (
+          <option key={tz} value={tz} />
+        ))}
+      </datalist>
+      <p className="muted small">Hunts run and the daily briefing is counted in this time zone.</p>
+
+      <label className="label" htmlFor="followUpDays">
+        Follow up after (days)
+      </label>
+      <input
+        className="input"
+        id="followUpDays"
+        name="followUpDays"
+        type="number"
+        min={1}
+        max={60}
+        defaultValue={profile.followUpDays}
+        required
+      />
+      <p className="muted small">
+        A contacted lead without a reply shows up in the briefing after this many days.
+      </p>
 
       <button type="submit" className="button" disabled={pending}>
         {pending ? 'Saving…' : 'Save profile'}

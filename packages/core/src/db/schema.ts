@@ -1,4 +1,5 @@
 import {
+  boolean,
   index,
   integer,
   jsonb,
@@ -55,9 +56,56 @@ export const apiKeys = pgTable('api_keys', {
   revokedAt: timestamp('revoked_at', { withTimezone: true }),
 });
 
+// A saved Google Places search that Arclight runs every day to find new leads on its own.
+export const hunts = pgTable('hunts', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  query: text('query').notNull(),
+  active: boolean('active').notNull().default(true),
+  // Local hour (in the agency's time zone) at which the hunt runs each day.
+  runHour: integer('run_hour').notNull().default(7),
+  maxNewPerRun: integer('max_new_per_run').notNull().default(10),
+  // Skip places with fewer Google reviews. Checked live during the run and never stored (D9).
+  minReviews: integer('min_reviews').notNull().default(0),
+  includeNoWebsite: boolean('include_no_website').notNull().default(true),
+  // Write drafts for new leads whose priority reaches autoDraftMinPriority. Nothing is sent.
+  autoDraft: boolean('auto_draft').notNull().default(false),
+  autoDraftMinPriority: integer('auto_draft_min_priority').notNull().default(50),
+  // The daily slot the last scheduled run was for, so each slot runs once.
+  lastScheduledFor: timestamp('last_scheduled_for', { withTimezone: true }),
+  createdAt: createdAt(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const huntRunStatus = pgEnum('hunt_run_status', ['running', 'succeeded', 'failed']);
+export const huntTrigger = pgEnum('hunt_trigger', ['schedule', 'manual']);
+
+export const huntRuns = pgTable(
+  'hunt_runs',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    huntId: uuid('hunt_id')
+      .notNull()
+      .references(() => hunts.id, { onDelete: 'cascade' }),
+    trigger: huntTrigger('trigger').notNull(),
+    status: huntRunStatus('status').notNull().default('running'),
+    error: text('error'),
+    // Places Google returned, places skipped because they were already tracked, places left out
+    // by the hunt's filters or the do-not-contact list, and new businesses tracked.
+    found: integer('found').notNull().default(0),
+    alreadyTracked: integer('already_tracked').notNull().default(0),
+    excluded: integer('excluded').notNull().default(0),
+    tracked: integer('tracked').notNull().default(0),
+    startedAt: timestamp('started_at', { withTimezone: true }).notNull().defaultNow(),
+    finishedAt: timestamp('finished_at', { withTimezone: true }),
+  },
+  (t) => [index('hunt_runs_hunt_id_idx').on(t.huntId, t.startedAt)],
+);
+
 export const businesses = pgTable('businesses', {
   id: uuid('id').primaryKey().defaultRandom(),
   source: businessSource('source').notNull(),
+  // The hunt that found this business, if any.
+  huntId: uuid('hunt_id').references(() => hunts.id, { onDelete: 'set null' }),
   placeId: text('place_id').unique(),
   websiteUrl: text('website_url'),
   // Normalised form of the website used for de-duplication (host without "www." plus path).
@@ -159,6 +207,10 @@ export const agencyProfile = pgTable('agency_profile', {
   language: text('language').notNull().default('id'),
   // Points per signal key that replace the built-in defaults, e.g. { "no_https": 10 }.
   scoringWeights: jsonb('scoring_weights').$type<Record<string, number>>().notNull().default({}),
+  // IANA time zone for hunt schedules and the daily briefing.
+  timezone: text('timezone').notNull().default('Asia/Jakarta'),
+  // Days after which a contacted lead without a reply shows up as a follow-up.
+  followUpDays: integer('follow_up_days').notNull().default(3),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 });
 

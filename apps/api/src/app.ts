@@ -9,7 +9,9 @@ import {
 import { createMiddleware } from 'hono/factory';
 import { createRouter, type AppEnv } from './router.ts';
 import { agencyRoutes } from './routes/agency.ts';
+import { briefingRoutes } from './routes/briefing.ts';
 import { businessRoutes } from './routes/businesses.ts';
+import { huntRoutes } from './routes/hunts.ts';
 import { placesRoutes } from './routes/places.ts';
 import { settingsRoutes } from './routes/settings.ts';
 
@@ -77,6 +79,8 @@ export function createApp({ db, auditQueue, draftWriter, places }: AppDependenci
     .route('/', businessRoutes(db, auditQueue, draftWriter, places))
     .route('/', agencyRoutes(db))
     .route('/', placesRoutes(db, places))
+    .route('/', huntRoutes(db, auditQueue, places))
+    .route('/', briefingRoutes(db))
     .route('/', settingsRoutes(db))
     .doc31('/openapi.json', { ...openApiInfo, servers: [{ url: '/v1' }] });
 

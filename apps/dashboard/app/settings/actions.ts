@@ -23,10 +23,20 @@ export async function saveProfileAction(
       services: field('services'),
       tone: field('tone'),
       language: field('language') || 'id',
+      timezone: field('timezone') || 'Asia/Jakarta',
+      followUpDays: Number(field('followUpDays')) || 3,
     },
   });
-  if (error) return { error: error.error.message };
+  if (error) {
+    const invalid = error.error.code === 'invalid_request';
+    return {
+      error: invalid
+        ? 'Check the fields: the time zone must be a name like Asia/Jakarta, and follow-up days between 1 and 60.'
+        : error.error.message,
+    };
+  }
   revalidatePath('/settings');
+  revalidatePath('/');
   return { message: 'Saved.' };
 }
 

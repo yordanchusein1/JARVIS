@@ -13,7 +13,7 @@ export async function setupTestDatabase(): Promise<
     ...connection,
     reset: async () => {
       await connection.db.execute(
-        sql`TRUNCATE agency_profile, drafts, api_keys, businesses, audits, signals, contact_channels, activity_log, do_not_contact CASCADE`,
+        sql`TRUNCATE agency_profile, drafts, api_keys, hunts, hunt_runs, businesses, audits, signals, contact_channels, activity_log, do_not_contact CASCADE`,
       );
     },
   };

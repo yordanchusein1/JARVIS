@@ -5,6 +5,8 @@ This guide explains every screen of the Arclight dashboard and how Arclight deci
 - [The idea in one minute](#the-idea-in-one-minute)
 - [Agency profile](#agency-profile)
 - [Adding prospects](#adding-prospects)
+- [Hunts: finding leads on its own](#hunts-finding-leads-on-its-own)
+- [The daily briefing](#the-daily-briefing)
 - [Audits: what Arclight checks](#audits-what-arclight-checks)
 - [Scores and priority](#scores-and-priority)
 - [Writing and sending messages](#writing-and-sending-messages)
@@ -27,10 +29,12 @@ A good prospect has two things: a **need** you can see (a slow website, no HTTPS
 | What you offer   | Choosing which findings matter. Be specific: "websites for clinics and schools". |
 | Tone             | The voice of the messages, e.g. "friendly and professional" or "casual"          |
 | Message language | Bahasa Indonesia or English                                                      |
+| Time zone        | When hunts run and how the briefing's day is counted, e.g. `Asia/Jakarta`        |
+| Follow up after  | Days without a reply before a contacted lead shows up as a follow-up             |
 
 ## Adding prospects
 
-There are three ways to add businesses. Every new business is audited automatically.
+All three ways to add businesses by hand are on **Find**, and every new business is audited automatically. To have Arclight look for businesses every day on its own, use a [hunt](#hunts-finding-leads-on-its-own).
 
 ### Search Google Maps
 
@@ -42,11 +46,55 @@ Google's terms don't allow storing names, addresses or reviews from Google Maps,
 
 ### Paste websites
 
-On **Leads**, paste website addresses, one per line (`klinik.co.id` is enough). Addresses that can't be a public website, such as `localhost` or an IP address, are rejected, and websites already in Arclight aren't added twice.
+Under **Or add websites yourself**, paste website addresses, one per line (`klinik.co.id` is enough). Addresses that can't be a public website, such as `localhost` or an IP address, are rejected, and websites already in Arclight aren't added twice.
 
 ### Import a CSV
 
-On **Leads**, choose a CSV file and click **Import**. Arclight uses the column named `website`, `url` or `domain`; without one, it takes every cell that looks like a website address. Files exported from Excel with semicolons work too. Up to 1,000 websites per file.
+Under **Or add websites yourself**, choose a CSV file and click **Import**. Arclight uses the column named `website`, `url` or `domain`; without one, it takes every cell that looks like a website address. Files exported from Excel with semicolons work too. Up to 1,000 websites per file.
+
+## Hunts: finding leads on its own
+
+A hunt is a Google Maps search that Arclight runs **every day at the hour you choose**, without you opening the dashboard. Each run it:
+
+1. searches Google Maps for the hunt's query (up to 60 places, Google's limit),
+2. skips businesses that are already leads, on the do-not-contact list, or left out by the hunt's filters,
+3. starts tracking the most-reviewed of the rest, up to the hunt's limit, and audits them,
+4. if you turned it on, writes drafts for the new leads that score high enough.
+
+It never sends anything. New leads and drafts wait for you in the [daily briefing](#the-daily-briefing).
+
+![Hunts with their schedule and last run](images/hunts.png)
+
+**Create one** on **Hunts**, or search on **Find** and click **Turn it into a hunt**. The settings:
+
+| Setting                              | What it does                                                                                                                                                                                                                             |
+| ------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Google Maps search                   | What to look for, as you would type it into Google Maps: `klinik gigi Surabaya`                                                                                                                                                          |
+| Runs daily at                        | The hour, in the agency's time zone (**Settings**)                                                                                                                                                                                       |
+| New leads per run                    | At most this many new leads each day (1–50). The most-reviewed businesses go first, so a small number keeps quality high and costs low.                                                                                                  |
+| Minimum Google reviews               | Leaves out businesses with fewer reviews, usually ones too small to afford an agency. Review counts are checked live and never stored ([D9](DECISIONS.md#d9-capacity-for-businesses-without-a-website-comes-from-instagram-not-google)). |
+| Include businesses without a website | Whether places with no website become leads. They are often the ones that need you most, but their capacity is unknown.                                                                                                                  |
+| Write drafts automatically           | Writes messages for new leads whose priority reaches the number you set. Leads without a priority (no website) are never drafted automatically.                                                                                          |
+
+**Run now** runs a hunt immediately, for example to try a new search. **Pause** stops the daily runs; **Resume** waits for the next scheduled hour instead of catching up on missed days. Deleting a hunt keeps the leads it found.
+
+**When a hunt runs dry.** Google returns the same places for the same search, so after a while every result is already a lead. The hunt then says "Nothing new left in this search". Create hunts for neighbouring areas (`klinik gigi Sidoarjo`) or related business types (`klinik kecantikan Surabaya`) instead.
+
+> [!NOTE]
+> Hunts run in the **worker**. If the worker isn't running, or `GOOGLE_API_KEY` isn't set for it, runs are recorded as failed with the reason and shown on **Hunts** and in the briefing. Automatic drafts also need `ANTHROPIC_API_KEY` on the worker ([Configuration](configuration.md)).
+
+## The daily briefing
+
+The top of **Leads** shows what happened in the last 24 hours and what needs you now:
+
+![The daily briefing above the leads list](images/leads.png)
+
+- **New leads**, how many of them hunts found, and how many audits finished or failed.
+- **Ready to send**: new leads with drafts waiting, best first. Open one, check the messages and send them.
+- **Follow up**: leads you marked **Contacted** that have had no reply for the number of days set in **Settings** (3 by default). Once they reply, move them to **Replied** and they leave the list.
+- A warning if a hunt failed, with the reason.
+
+Your own website or an AI agent can fetch the same briefing from the API (`GET /v1/briefing`, see the [API reference](api.md#daily-briefing)).
 
 ## Audits: what Arclight checks
 

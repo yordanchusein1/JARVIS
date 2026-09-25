@@ -10,7 +10,7 @@ import { getLead } from './leads.ts';
 export type Draft = typeof drafts.$inferSelect;
 
 export interface DraftRequest {
-  agency: AgencyProfile;
+  agency: Pick<AgencyProfile, 'agencyName' | 'senderName' | 'services' | 'tone' | 'language'>;
   business: { name: string | null; websiteUrl: string | null };
   /** Measured facts from the latest audit. Drafts may cite only these. */
   evidence: { axis: 'need' | 'capacity'; text: string }[];

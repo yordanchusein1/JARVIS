@@ -3,6 +3,8 @@ import type { Database } from './db/client.ts';
 import { activityLog, audits } from './db/schema.ts';
 
 export const AUDIT_QUEUE = 'audit-business';
+/** A scheduled job that runs the hunts that are due (see runDueHunts). */
+export const HUNT_TICK_QUEUE = 'hunt-tick';
 
 export interface AuditJob {
   auditId: string;
@@ -18,6 +20,8 @@ export async function startJobQueue(databaseUrl: string): Promise<PgBoss> {
   boss.on('error', (error) => console.error('Job queue error:', error));
   await boss.start();
   await boss.createQueue(AUDIT_QUEUE, { retryLimit: 2, retryDelay: 60, expireInSeconds: 300 });
+  // A missed tick is harmless: the next one runs whatever is still due.
+  await boss.createQueue(HUNT_TICK_QUEUE, { retryLimit: 0, expireInSeconds: 900 });
   return boss;
 }
 

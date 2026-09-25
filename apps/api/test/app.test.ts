@@ -66,7 +66,9 @@ let arclight = client('');
 let arclightKey = '';
 
 beforeEach(async () => {
-  await db.execute(sql`TRUNCATE api_keys, businesses, agency_profile, do_not_contact CASCADE`);
+  await db.execute(
+    sql`TRUNCATE api_keys, hunts, businesses, agency_profile, do_not_contact CASCADE`,
+  );
   const key = (await createApiKey(db, 'test')).key;
   arclight = client(key);
   arclightKey = `Bearer ${key}`;
@@ -199,8 +201,20 @@ describe('pipeline and drafts', () => {
     const { data } = await arclight.PATCH('/agency-profile', {
       body: { agencyName: 'Vera & Co', senderName: 'Yordan', services: 'Website' },
     });
-    expect(data).toMatchObject({ agencyName: 'Vera & Co', language: 'id' });
+    expect(data).toMatchObject({
+      agencyName: 'Vera & Co',
+      language: 'id',
+      timezone: 'Asia/Jakarta',
+      followUpDays: 3,
+    });
     expect((await arclight.GET('/agency-profile')).data?.senderName).toBe('Yordan');
+
+    const invalid = await arclight.PATCH('/agency-profile', { body: { timezone: 'Mars/Base' } });
+    expect(invalid.response.status).toBe(400);
+    const updated = await arclight.PATCH('/agency-profile', {
+      body: { timezone: 'Asia/Makassar', followUpDays: 5 },
+    });
+    expect(updated.data).toMatchObject({ timezone: 'Asia/Makassar', followUpDays: 5 });
   });
 
   it('writes drafts only when the lead is ready', async () => {
@@ -306,5 +320,95 @@ describe('week 3', () => {
     const saved = await arclight.PUT('/scoring/weights', { body: { weights: { no_https: 5 } } });
     expect(saved.response.status).toBe(204);
     expect((await arclight.GET('/scoring/signals')).data?.data).toEqual([]);
+  });
+});
+
+describe('hunts and briefing', () => {
+  it('creates, runs, pauses and deletes a hunt', async () => {
+    const created = await arclight.POST('/hunts', {
+      body: { query: 'klinik gigi Surabaya', runHour: 6 },
+    });
+    expect(created.response.status).toBe(201);
+    const hunt = created.data!;
+    expect(hunt).toMatchObject({
+      query: 'klinik gigi Surabaya',
+      active: true,
+      runHour: 6,
+      maxNewPerRun: 10,
+      autoDraft: false,
+      leads: 0,
+      lastRun: null,
+    });
+    expect(Date.parse(hunt.nextRunAt!)).toBeGreaterThan(Date.now());
+
+    queued.length = 0;
+    const run = await arclight.POST('/hunts/{id}/runs', { params: { path: { id: hunt.id } } });
+    expect(run.response.status).toBe(201);
+    expect(run.data).toMatchObject({
+      status: 'succeeded',
+      trigger: 'manual',
+      found: 1,
+      tracked: 1,
+    });
+    expect(queued).toHaveLength(1);
+
+    const detail = await arclight.GET('/hunts/{id}', { params: { path: { id: hunt.id } } });
+    expect(detail.data).toMatchObject({ leads: 1, runs: [{ id: run.data!.id }] });
+    const leads = await arclight.GET('/businesses');
+    expect(leads.data?.data[0]).toMatchObject({ placeId: 'ChIJ1', huntId: hunt.id });
+
+    const paused = await arclight.PATCH('/hunts/{id}', {
+      params: { path: { id: hunt.id } },
+      body: { active: false },
+    });
+    expect(paused.data).toMatchObject({ active: false, nextRunAt: null });
+    expect((await arclight.GET('/hunts')).data?.data).toHaveLength(1);
+
+    const removed = await arclight.DELETE('/hunts/{id}', { params: { path: { id: hunt.id } } });
+    expect(removed.response.status).toBe(204);
+    expect((await arclight.GET('/hunts')).data?.data).toEqual([]);
+    // The leads it found stay.
+    expect((await arclight.GET('/businesses')).data?.data[0]?.huntId).toBeNull();
+  });
+
+  it('validates hunts', async () => {
+    const bad = await arclight.POST('/hunts', { body: { query: 'x', runHour: 24 } });
+    expect(bad.response.status).toBe(400);
+    const missing = await arclight.POST('/hunts/{id}/runs', {
+      params: { path: { id: '00000000-0000-4000-8000-000000000000' } },
+    });
+    expect(missing.response.status).toBe(404);
+  });
+
+  it('reports failed runs without Google Places', async () => {
+    const { app: bare } = createApp({ db, auditQueue });
+    const bareClient = createArclightClient({
+      baseUrl: 'http://arclight.test',
+      apiKey: arclightKey.slice('Bearer '.length),
+      fetch: (input) => Promise.resolve(bare.fetch(input as Request)),
+    });
+    const { data: hunt } = await bareClient.POST('/hunts', { body: { query: 'hotel Batu' } });
+    const run = await bareClient.POST('/hunts/{id}/runs', { params: { path: { id: hunt!.id } } });
+    expect(run.data).toMatchObject({ status: 'failed' });
+    expect(run.data?.error).toMatch(/GOOGLE_API_KEY/);
+  });
+
+  it('serves the briefing', async () => {
+    await arclight.POST('/businesses', { body: { websites: ['a.co.id', 'b.co.id'] } });
+    const { data } = await arclight.GET('/briefing');
+    expect(data).toMatchObject({
+      newLeads: 2,
+      readyToSendTotal: 0,
+      followUpsTotal: 0,
+      pipeline: { new: 2, contacted: 0 },
+    });
+    expect(data?.topNewLeads).toHaveLength(2);
+
+    const later = await arclight.GET('/briefing', {
+      params: { query: { since: new Date(Date.now() + 60_000).toISOString() } },
+    });
+    expect(later.data?.newLeads).toBe(0);
+    const invalid = await arclight.GET('/briefing', { params: { query: { since: 'yesterday' } } });
+    expect(invalid.response.status).toBe(400);
   });
 });

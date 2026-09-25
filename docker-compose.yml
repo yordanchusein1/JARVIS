@@ -41,6 +41,8 @@ services:
     environment:
       DATABASE_URL: postgres://arclight:${POSTGRES_PASSWORD:-arclight}@postgres:5432/arclight
       GOOGLE_API_KEY: ${GOOGLE_API_KEY:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      ANTHROPIC_MODEL: ${ANTHROPIC_MODEL:-claude-opus-5}
       AUDIT_CONCURRENCY: ${AUDIT_CONCURRENCY:-3}
       DEFAULT_COUNTRY_CODE: ${DEFAULT_COUNTRY_CODE:-62}
     depends_on:

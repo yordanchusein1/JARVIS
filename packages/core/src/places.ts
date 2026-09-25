@@ -17,8 +17,13 @@ export interface PlaceSummary {
   mapsUrl: string | null;
 }
 
+export interface SearchOptions {
+  /** Up to 60; Google returns at most 20 places per page and 3 pages per search. */
+  maxResults?: number;
+}
+
 export interface PlacesClient {
-  searchText(query: string): Promise<PlaceSummary[]>;
+  searchText(query: string, options?: SearchOptions): Promise<PlaceSummary[]>;
   getPlace(placeId: string): Promise<PlaceSummary | null>;
 }
 
@@ -86,13 +91,38 @@ export function createPlacesClient(
   }
 
   return {
-    async searchText(query) {
-      const body = (await call(
-        '/places:searchText',
-        FIELDS.map((f) => `places.${f}`),
-        { method: 'POST', body: JSON.stringify({ textQuery: query, pageSize: 20, languageCode }) },
-      )) as { places?: PlaceResponse[] } | null;
-      return (body?.places ?? []).map(parsePlace).filter((p): p is PlaceSummary => p !== null);
+    async searchText(query, { maxResults = 20 } = {}) {
+      const limit = Math.max(1, Math.min(60, maxResults));
+      const results: PlaceSummary[] = [];
+      let pageToken: string | undefined;
+      do {
+        let body: { places?: PlaceResponse[]; nextPageToken?: string } | null;
+        try {
+          body = (await call(
+            '/places:searchText',
+            [...FIELDS.map((f) => `places.${f}`), 'nextPageToken'],
+            {
+              method: 'POST',
+              body: JSON.stringify({
+                textQuery: query,
+                // Google requires every page request to repeat the first request's parameters.
+                pageSize: Math.min(20, limit),
+                languageCode,
+                pageToken,
+              }),
+            },
+          )) as typeof body;
+        } catch (error) {
+          // A later page failing still leaves the earlier results usable.
+          if (results.length > 0) break;
+          throw error;
+        }
+        results.push(
+          ...(body?.places ?? []).map(parsePlace).filter((p): p is PlaceSummary => p !== null),
+        );
+        pageToken = body?.nextPageToken;
+      } while (pageToken && results.length < limit);
+      return results.slice(0, limit);
     },
     async getPlace(placeId) {
       const body = (await call(

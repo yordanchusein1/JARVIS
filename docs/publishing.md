@@ -1,12 +1,12 @@
 # Publishing the npm packages
 
-This guide is for maintainers. Three packages are published to npm under the `@arclight` scope, all MIT-licensed:
+This guide is for maintainers. Three packages are published to npm under the `@arclighthq` scope (the `arclight` organization on npm belongs to someone else), all MIT-licensed:
 
-| Package           | Source           | What it is                                  |
-| ----------------- | ---------------- | ------------------------------------------- |
-| `@arclight/sdk`   | `packages/sdk`   | Typed API client                            |
-| `@arclight/react` | `packages/react` | React components and the server handler     |
-| `@arclight/mcp`   | `apps/mcp`       | MCP server, run with `npx -y @arclight/mcp` |
+| Package             | Source           | What it is                                    |
+| ------------------- | ---------------- | --------------------------------------------- |
+| `@arclighthq/sdk`   | `packages/sdk`   | Typed API client                              |
+| `@arclighthq/react` | `packages/react` | React components and the server handler       |
+| `@arclighthq/mcp`   | `apps/mcp`       | MCP server, run with `npx -y @arclighthq/mcp` |
 
 The engine, API and dashboard are not published to npm; they run from Docker.
 
@@ -19,7 +19,7 @@ Always publish with **pnpm**, not `npm publish`: npm would ignore `publishConfig
 ## One-time setup
 
 1. Create an account on [npmjs.com](https://www.npmjs.com/signup) and turn on two-factor authentication.
-2. Create the **`arclight`** organization (**Add organization**, free for public packages). The scope `@arclight` belongs to whoever owns it.
+2. Ask an owner of the **`arclighthq`** organization to add you (**Invite Members**), with two-factor authentication turned on.
 3. On your computer: `npm login`.
 
 ## Releasing
@@ -30,7 +30,7 @@ Always publish with **pnpm**, not `npm publish`: npm would ignore `publishConfig
    ```sh
    pnpm install
    pnpm lint && pnpm typecheck && pnpm test
-   pnpm --filter @arclight/sdk publish --dry-run
+   pnpm --filter @arclighthq/sdk publish --dry-run
    ```
 
    Check the file list: only `dist/`, `README.md`, `LICENSE` and `package.json`.
@@ -38,9 +38,9 @@ Always publish with **pnpm**, not `npm publish`: npm would ignore `publishConfig
 3. Publish, the SDK first because the others depend on it:
 
    ```sh
-   pnpm --filter @arclight/sdk publish
-   pnpm --filter @arclight/react publish
-   pnpm --filter @arclight/mcp publish
+   pnpm --filter @arclighthq/sdk publish
+   pnpm --filter @arclighthq/react publish
+   pnpm --filter @arclighthq/mcp publish
    ```
 
    npm asks for your two-factor code for each package. pnpm refuses to publish with uncommitted changes or from a branch other than `main`.
@@ -50,8 +50,8 @@ Always publish with **pnpm**, not `npm publish`: npm would ignore `publishConfig
 ## Checking a release
 
 ```sh
-npm view @arclight/sdk
-ARCLIGHT_API_URL=http://localhost:8787 ARCLIGHT_API_KEY=arc_... npx -y @arclight/mcp
+npm view @arclighthq/sdk
+ARCLIGHT_API_URL=http://localhost:8787 ARCLIGHT_API_KEY=arc_... npx -y @arclighthq/mcp
 ```
 
 The second command should print `Arclight MCP server connected to …` and wait for input (stop it with Ctrl+C).

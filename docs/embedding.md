@@ -20,7 +20,7 @@ There are two ways to build the pages: drop in Arclight's [React components](#re
 
 ## React components
 
-[`@arclight/react`](../packages/react) (MIT) has ready-made components: the daily briefing with send buttons, the lead list, a lead's page with its evidence and drafts, and the pipeline. They run in the browser, so they reach Arclight through a small handler on your server that adds the API key after checking your own sign-in. The key never reaches the browser.
+[`@arclighthq/react`](../packages/react) (MIT) has ready-made components: the daily briefing with send buttons, the lead list, a lead's page with its evidence and drafts, and the pipeline. They run in the browser, so they reach Arclight through a small handler on your server that adds the API key after checking your own sign-in. The key never reaches the browser.
 
 ```
 Browser: <Briefing />, <LeadList />, …
@@ -32,14 +32,14 @@ Your server: createArclightHandler ── checks authorize(), adds the API key �
 Install it in your admin project:
 
 ```sh
-npm install @arclight/react
+npm install @arclighthq/react
 ```
 
 **1. Add the handler** as a catch-all route. `authorize` decides who may use Arclight; use your own admin check.
 
 ```ts
 // app/api/arclight/[...path]/route.ts
-import { createArclightHandler } from '@arclight/react/server';
+import { createArclightHandler } from '@arclighthq/react/server';
 import { auth } from '@/lib/auth'; // your own sign-in
 
 const handler = createArclightHandler({
@@ -58,8 +58,8 @@ The handler only forwards `/v1` API calls, refuses anyone `authorize` rejects, a
 
 ```tsx
 // app/admin/page.tsx
-import '@arclight/react/styles.css';
-import { ArclightProvider, Briefing, LeadList, Pipeline } from '@arclight/react';
+import '@arclighthq/react/styles.css';
+import { ArclightProvider, Briefing, LeadList, Pipeline } from '@arclighthq/react';
 
 export default function AdminHome() {
   return (
@@ -74,8 +74,8 @@ export default function AdminHome() {
 
 ```tsx
 // app/admin/leads/[id]/page.tsx
-import '@arclight/react/styles.css';
-import { ArclightProvider, LeadDetail } from '@arclight/react';
+import '@arclighthq/react/styles.css';
+import { ArclightProvider, LeadDetail } from '@arclighthq/react';
 
 export default async function LeadPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;

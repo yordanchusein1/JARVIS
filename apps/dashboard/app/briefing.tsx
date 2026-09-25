@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import type { Briefing, Business, SendLink } from '@arclight/sdk';
+import type { Briefing, Business, SendLink } from '@arclighthq/sdk';
 import { daysSince, greeting } from '@/lib/format';
 import { Score } from './components';
 

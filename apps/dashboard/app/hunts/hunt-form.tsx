@@ -2,7 +2,7 @@
 
 import { useActionState, useEffect, useRef } from 'react';
 import { useFormStatus } from 'react-dom';
-import type { Hunt } from '@arclight/sdk';
+import type { Hunt } from '@arclighthq/sdk';
 import { hourLabel } from '@/lib/format';
 import { submitKeepingInput } from '../submit';
 import { saveHuntAction, type HuntFormState } from './actions';

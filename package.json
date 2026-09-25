@@ -15,7 +15,7 @@
     "db:generate": "pnpm --filter @arclight/core db:generate",
     "db:migrate": "pnpm --filter @arclight/core db:migrate",
     "api-key:create": "pnpm --filter @arclight/api api-key:create",
-    "sdk:generate": "pnpm --filter @arclight/api openapi:export && pnpm --filter @arclight/sdk generate",
+    "sdk:generate": "pnpm --filter @arclight/api openapi:export && pnpm --filter @arclighthq/sdk generate",
     "typecheck": "pnpm -r typecheck",
     "lint": "eslint .",
     "format": "prettier --write .",

@@ -96,7 +96,7 @@ Browser (staff) ──session──► Your website's backend ──API key (ser
 
 1. Run Arclight as a separate service (Docker) next to your website.
 2. Your backend authenticates your staff as usual, then calls Arclight using a server-side API key. The key must never reach the browser.
-3. Your frontend renders your own UI, or `@arclight/react` components from v0.2 onwards. See [Embedding](embedding.md).
+3. Your frontend renders your own UI, or `@arclighthq/react` components from v0.2 onwards. See [Embedding](embedding.md).
 
 Integration options, in order of availability:
 

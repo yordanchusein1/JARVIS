@@ -1,5 +1,5 @@
 import 'server-only';
-import { createArclightClient, type ArclightClient } from '@arclight/sdk';
+import { createArclightClient, type ArclightClient } from '@arclighthq/sdk';
 import { requireSession } from './auth';
 
 /**

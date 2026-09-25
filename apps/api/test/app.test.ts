@@ -6,7 +6,7 @@ import {
   type DraftWriter,
   type PlacesClient,
 } from '@arclight/core';
-import { createArclightClient } from '@arclight/sdk';
+import { createArclightClient } from '@arclighthq/sdk';
 import { sql } from 'drizzle-orm';
 import { afterAll, beforeEach, describe, expect, it } from 'vitest';
 import { createApp } from '../src/app.ts';

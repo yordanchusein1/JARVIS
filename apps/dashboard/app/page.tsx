@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { getArclight } from '@/lib/arclight';
 import { contactsWithGooglePhone } from '@/lib/lead-contacts';
-import { sendLinks, type SendLink } from '@arclight/sdk';
+import { sendLinks, type SendLink } from '@arclighthq/sdk';
 import { AutoRefresh } from './auto-refresh';
 import { BriefingPanel } from './briefing';
 import { AuditStatus, isAuditPending, Score } from './components';

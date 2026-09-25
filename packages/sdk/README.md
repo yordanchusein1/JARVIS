@@ -1,13 +1,13 @@
-# @arclight/sdk
+# @arclighthq/sdk
 
 Typed client for the [Arclight](https://github.com/yordanchusein1/arclight) HTTP API, generated from its OpenAPI document. MIT-licensed.
 
 ```sh
-npm install @arclight/sdk
+npm install @arclighthq/sdk
 ```
 
 ```ts
-import { createArclightClient } from '@arclight/sdk';
+import { createArclightClient } from '@arclighthq/sdk';
 
 const arclight = createArclightClient({
   baseUrl: process.env.ARCLIGHT_API_URL!, // e.g. http://localhost:8787
@@ -17,7 +17,7 @@ const arclight = createArclightClient({
 const { data, error } = await arclight.GET('/businesses', { params: { query: { limit: 20 } } });
 ```
 
-Use the API key only on a server, never in a browser. For browser components, see [`@arclight/react`](https://www.npmjs.com/package/@arclight/react).
+Use the API key only on a server, never in a browser. For browser components, see [`@arclighthq/react`](https://www.npmjs.com/package/@arclighthq/react).
 
 `sendLinks(draft, contacts)` builds the WhatsApp (`wa.me`) and email (`mailto:`) links that open a draft for a person to send. Arclight never sends messages itself.
 

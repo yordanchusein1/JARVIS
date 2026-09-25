@@ -1,4 +1,4 @@
-import { sendLinks as draftLinks, type ArclightClient, type components } from '@arclight/sdk';
+import { sendLinks as draftLinks, type ArclightClient, type components } from '@arclighthq/sdk';
 
 type Business = components['schemas']['Business'];
 type BusinessDetail = components['schemas']['BusinessDetail'];

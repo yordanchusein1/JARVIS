@@ -10,7 +10,7 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import { createArclightClient, type ArclightClient } from '@arclight/sdk';
+import { createArclightClient, type ArclightClient } from '@arclighthq/sdk';
 
 interface ArclightContextValue {
   client: ArclightClient;
@@ -21,7 +21,7 @@ interface ArclightContextValue {
 const ArclightContext = createContext<ArclightContextValue | null>(null);
 
 export interface ArclightProviderProps {
-  /** Where the handler from `@arclight/react/server` is mounted. Default `/api/arclight`. */
+  /** Where the handler from `@arclighthq/react/server` is mounted. Default `/api/arclight`. */
   basePath?: string;
   /**
    * Link to a lead's page in your app, with `:id` for the lead id, e.g. `/admin/leads/:id`.

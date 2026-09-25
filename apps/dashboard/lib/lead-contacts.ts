@@ -1,5 +1,5 @@
 import 'server-only';
-import type { ArclightClient, components } from '@arclight/sdk';
+import type { ArclightClient, components } from '@arclighthq/sdk';
 
 type Lead = components['schemas']['BusinessDetail'];
 type Contact = components['schemas']['Contact'];

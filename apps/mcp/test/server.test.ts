@@ -1,7 +1,7 @@
 import { spawn } from 'node:child_process';
 import { createServer } from 'node:http';
 import type { AddressInfo } from 'node:net';
-import { createArclightClient } from '@arclight/sdk';
+import { createArclightClient } from '@arclighthq/sdk';
 import { describe, expect, it } from 'vitest';
 import { createMcpServer } from '../src/server.ts';
 

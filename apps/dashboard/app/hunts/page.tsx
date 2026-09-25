@@ -1,4 +1,4 @@
-import type { Hunt } from '@arclight/sdk';
+import type { Hunt } from '@arclighthq/sdk';
 import { getArclight } from '@/lib/arclight';
 import { formatWhen, hourLabel } from '@/lib/format';
 import { deleteHuntAction, runHuntAction, setHuntActiveAction } from './actions';

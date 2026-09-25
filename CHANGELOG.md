@@ -7,7 +7,7 @@ Notable changes to Arclight. The project is in early access and doesn't publish 
 ### Added
 
 - **Hunts**: saved Google Maps searches that run every day at a chosen hour in the agency's time zone. Each run tracks up to a set number of new businesses, most-reviewed first, skipping ones that are already leads, on the do-not-contact list, below a minimum number of reviews or (optionally) without a website. Hunts can write drafts automatically for leads above a priority threshold; nothing is ever sent. API: `/v1/hunts`.
-- **Daily briefing** at the top of the Leads page and at `GET /v1/briefing`: new leads, audits, drafts ready to send, follow-ups that are due and hunt results.
+- **Daily briefing** at the top of the Leads page and at `GET /v1/briefing`: new leads, audits, drafts ready to send, follow-ups that are due and hunt results. Each lead that is ready to send has **Send on WhatsApp** and **Send by email** buttons that open the drafts, ready for you to send.
 - Agency **time zone** and **follow-up days** in Settings.
 - Google Maps searches can return up to 60 places (three pages) for hunts.
 

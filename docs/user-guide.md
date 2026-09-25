@@ -90,7 +90,7 @@ The top of **Leads** shows what happened in the last 24 hours and what needs you
 ![The daily briefing above the leads list](images/leads.png)
 
 - **New leads**, how many of them hunts found, and how many audits finished or failed.
-- **Ready to send**: new leads with drafts waiting, best first. Open one, check the messages and send them.
+- **Ready to send**: new leads with drafts waiting, best first. **Send on WhatsApp** opens a chat with the business with the WhatsApp draft filled in; **Send by email** opens your email program with the email draft filled in. Read the message, then press send yourself. Open the lead first if you want to check its evidence or edit the draft.
 - **Follow up**: leads you marked **Contacted** that have had no reply for the number of days set in **Settings** (3 by default). Once they reply, move them to **Replied** and they leave the list.
 - A warning if a hunt failed, with the reason.
 

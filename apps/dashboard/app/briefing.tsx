@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import type { Briefing, Business } from '@arclight/sdk';
 import { daysSince, greeting } from '@/lib/format';
+import type { SendLink } from '@/lib/send-links';
 import { Score } from './components';
 
 const nameOf = (b: Business) =>
@@ -12,11 +13,14 @@ export function BriefingPanel({
   timeZone,
   senderName,
   hasHunts,
+  sendOptions,
 }: {
   briefing: Briefing;
   timeZone: string;
   senderName: string;
   hasHunts: boolean;
+  /** WhatsApp and email links with the drafts filled in, per ready lead. */
+  sendOptions: Record<string, SendLink[]>;
 }) {
   const failedRuns = briefing.huntRuns.filter((r) => r.status === 'failed');
   const foundByHunts = briefing.huntRuns.reduce((sum, r) => sum + r.tracked, 0);
@@ -64,9 +68,28 @@ export function BriefingPanel({
               {briefing.readyToSend.map((b) => (
                 <li key={b.id}>
                   <Score value={b.priority} label="Priority" />
-                  <Link href={`/leads/${b.id}`} className="lead-link">
-                    {nameOf(b)}
-                  </Link>
+                  <div className="ready">
+                    <Link href={`/leads/${b.id}`} className="lead-link">
+                      {nameOf(b)}
+                    </Link>
+                    <span className="send-links">
+                      {(sendOptions[b.id] ?? []).map((link) => (
+                        <a
+                          key={link.href}
+                          className="button small-button"
+                          href={link.href}
+                          target="_blank"
+                          rel="noreferrer noopener"
+                          title={link.label}
+                        >
+                          {link.channel === 'whatsapp' ? 'Send on WhatsApp' : 'Send by email'}
+                        </a>
+                      ))}
+                      {(sendOptions[b.id] ?? []).length === 0 && (
+                        <span className="muted small">No WhatsApp or email found</span>
+                      )}
+                    </span>
+                  </div>
                 </li>
               ))}
             </ul>

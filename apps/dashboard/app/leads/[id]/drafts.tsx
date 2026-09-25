@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import type { components } from '@arclight/sdk';
+import { sendLinks } from '@/lib/send-links';
 
 type Draft = components['schemas']['Draft'];
 type Contact = components['schemas']['Contact'];
@@ -21,22 +22,6 @@ function CopyButton({ text }: { text: string }) {
       {copied ? 'Copied' : 'Copy'}
     </button>
   );
-}
-
-function sendLinks(draft: Draft, contacts: Contact[]): { label: string; href: string }[] {
-  if (draft.channel === 'whatsapp') {
-    const numbers = contacts.filter((c) => c.kind === 'whatsapp' || c.kind === 'phone');
-    return numbers.map((c) => ({
-      label: `Open WhatsApp (${c.value})`,
-      href: `https://wa.me/${c.value.replace(/\D/g, '')}?text=${encodeURIComponent(draft.body)}`,
-    }));
-  }
-  return contacts
-    .filter((c) => c.kind === 'email')
-    .map((c) => ({
-      label: `Open email to ${c.value}`,
-      href: `mailto:${c.value}?subject=${encodeURIComponent(draft.subject ?? '')}&body=${encodeURIComponent(draft.body)}`,
-    }));
 }
 
 export function DraftCard({ draft, contacts }: { draft: Draft; contacts: Contact[] }) {

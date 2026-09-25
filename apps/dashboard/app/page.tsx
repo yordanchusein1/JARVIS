@@ -1,5 +1,7 @@
 import Link from 'next/link';
 import { getArclight } from '@/lib/arclight';
+import { contactsWithGooglePhone } from '@/lib/lead-contacts';
+import { sendLinks, type SendLink } from '@/lib/send-links';
 import { AutoRefresh } from './auto-refresh';
 import { BriefingPanel } from './briefing';
 import { AuditStatus, isAuditPending, Score } from './components';
@@ -28,6 +30,17 @@ export default async function LeadsPage() {
   ]);
   const leads = data?.data ?? [];
 
+  // WhatsApp and email links with the drafts filled in, for the leads that are ready to send.
+  const sendOptions: Record<string, SendLink[]> = {};
+  await Promise.all(
+    (briefing.data?.readyToSend ?? []).map(async ({ id }) => {
+      const { data: lead } = await arclight.GET('/businesses/{id}', { params: { path: { id } } });
+      if (!lead || lead.doNotContact) return;
+      const { contacts } = await contactsWithGooglePhone(arclight, lead);
+      sendOptions[id] = lead.drafts.flatMap((d) => sendLinks(d, contacts).slice(0, 1));
+    }),
+  );
+
   return (
     <>
       <AutoRefresh active={leads.some((b) => isAuditPending(b.latestAudit))} />
@@ -37,6 +50,7 @@ export default async function LeadsPage() {
           timeZone={profile.data.timezone}
           senderName={profile.data.senderName}
           hasHunts={(hunts.data?.data.length ?? 0) > 0}
+          sendOptions={sendOptions}
         />
       )}
       <div className="section-header">

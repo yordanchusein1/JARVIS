@@ -67,9 +67,8 @@ If the targets are missed, fix the qualification and messaging before building v
 - [ ] **MCP server** (`apps/mcp`, MIT): exposes Arclight as tools (search prospects, track, get lead with evidence, write drafts, update pipeline) so any AI agent (Claude, Hermes Agent and others) can use Arclight as its lead generation skill. It uses the same public API and API keys, and never sends messages (D4, D10)
 - [ ] Streaming chat endpoint for talking to Arclight in natural language, e.g. _"find 20 dental clinics in Surabaya that need a new website"_
 - [ ] Instagram Business Discovery signals, including capacity for businesses without a website (D9)
-- [x] In-app daily briefing (also at `GET /v1/briefing`): new leads, drafts ready to send, follow-ups due and hunt results
+- [x] In-app daily briefing (also at `GET /v1/briefing`): new leads, drafts ready to send with one-click WhatsApp and email buttons, follow-ups due and hunt results
 - [x] Follow-up reminders after a configurable number of days (reminders only, never auto-sent)
-- [ ] Deliver the daily briefing to the team outside the dashboard (for example by email or a webhook)
 
 ## v0.3: Open to other agencies
 

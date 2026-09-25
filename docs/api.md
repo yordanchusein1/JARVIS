@@ -205,14 +205,14 @@ curl http://localhost:8787/v1/briefing -H "Authorization: Bearer $ARCLIGHT_API_K
 
 ## TypeScript SDK
 
-[`@arclight/sdk`](https://www.npmjs.com/package/@arclight/sdk) is a typed client generated from the OpenAPI document (MIT-licensed, source in [`packages/sdk`](../packages/sdk)):
+[`@arclighthq/sdk`](https://www.npmjs.com/package/@arclighthq/sdk) is a typed client generated from the OpenAPI document (MIT-licensed, source in [`packages/sdk`](../packages/sdk)):
 
 ```sh
-npm install @arclight/sdk
+npm install @arclighthq/sdk
 ```
 
 ```ts
-import { createArclightClient } from '@arclight/sdk';
+import { createArclightClient } from '@arclighthq/sdk';
 
 const arclight = createArclightClient({
   baseUrl: process.env.ARCLIGHT_API_URL!,

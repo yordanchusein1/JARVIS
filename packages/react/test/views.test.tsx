@@ -1,5 +1,5 @@
 import { renderToStaticMarkup } from 'react-dom/server';
-import type { Briefing, Business, BusinessDetail } from '@arclight/sdk';
+import type { Briefing, Business, BusinessDetail } from '@arclighthq/sdk';
 import { describe, expect, it } from 'vitest';
 import { BriefingView, LeadDetailView, LeadListView, PipelineView } from '../src/views.tsx';
 

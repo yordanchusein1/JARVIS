@@ -1,5 +1,5 @@
 /*
- * Default look for @arclight/react. Every colour is a custom property on .arc-root, so a host app
+ * Default look for @arclighthq/react. Every colour is a custom property on .arc-root, so a host app
  * can restyle the components by overriding them, e.g. .arc-root { --arc-accent: #7c3aed; }.
  */
 .arc-root {

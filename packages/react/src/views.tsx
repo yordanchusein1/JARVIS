@@ -1,7 +1,7 @@
 'use client';
 
 import type { ReactNode } from 'react';
-import type { Briefing, Business, BusinessDetail, LeadStatus, SendLink } from '@arclight/sdk';
+import type { Briefing, Business, BusinessDetail, LeadStatus, SendLink } from '@arclighthq/sdk';
 
 /**
  * Presentational pieces. They take data and callbacks and fetch nothing, so they can also be used

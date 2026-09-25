@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import type { components } from '@arclight/sdk';
+import type { components } from '@arclighthq/sdk';
 import { getArclight } from '@/lib/arclight';
 import { contactsWithGooglePhone } from '@/lib/lead-contacts';
 import { AutoRefresh } from '../../auto-refresh';

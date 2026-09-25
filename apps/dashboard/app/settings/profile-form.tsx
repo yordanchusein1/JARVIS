@@ -1,7 +1,7 @@
 'use client';
 
 import { useActionState } from 'react';
-import type { components } from '@arclight/sdk';
+import type { components } from '@arclighthq/sdk';
 import { submitKeepingInput } from '../submit';
 import { saveProfileAction, type ProfileState } from './actions';
 

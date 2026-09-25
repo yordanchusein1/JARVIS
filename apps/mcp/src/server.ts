@@ -1,4 +1,4 @@
-import type { ArclightClient } from '@arclight/sdk';
+import type { ArclightClient } from '@arclighthq/sdk';
 import { ToolError, tools, type Tool } from './tools.ts';
 
 /**

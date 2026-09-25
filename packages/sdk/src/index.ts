@@ -19,7 +19,7 @@ export interface ArclightClientOptions {
   baseUrl: string;
   /**
    * API key. Use it only on a server; never ship it to a browser. Omit it when `baseUrl` points to
-   * a proxy that adds the key on the server, such as the handler from `@arclight/react/server`.
+   * a proxy that adds the key on the server, such as the handler from `@arclighthq/react/server`.
    */
   apiKey?: string;
   fetch?: typeof globalThis.fetch;

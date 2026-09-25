@@ -22,7 +22,7 @@ Create an API key for the agent on your Arclight server, separate from the dashb
 docker compose exec api tsx src/cli/create-api-key.ts agent
 ```
 
-The server is the npm package [`@arclight/mcp`](https://www.npmjs.com/package/@arclight/mcp), started with `npx -y @arclight/mcp` and two environment variables:
+The server is the npm package [`@arclighthq/mcp`](https://www.npmjs.com/package/@arclighthq/mcp), started with `npx -y @arclighthq/mcp` and two environment variables:
 
 | Variable           | Value                                            |
 | ------------------ | ------------------------------------------------ |
@@ -35,7 +35,7 @@ The server is the npm package [`@arclight/mcp`](https://www.npmjs.com/package/@a
 claude mcp add arclight \
   -e ARCLIGHT_API_URL=http://localhost:8787 \
   -e ARCLIGHT_API_KEY=arc_... \
-  -- npx -y @arclight/mcp
+  -- npx -y @arclighthq/mcp
 ```
 
 ### Claude Desktop and other clients
@@ -47,7 +47,7 @@ Add a stdio server to the client's MCP configuration. For Claude Desktop, that i
   "mcpServers": {
     "arclight": {
       "command": "npx",
-      "args": ["-y", "@arclight/mcp"],
+      "args": ["-y", "@arclighthq/mcp"],
       "env": {
         "ARCLIGHT_API_URL": "http://localhost:8787",
         "ARCLIGHT_API_KEY": "arc_..."
@@ -61,7 +61,7 @@ Other MCP clients, such as Hermes Agent, take the same command, arguments and en
 
 ### From a copy of this repository
 
-To run your own changes, clone the repository, run `pnpm install`, and use `/path/to/arclight/node_modules/.bin/tsx /path/to/arclight/apps/mcp/src/stdio.ts` as the command instead of `npx -y @arclight/mcp`.
+To run your own changes, clone the repository, run `pnpm install`, and use `/path/to/arclight/node_modules/.bin/tsx /path/to/arclight/apps/mcp/src/stdio.ts` as the command instead of `npx -y @arclighthq/mcp`.
 
 > [!WARNING]
 > The API key gives full access to your leads. Keep it in the client's configuration on your own computer, and don't share that file. If your Arclight API runs on a server, reach it over HTTPS or a private network, not plain HTTP on the internet.

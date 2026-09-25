@@ -1,5 +1,5 @@
 {
-  "name": "@arclight/react",
+  "name": "@arclighthq/react",
   "version": "0.1.0",
   "description": "React components and a server handler for embedding Arclight in any admin panel",
   "license": "MIT",
@@ -31,7 +31,7 @@
     "prepublishOnly": "pnpm run build"
   },
   "dependencies": {
-    "@arclight/sdk": "workspace:*"
+    "@arclighthq/sdk": "workspace:*"
   },
   "peerDependencies": {
     "react": ">=18"

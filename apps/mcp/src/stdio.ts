@@ -2,7 +2,7 @@
 // Runs the Arclight MCP server over stdio, for Claude Desktop, Claude Code and other MCP clients.
 // Messages go through stdout; logs go to stderr so they never corrupt the protocol stream.
 import { createInterface } from 'node:readline';
-import { createArclightClient } from '@arclight/sdk';
+import { createArclightClient } from '@arclighthq/sdk';
 import { createMcpServer } from './server.ts';
 
 const baseUrl = process.env.ARCLIGHT_API_URL;

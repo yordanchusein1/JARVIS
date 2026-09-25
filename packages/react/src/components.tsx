@@ -7,7 +7,7 @@ import {
   type BusinessDetail,
   type LeadStatus,
   type SendLink,
-} from '@arclight/sdk';
+} from '@arclighthq/sdk';
 import { useArclight, useArclightQuery } from './context.tsx';
 import {
   BriefingView,

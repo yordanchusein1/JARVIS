@@ -57,13 +57,13 @@ importers:
         specifier: ^4.6.5
         version: 4.6.5
     devDependencies:
-      '@arclight/sdk':
+      '@arclighthq/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
 
   apps/dashboard:
     dependencies:
-      '@arclight/sdk':
+      '@arclighthq/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
       '@fontsource-variable/inter':
@@ -94,7 +94,7 @@ importers:
 
   apps/mcp:
     dependencies:
-      '@arclight/sdk':
+      '@arclighthq/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
 
@@ -159,7 +159,7 @@ importers:
 
   packages/react:
     dependencies:
-      '@arclight/sdk':
+      '@arclighthq/sdk':
         specifier: workspace:*
         version: link:../sdk
     devDependencies:

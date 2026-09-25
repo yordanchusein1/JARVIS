@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { sendLinks } from '../lib/send-links';
+import { sendLinks } from '@arclight/sdk';
 
 const draft = (channel: 'whatsapp' | 'email') => ({
   id: '00000000-0000-4000-8000-000000000000',
@@ -22,6 +22,7 @@ describe('sendLinks', () => {
     expect(sendLinks(draft('whatsapp'), contacts)).toEqual([
       {
         channel: 'whatsapp',
+        to: '+62 812-3456-7890',
         label: 'Open WhatsApp (+62 812-3456-7890)',
         href: 'https://wa.me/6281234567890?text=Halo%20%26%20salam%2C%20apa%20kabar%3F',
       },

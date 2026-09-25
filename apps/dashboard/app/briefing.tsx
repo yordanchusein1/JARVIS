@@ -1,7 +1,6 @@
 import Link from 'next/link';
-import type { Briefing, Business } from '@arclight/sdk';
+import type { Briefing, Business, SendLink } from '@arclight/sdk';
 import { daysSince, greeting } from '@/lib/format';
-import type { SendLink } from '@/lib/send-links';
 import { Score } from './components';
 
 const nameOf = (b: Business) =>

@@ -16,10 +16,95 @@ Your website's server ──── API key (server-side only) ────► Ar
 
 Your website's code stays private. The API key never reaches the browser, and Arclight can be upgraded independently.
 
-> [!NOTE]
-> Drop-in React components (lead list, lead page, pipeline, chat) are planned for v0.2. Until then, build your own views on the API; the examples below show how little code that takes.
+There are two ways to build the pages: drop in Arclight's [React components](#react-components), or [build your own views](#build-your-own-views-nextjs) on the API.
 
-## Next.js (App Router)
+## React components
+
+[`@arclight/react`](../packages/react) (MIT) has ready-made components: the daily briefing with send buttons, the lead list, a lead's page with its evidence and drafts, and the pipeline. They run in the browser, so they reach Arclight through a small handler on your server that adds the API key after checking your own sign-in. The key never reaches the browser.
+
+```
+Browser: <Briefing />, <LeadList />, …
+   │  fetch /api/arclight/v1/…   (your session cookie)
+   ▼
+Your server: createArclightHandler ── checks authorize(), adds the API key ──► Arclight API /v1
+```
+
+> [!NOTE]
+> `@arclight/react` and `@arclight/sdk` aren't published to npm yet. Until they are, copy `packages/react` and `packages/sdk` from this repository into your project (for example as workspace packages), and add both to `transpilePackages` in `next.config`.
+
+**1. Add the handler** as a catch-all route. `authorize` decides who may use Arclight; use your own admin check.
+
+```ts
+// app/api/arclight/[...path]/route.ts
+import { createArclightHandler } from '@arclight/react/server';
+import { auth } from '@/lib/auth'; // your own sign-in
+
+const handler = createArclightHandler({
+  apiUrl: process.env.ARCLIGHT_API_URL,
+  apiKey: process.env.ARCLIGHT_API_KEY,
+  basePath: '/api/arclight',
+  authorize: async () => (await auth())?.user?.role === 'admin',
+});
+
+export { handler as GET, handler as POST, handler as PATCH, handler as PUT, handler as DELETE };
+```
+
+The handler only forwards `/v1` API calls, refuses anyone `authorize` rejects, and refuses changes (`POST`, `PATCH`, `PUT`, `DELETE`) that come from another website. If your admin runs on a different origin from the one the server sees, list it in `allowedOrigins`.
+
+**2. Use the components** anywhere in your admin pages:
+
+```tsx
+// app/admin/page.tsx
+import '@arclight/react/styles.css';
+import { ArclightProvider, Briefing, LeadList, Pipeline } from '@arclight/react';
+
+export default function AdminHome() {
+  return (
+    <ArclightProvider leadUrl="/admin/leads/:id">
+      <Briefing title="Good morning" />
+      <LeadList limit={20} />
+      <Pipeline />
+    </ArclightProvider>
+  );
+}
+```
+
+```tsx
+// app/admin/leads/[id]/page.tsx
+import '@arclight/react/styles.css';
+import { ArclightProvider, LeadDetail } from '@arclight/react';
+
+export default async function LeadPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  return (
+    <ArclightProvider leadUrl="/admin/leads/:id">
+      <LeadDetail id={id} />
+    </ArclightProvider>
+  );
+}
+```
+
+| Component           | Shows                                                                                                   |
+| ------------------- | ------------------------------------------------------------------------------------------------------- |
+| `<Briefing />`      | New leads, drafts ready to send with **Send on WhatsApp** and **Send by email** buttons, follow-ups due |
+| `<LeadList />`      | Leads by priority; refreshes itself while audits run                                                    |
+| `<LeadDetail id />` | Scores, the evidence behind them, drafts with send buttons, status, **Write messages**, **Audit again** |
+| `<Pipeline />`      | Leads in columns by stage; changing a lead's stage saves it                                             |
+
+`ArclightProvider` takes `basePath` (where the handler is mounted, default `/api/arclight`) and `leadUrl` (your lead page, with `:id`; without it, names aren't links).
+
+**Styling.** `styles.css` is optional. Every colour is a CSS custom property on `.arc-root`, so you can match your admin's look:
+
+```css
+.arc-root {
+  --arc-accent: #7c3aed;
+  --arc-radius: 6px;
+}
+```
+
+It follows the system's light or dark mode; add `data-theme="light"` to a parent `.arc-root` to force light. For full control, the presentational parts (`BriefingView`, `LeadListView`, `LeadDetailView`, `PipelineView`, `Score`, …) are exported too and take data as props.
+
+## Build your own views (Next.js)
 
 Store the connection in environment variables on your server:
 

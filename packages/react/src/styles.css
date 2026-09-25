@@ -1,0 +1,318 @@
+/*
+ * Default look for @arclight/react. Every colour is a custom property on .arc-root, so a host app
+ * can restyle the components by overriding them, e.g. .arc-root { --arc-accent: #7c3aed; }.
+ */
+.arc-root {
+  --arc-bg: #f5f8fc;
+  --arc-surface: #ffffff;
+  --arc-text: #0a1220;
+  --arc-muted: #52627a;
+  --arc-border: #d9e2ee;
+  --arc-accent: #0b6a95;
+  --arc-accent-ink: #ffffff;
+  --arc-success: #047857;
+  --arc-warning: #b45309;
+  --arc-error: #c81e4a;
+  --arc-radius: 10px;
+  color: var(--arc-text);
+  font: inherit;
+}
+
+@media (prefers-color-scheme: dark) {
+  .arc-root:not([data-theme='light']) {
+    --arc-bg: #04070c;
+    --arc-surface: #080d15;
+    --arc-text: #e8eef6;
+    --arc-muted: #8b9ab0;
+    --arc-border: #172233;
+    --arc-accent: #3fd0ff;
+    --arc-accent-ink: #04070c;
+    --arc-success: #34d399;
+    --arc-warning: #fbbf24;
+    --arc-error: #ff5a76;
+  }
+}
+
+.arc-root *,
+.arc-root *::before,
+.arc-root *::after {
+  box-sizing: border-box;
+}
+
+.arc-card {
+  display: grid;
+  gap: 8px;
+  padding: 16px;
+  margin: 0 0 16px;
+  border: 1px solid var(--arc-border);
+  border-radius: var(--arc-radius);
+  background: var(--arc-surface);
+}
+
+.arc-title {
+  margin: 0;
+  font-size: 1.15em;
+}
+
+.arc-subtitle {
+  margin: 8px 0 6px;
+  font-size: 0.9em;
+  font-weight: 600;
+  color: var(--arc-muted);
+}
+
+.arc-muted {
+  color: var(--arc-muted);
+}
+
+.arc-small {
+  font-size: 0.85em;
+}
+
+.arc-error {
+  color: var(--arc-error);
+}
+
+.arc-warning {
+  color: var(--arc-warning);
+  margin: 0;
+}
+
+.arc-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 12px;
+  margin: 0 0 16px;
+}
+
+.arc-stat {
+  display: grid;
+  gap: 4px;
+  justify-items: start;
+  padding: 12px;
+  border: 1px solid var(--arc-border);
+  border-radius: var(--arc-radius);
+  background: var(--arc-surface);
+}
+
+.arc-stat-value {
+  font-size: 1.8em;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.arc-columns {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 0 16px;
+}
+
+.arc-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 8px;
+}
+
+.arc-list li {
+  display: grid;
+  grid-template-columns: 3em 1fr;
+  gap: 8px;
+  align-items: baseline;
+  overflow-wrap: anywhere;
+}
+
+.arc-stack {
+  display: grid;
+  gap: 4px;
+}
+
+.arc-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.arc-lead-link {
+  color: inherit;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.arc-lead-link:hover {
+  text-decoration: underline;
+}
+
+.arc-button {
+  display: inline-block;
+  padding: 8px 14px;
+  border: 1px solid var(--arc-accent);
+  border-radius: 8px;
+  background: var(--arc-accent);
+  color: var(--arc-accent-ink);
+  font: inherit;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.arc-button:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.arc-button-secondary {
+  background: transparent;
+  color: var(--arc-text);
+  border-color: var(--arc-border);
+}
+
+.arc-button-small {
+  padding: 3px 10px;
+  font-size: 0.85em;
+}
+
+.arc-select {
+  padding: 6px 8px;
+  border: 1px solid var(--arc-border);
+  border-radius: 8px;
+  background: var(--arc-surface);
+  color: var(--arc-text);
+  font: inherit;
+}
+
+.arc-score {
+  display: inline-block;
+  min-width: 2.2em;
+  padding: 1px 6px;
+  border-radius: 6px;
+  text-align: center;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.arc-score-high {
+  background: color-mix(in srgb, var(--arc-success) 18%, transparent);
+  color: var(--arc-success);
+}
+
+.arc-score-mid {
+  background: color-mix(in srgb, var(--arc-warning) 18%, transparent);
+  color: var(--arc-warning);
+}
+
+.arc-score-low,
+.arc-score-none {
+  background: color-mix(in srgb, var(--arc-muted) 18%, transparent);
+  color: var(--arc-muted);
+}
+
+.arc-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border: 1px solid var(--arc-border);
+  border-radius: 999px;
+  font-size: 0.85em;
+}
+
+.arc-badge-succeeded {
+  border-color: var(--arc-success);
+  color: var(--arc-success);
+}
+
+.arc-badge-queued,
+.arc-badge-running {
+  border-color: var(--arc-warning);
+}
+
+.arc-badge-failed {
+  border-color: var(--arc-error);
+  color: var(--arc-error);
+}
+
+.arc-table-wrap {
+  overflow-x: auto;
+  margin: 0 0 16px;
+}
+
+.arc-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--arc-surface);
+  border: 1px solid var(--arc-border);
+  border-radius: var(--arc-radius);
+}
+
+.arc-table th,
+.arc-table td {
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--arc-border);
+  overflow-wrap: anywhere;
+}
+
+.arc-table th {
+  font-size: 0.85em;
+  font-weight: 600;
+  color: var(--arc-muted);
+}
+
+.arc-table .arc-num {
+  width: 1%;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.arc-pipeline {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(200px, 1fr);
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+}
+
+.arc-pipeline-column {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  padding: 8px;
+  border-radius: var(--arc-radius);
+  background: color-mix(in srgb, var(--arc-muted) 8%, transparent);
+}
+
+.arc-pipeline-card {
+  display: grid;
+  gap: 6px;
+  padding: 10px;
+  border: 1px solid var(--arc-border);
+  border-radius: 8px;
+  background: var(--arc-surface);
+  overflow-wrap: anywhere;
+}
+
+.arc-lead-header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.arc-draft {
+  display: grid;
+  gap: 6px;
+  padding: 12px 0;
+  border-top: 1px solid var(--arc-border);
+}
+
+.arc-draft-body {
+  margin: 0;
+  padding: 12px;
+  border-radius: 8px;
+  background: var(--arc-bg);
+  white-space: pre-wrap;
+}

@@ -30,6 +30,8 @@ export interface ArclightProviderProps {
    * Without it, lead names are shown without links.
    */
   leadUrl?: string;
+  /** `light` or `dark` to fix the colours; by default they follow the system setting. */
+  theme?: 'light' | 'dark';
   children: ReactNode;
 }
 
@@ -37,6 +39,7 @@ export interface ArclightProviderProps {
 export function ArclightProvider({
   basePath = '/api/arclight',
   leadUrl,
+  theme,
   children,
 }: ArclightProviderProps) {
   const value = useMemo<ArclightContextValue>(
@@ -50,7 +53,9 @@ export function ArclightProvider({
   );
   return (
     <ArclightContext.Provider value={value}>
-      <div className="arc-root">{children}</div>
+      <div className="arc-root" data-theme={theme}>
+        {children}
+      </div>
     </ArclightContext.Provider>
   );
 }

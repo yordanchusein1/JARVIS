@@ -45,7 +45,7 @@ Always publish with **pnpm**, not `npm publish`: npm would ignore `publishConfig
 
    npm asks for your two-factor code for each package. pnpm refuses to publish with uncommitted changes or from a branch other than `main`.
 
-4. Tag the release: `git tag v0.1.0 && git push origin v0.1.0`.
+4. Tag the release with its version, e.g. `git tag v0.2.0 && git push origin v0.2.0`.
 
 ## Checking a release
 

@@ -2,7 +2,7 @@
 
 Notable changes to Arclight. The project is in early access and doesn't publish numbered releases yet; entries are grouped by milestone.
 
-## v0.2 — in development
+## v0.2 (early access) — 2026-09-25
 
 ### Added
 
@@ -15,6 +15,8 @@ Notable changes to Arclight. The project is in early access and doesn't publish 
 - The SDK, React components and MCP server can be published to npm as `@arclighthq/sdk`, `@arclighthq/react` and `@arclighthq/mcp`. The MCP server then runs with `npx -y @arclighthq/mcp`. See [Publishing](docs/publishing.md).
 - **Chat** (`POST /v1/chat`, the dashboard's Chat page and `<Chat />` in `@arclighthq/react`): ask Arclight in natural language. Claude answers with streaming, using Arclight's briefing, leads, Google Maps search, tracking, drafts, pipeline and hunts. It cannot send messages.
 - **Instagram signals** through Meta's official Business Discovery API: follower count and posting activity become capacity and need signals, which also gives businesses without a website a capacity. Enter a lead's Instagram account on its page (or `instagram` in `PATCH /v1/businesses/{id}`). See [Instagram signals](docs/instagram.md).
+- **Reference integration** [`examples/nextjs-admin`](examples/nextjs-admin): a runnable Next.js admin with Arclight built in, and a step-by-step guide for an admin on Vercel with Arclight on a server.
+- `ArclightProvider` takes `theme` (`light` or `dark`). The components' colour variables can now be overridden from any stylesheet, loaded before or after Arclight's.
 
 ### Changed
 

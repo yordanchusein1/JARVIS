@@ -19,6 +19,7 @@
 | [AI agents (MCP)](mcp.md)          | Using Arclight from Claude, Hermes Agent and other agents |
 | [Architecture](ARCHITECTURE.md)    | How the engine, API, worker and dashboard fit together    |
 | [Contributing](../CONTRIBUTING.md) | Development setup, tests and conventions                  |
+| [Publishing](publishing.md)        | Releasing the npm packages (maintainers)                  |
 
 ## About the project
 

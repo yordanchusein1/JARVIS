@@ -1,9 +1,22 @@
 {
   "name": "@arclight/mcp",
-  "version": "0.0.0",
-  "private": true,
+  "version": "0.1.0",
   "description": "MCP server that lets AI agents use Arclight as a lead generation tool",
   "license": "MIT",
+  "keywords": [
+    "arclight",
+    "mcp",
+    "model context protocol",
+    "ai agent",
+    "lead generation"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yordanchusein1/arclight.git",
+    "directory": "apps/mcp"
+  },
+  "homepage": "https://github.com/yordanchusein1/arclight#readme",
+  "bugs": "https://github.com/yordanchusein1/arclight/issues",
   "type": "module",
   "bin": {
     "arclight-mcp": "./src/stdio.ts"
@@ -11,9 +24,25 @@
   "scripts": {
     "start": "tsx src/stdio.ts",
     "typecheck": "tsc",
-    "test": "vitest run"
+    "test": "vitest run",
+    "build": "rm -rf dist && tsc -p tsconfig.build.json && chmod +x dist/stdio.js",
+    "prepublishOnly": "pnpm run build"
   },
   "dependencies": {
     "@arclight/sdk": "workspace:*"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "bin": {
+      "arclight-mcp": "./dist/stdio.js"
+    }
+  },
+  "engines": {
+    "node": ">=22.12.0"
   }
 }

@@ -14,13 +14,7 @@ The MCP server is a client of Arclight's [HTTP API](api.md), like the dashboard.
 
 ## Set it up
 
-You need Node.js 22.12 or newer and a copy of Arclight on the computer that runs the agent:
-
-```sh
-git clone https://github.com/yordanchusein1/arclight arclight
-cd arclight
-pnpm install
-```
+You need Node.js 22.12 or newer on the computer that runs the agent.
 
 Create an API key for the agent on your Arclight server, separate from the dashboard's:
 
@@ -28,7 +22,7 @@ Create an API key for the agent on your Arclight server, separate from the dashb
 docker compose exec api tsx src/cli/create-api-key.ts agent
 ```
 
-The server command is `node_modules/.bin/tsx apps/mcp/src/stdio.ts` inside that copy, with two environment variables:
+The server is the npm package [`@arclight/mcp`](https://www.npmjs.com/package/@arclight/mcp), started with `npx -y @arclight/mcp` and two environment variables:
 
 | Variable           | Value                                            |
 | ------------------ | ------------------------------------------------ |
@@ -41,7 +35,7 @@ The server command is `node_modules/.bin/tsx apps/mcp/src/stdio.ts` inside that 
 claude mcp add arclight \
   -e ARCLIGHT_API_URL=http://localhost:8787 \
   -e ARCLIGHT_API_KEY=arc_... \
-  -- /path/to/arclight/node_modules/.bin/tsx /path/to/arclight/apps/mcp/src/stdio.ts
+  -- npx -y @arclight/mcp
 ```
 
 ### Claude Desktop and other clients
@@ -52,8 +46,8 @@ Add a stdio server to the client's MCP configuration. For Claude Desktop, that i
 {
   "mcpServers": {
     "arclight": {
-      "command": "/path/to/arclight/node_modules/.bin/tsx",
-      "args": ["/path/to/arclight/apps/mcp/src/stdio.ts"],
+      "command": "npx",
+      "args": ["-y", "@arclight/mcp"],
       "env": {
         "ARCLIGHT_API_URL": "http://localhost:8787",
         "ARCLIGHT_API_KEY": "arc_..."
@@ -63,7 +57,11 @@ Add a stdio server to the client's MCP configuration. For Claude Desktop, that i
 }
 ```
 
-Other MCP clients, such as Hermes Agent, take the same command, arguments and environment variables in their own configuration format. On Windows, use `node_modules\.bin\tsx.cmd`.
+Other MCP clients, such as Hermes Agent, take the same command, arguments and environment variables in their own configuration format.
+
+### From a copy of this repository
+
+To run your own changes, clone the repository, run `pnpm install`, and use `/path/to/arclight/node_modules/.bin/tsx /path/to/arclight/apps/mcp/src/stdio.ts` as the command instead of `npx -y @arclight/mcp`.
 
 > [!WARNING]
 > The API key gives full access to your leads. Keep it in the client's configuration on your own computer, and don't share that file. If your Arclight API runs on a server, reach it over HTTPS or a private network, not plain HTTP on the internet.

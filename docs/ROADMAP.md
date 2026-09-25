@@ -60,7 +60,7 @@ If the targets are missed, fix the qualification and messaging before building v
 
 **Goal:** Arclight runs inside the Vera & Co. admin panel (Next.js).
 
-- [ ] Publish the SDK (MIT)
+- [ ] Publish the SDK, React components and MCP server to npm (MIT). Packaging is ready; see [Publishing](publishing.md).
 - [x] `packages/react` (MIT): briefing, lead list, lead detail and pipeline components, with a server handler that keeps the API key off the browser. A chat component follows with the chat endpoint.
 - [ ] Integration guide, with the Vera & Co. admin as the reference Next.js integration
 - [x] **Autonomous hunts:** saved Google Maps searches that the worker runs every day at a chosen hour. Each run tracks the most-reviewed new businesses (with limits and filters), audits them and, if enabled, drafts messages for leads above a priority threshold, ready for a person to send.

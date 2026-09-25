@@ -37,7 +37,7 @@ arclight/
 ├── packages/
 │   ├── core/         # Framework-agnostic domain logic and database access
 │   ├── sdk/          # Typed client for the /v1 API (MIT)
-│   └── react/        # (v0.2) Embeddable React components (MIT)
+│   └── react/        # Embeddable React components and server handler (MIT)
 ├── docs/             # Documentation, decisions and the brand kit
 ├── docker-compose.yml   # postgres · api · worker · dashboard
 └── LICENSE

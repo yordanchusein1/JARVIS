@@ -1,8 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import type { components } from '@arclight/sdk';
-import { sendLinks } from '@/lib/send-links';
+import { sendLinks, type components } from '@arclight/sdk';
 
 type Draft = components['schemas']['Draft'];
 type Contact = components['schemas']['Contact'];

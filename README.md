@@ -64,6 +64,7 @@ Then create an API key for the dashboard, add it to `.env` and open http://local
 | Dashboard      | `apps/dashboard` | Next.js                                      | AGPL-3.0 |
 | SDK            | `packages/sdk`   | Typed client generated from the OpenAPI spec | MIT      |
 | MCP server     | `apps/mcp`       | Model Context Protocol server (stdio)        | MIT      |
+| React          | `packages/react` | Embeddable components and a server handler   | MIT      |
 | Website        | `apps/web`       | Next.js (static)                             | AGPL-3.0 |
 
 The dashboard uses only the public API, the same way your own website or an AI agent would. Read more in [Architecture](docs/ARCHITECTURE.md) and the [decision log](docs/DECISIONS.md).
@@ -74,6 +75,6 @@ Issues, ideas and feedback are very welcome. See [CONTRIBUTING.md](CONTRIBUTING.
 
 ## License
 
-The engine, API, dashboard and website are licensed under [AGPL-3.0](LICENSE). The SDK in `packages/sdk` and the MCP server in `apps/mcp` are [MIT](packages/sdk/LICENSE), so you can use it in closed-source admin panels.
+The engine, API, dashboard and website are licensed under [AGPL-3.0](LICENSE). The SDK in `packages/sdk`, the React components in `packages/react` and the MCP server in `apps/mcp` are [MIT](packages/sdk/LICENSE), so you can use it in closed-source admin panels.
 
 Arclight is not affiliated with Marvel.

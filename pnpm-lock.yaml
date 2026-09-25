@@ -157,6 +157,25 @@ importers:
         specifier: ^0.31.11
         version: 0.31.11
 
+  packages/react:
+    dependencies:
+      '@arclight/sdk':
+        specifier: workspace:*
+        version: link:../sdk
+    devDependencies:
+      '@types/react':
+        specifier: ^19.3.0
+        version: 19.3.0
+      '@types/react-dom':
+        specifier: ^19.3.0
+        version: 19.3.0(@types/react@19.3.0)
+      react:
+        specifier: ^19.3.0
+        version: 19.3.0
+      react-dom:
+        specifier: ^19.3.0
+        version: 19.3.0(react@19.3.0)
+
   packages/sdk:
     dependencies:
       openapi-fetch:

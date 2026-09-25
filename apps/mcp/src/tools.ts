@@ -1,4 +1,4 @@
-import type { ArclightClient, components } from '@arclight/sdk';
+import { sendLinks as draftLinks, type ArclightClient, type components } from '@arclight/sdk';
 
 type Business = components['schemas']['Business'];
 type BusinessDetail = components['schemas']['BusinessDetail'];
@@ -118,21 +118,7 @@ async function sendLinks(arclight: ArclightClient, lead: BusinessDetail) {
       contacts = [...contacts, { kind: 'phone', value: place.phone, sourceUrl: null }];
   }
   return lead.drafts.flatMap((draft) =>
-    draft.channel === 'whatsapp'
-      ? contacts
-          .filter((c) => c.kind === 'whatsapp' || c.kind === 'phone')
-          .map((c) => ({
-            channel: 'whatsapp',
-            to: c.value,
-            url: `https://wa.me/${c.value.replace(/\D/g, '')}?text=${encodeURIComponent(draft.body)}`,
-          }))
-      : contacts
-          .filter((c) => c.kind === 'email')
-          .map((c) => ({
-            channel: 'email',
-            to: c.value,
-            url: `mailto:${c.value}?subject=${encodeURIComponent(draft.subject ?? '')}&body=${encodeURIComponent(draft.body)}`,
-          })),
+    draftLinks(draft, contacts).map(({ channel, to, href }) => ({ channel, to, url: href })),
   );
 }
 

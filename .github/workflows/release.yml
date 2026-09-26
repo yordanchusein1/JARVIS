@@ -1,0 +1,56 @@
+name: Release
+
+# Publishes @arclighthq/sdk, @arclighthq/react and @arclighthq/mcp to npm when a version tag such
+# as v0.2.0 is pushed. npm trusts this workflow directly (Trusted Publishing), so no npm token is
+# stored anywhere; see docs/publishing.md.
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+  id-token: write # lets npm verify that the package comes from this workflow
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          # Trusted Publishing needs npm 11.5 or newer, which comes with Node 24.
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm typecheck
+
+      - name: Check that the tag matches the package versions
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          for dir in packages/sdk packages/react apps/mcp; do
+            version=$(node -p "require('./$dir/package.json').version")
+            if [ "$version" != "$tag" ]; then
+              echo "::error::$dir is at $version but the tag is v$tag"
+              exit 1
+            fi
+          done
+
+      # pnpm pack applies publishConfig and turns workspace:* into real versions; npm publishes.
+      - name: Build and publish
+        run: |
+          mkdir -p packed
+          for name in sdk react mcp; do
+            pkg="@arclighthq/$name"
+            version=$(npm view "$pkg@${GITHUB_REF_NAME#v}" version 2>/dev/null || true)
+            if [ -n "$version" ]; then
+              echo "$pkg@$version is already on npm, skipping"
+              continue
+            fi
+            pnpm --filter "$pkg" run build
+            pnpm --filter "$pkg" pack --pack-destination "$PWD/packed"
+            npm publish packed/arclighthq-$name-*.tgz --access public
+          done

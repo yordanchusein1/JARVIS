@@ -212,7 +212,10 @@ export function chatTools({ db, auditQueue, places, draftWriter }: ChatDependenc
         input_schema: object({ id: { type: 'string', description: 'Lead id' } }, ['id']),
       },
       async run({ id }) {
-        if (!draftWriter) throw new ToolFailure('Drafting is off: ANTHROPIC_API_KEY is not set.');
+        if (!draftWriter)
+          throw new ToolFailure(
+            'Drafting is off: neither ANTHROPIC_API_KEY nor GEMINI_API_KEY is set.',
+          );
         try {
           const drafts = await generateDrafts(db, str(id, 'id'), draftWriter);
           return {

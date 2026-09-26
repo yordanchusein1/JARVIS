@@ -3,6 +3,7 @@ import {
   autoDraftAfterAudit,
   connectDatabase,
   createClaudeDraftWriter,
+  createGeminiDraftWriter,
   createInstagramClient,
   createPageSpeedClient,
   createPlacesClient,
@@ -22,9 +23,12 @@ const env = z
     DATABASE_URL: z.string().min(1),
     // One Google Cloud key with the PageSpeed Insights API and Places API (New) enabled.
     GOOGLE_API_KEY: z.string().optional(),
-    // Used only for hunts with automatic drafting.
+    // Used only for hunts with automatic drafting (Claude, or Gemini below).
     ANTHROPIC_API_KEY: z.string().optional(),
     ANTHROPIC_MODEL: z.string().default('claude-opus-5'),
+    // Used when ANTHROPIC_API_KEY is not set.
+    GEMINI_API_KEY: z.string().optional(),
+    GEMINI_MODEL: z.string().optional(),
     // Instagram Business Discovery, read through the agency's own Instagram business account.
     INSTAGRAM_ACCESS_TOKEN: z.string().optional(),
     INSTAGRAM_BUSINESS_ACCOUNT_ID: z.string().optional(),
@@ -64,7 +68,9 @@ if (!deps.pageSpeed) {
 
 const draftWriter = env.ANTHROPIC_API_KEY
   ? createClaudeDraftWriter({ model: env.ANTHROPIC_MODEL })
-  : undefined;
+  : env.GEMINI_API_KEY
+    ? createGeminiDraftWriter({ apiKey: env.GEMINI_API_KEY, model: env.GEMINI_MODEL })
+    : undefined;
 
 await boss.work<AuditJob>(
   AUDIT_QUEUE,

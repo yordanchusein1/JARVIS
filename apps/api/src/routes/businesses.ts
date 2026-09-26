@@ -377,7 +377,7 @@ export function businessRoutes(
           {
             error: {
               code: 'not_configured',
-              message: 'Set ANTHROPIC_API_KEY on the API server to write drafts.',
+              message: 'Set ANTHROPIC_API_KEY or GEMINI_API_KEY on the API server to write drafts.',
             },
           },
           503,

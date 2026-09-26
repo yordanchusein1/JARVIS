@@ -79,6 +79,12 @@ export { isValidTimeZone, latestSlot, nextSlot } from './schedule.ts';
 export { chatTools, createClaudeChatModel, runChat } from './chat.ts';
 export type { ChatDependencies, ChatEvent, ChatMessage, ChatModel } from './chat.ts';
 export {
+  createGeminiChatModel,
+  createGeminiDraftWriter,
+  DEFAULT_GEMINI_MODEL,
+  GeminiError,
+} from './gemini.ts';
+export {
   createInstagramClient,
   InstagramError,
   instagramSignals,

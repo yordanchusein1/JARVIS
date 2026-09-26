@@ -66,7 +66,8 @@ export function chatRoutes(deps: ChatDependencies, model: ChatModel | undefined)
         {
           error: {
             code: 'not_configured',
-            message: 'Set ANTHROPIC_API_KEY on the API server to chat with Arclight.',
+            message:
+              'Set ANTHROPIC_API_KEY or GEMINI_API_KEY on the API server to chat with Arclight.',
           },
         },
         503,

@@ -8,7 +8,7 @@ import { ToolError, tools, type Tool } from './tools.ts';
  */
 
 export const SUPPORTED_PROTOCOL_VERSIONS = ['2025-11-25', '2025-06-18', '2025-03-26', '2024-11-05'];
-export const SERVER_VERSION = '0.2.0';
+export const SERVER_VERSION = '0.2.1';
 
 const INSTRUCTIONS = `Arclight is an agency's lead generation engine. It finds businesses, audits their websites, scores each lead on need and capacity with evidence, and drafts outreach.
 

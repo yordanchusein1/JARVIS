@@ -211,6 +211,8 @@ export const agencyProfile = pgTable('agency_profile', {
   timezone: text('timezone').notNull().default('Asia/Jakarta'),
   // Days after which a contacted lead without a reply shows up as a follow-up.
   followUpDays: integer('follow_up_days').notNull().default(3),
+  // Stops scheduled hunts from running; manual runs and audits still work.
+  automationPaused: boolean('automation_paused').notNull().default(false),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 });
 

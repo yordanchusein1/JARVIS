@@ -1,0 +1,1 @@
+ALTER TABLE "agency_profile" ADD COLUMN "automation_paused" boolean DEFAULT false NOT NULL;

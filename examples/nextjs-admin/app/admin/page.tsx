@@ -1,4 +1,4 @@
-import { Briefing, LeadList } from '@arclighthq/react';
+import { AutomationToggle, Briefing, LeadList } from '@arclighthq/react';
 
 export default function Today() {
   return (
@@ -7,6 +7,7 @@ export default function Today() {
       <Briefing title="Good morning" />
       <h2>Leads</h2>
       <LeadList limit={20} />
+      <AutomationToggle />
     </>
   );
 }

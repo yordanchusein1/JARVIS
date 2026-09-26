@@ -229,6 +229,29 @@ describe('scheduled hunts', () => {
     await updateHunt(db, hunt.id, { active: false });
     expect((await listHunts(db))[0]!.nextRunAt).toBeNull();
   });
+
+  it('runs no scheduled hunts while automation is paused, and skips missed slots on resume', async () => {
+    const places = fakePlaces([place('a')]);
+    const hunt = await createHunt(
+      db,
+      { query: 'klinik gigi Malang', runHour: 7 },
+      new Date('2026-09-24T23:00:00Z'),
+    );
+    const due = (iso: string) => runDueHunts(db, { places, auditQueue: fakeQueue(), now: at(iso) });
+
+    await updateAgencyProfile(db, { automationPaused: true });
+    expect(await due('2026-09-25T00:05:00Z')).toHaveLength(0);
+    expect(places.queries).toHaveLength(0);
+    expect((await listHunts(db))[0]!.nextRunAt).toBeNull();
+
+    // A manual run still works while paused.
+    const run = await runHunt(db, { places, auditQueue: fakeQueue() }, hunt.id, 'manual');
+    expect(run.status).toBe('succeeded');
+
+    await updateAgencyProfile(db, { automationPaused: false });
+    expect(await due('2026-09-25T03:00:00Z')).toHaveLength(0);
+    expect(await due('2026-09-26T00:05:00Z')).toHaveLength(1);
+  });
 });
 
 describe('autoDraftAfterAudit', () => {

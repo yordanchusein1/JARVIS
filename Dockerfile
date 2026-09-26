@@ -12,16 +12,6 @@ COPY packages/sdk/package.json packages/sdk/
 COPY packages/react/package.json packages/react/
 RUN pnpm install --frozen-lockfile
 
-FROM deps AS api
-COPY tsconfig.base.json ./
-COPY packages/core packages/core
-COPY apps/api apps/api
-WORKDIR /app/apps/api
-ENV NODE_ENV=production PATH=/app/node_modules/.bin:$PATH
-USER node
-EXPOSE 8787
-CMD ["tsx", "src/server.ts"]
-
 FROM deps AS dashboard-build
 COPY tsconfig.base.json ./
 COPY packages/sdk packages/sdk
@@ -37,3 +27,14 @@ COPY --from=dashboard-build /app/apps/dashboard/.next/static ./apps/dashboard/.n
 USER node
 EXPOSE 3000
 CMD ["node", "apps/dashboard/server.js"]
+
+# Last, so a plain `docker build` (and Railway) builds the API image. The worker uses it too.
+FROM deps AS api
+COPY tsconfig.base.json ./
+COPY packages/core packages/core
+COPY apps/api apps/api
+WORKDIR /app/apps/api
+ENV NODE_ENV=production PATH=/app/node_modules/.bin:$PATH
+USER node
+EXPOSE 8787
+CMD ["tsx", "src/server.ts"]

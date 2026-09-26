@@ -1,6 +1,6 @@
 {
   "name": "@arclighthq/sdk",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Typed client for the Arclight HTTP API",
   "license": "MIT",
   "keywords": [

@@ -1,7 +1,13 @@
 import { renderToStaticMarkup } from 'react-dom/server';
 import type { Briefing, Business, BusinessDetail } from '@arclighthq/sdk';
 import { describe, expect, it } from 'vitest';
-import { BriefingView, LeadDetailView, LeadListView, PipelineView } from '../src/views.tsx';
+import {
+  AutomationToggleView,
+  BriefingView,
+  LeadDetailView,
+  LeadListView,
+  PipelineView,
+} from '../src/views.tsx';
 
 const lead: Business = {
   id: 'a1',
@@ -141,5 +147,14 @@ describe('readEvents', () => {
       { event: 'text', data: { delta: 'Halo' } },
       { event: 'done', data: { text: 'Halo' } },
     ]);
+  });
+
+  it('shows the automation switch in both states', () => {
+    const on = renderToStaticMarkup(<AutomationToggleView paused={false} onChange={() => {}} />);
+    expect(on).toContain('Stop automatic hunts');
+    expect(on).toContain('aria-pressed="true"');
+    const off = renderToStaticMarkup(<AutomationToggleView paused onChange={() => {}} />);
+    expect(off).toContain('Turn on automatic hunts');
+    expect(off).toContain('Stopped');
   });
 });

@@ -124,6 +124,10 @@ export const AgencyProfileSchema = z
     followUpDays: z.number().int().min(1).max(60).openapi({
       description: 'Days without a reply after which a contacted lead is due for a follow-up',
     }),
+    automationPaused: z.boolean().openapi({
+      description:
+        'Stops scheduled hunts, to save API and server costs. Manual searches, hunt runs and audits still work.',
+    }),
   })
   .openapi('AgencyProfile');
 

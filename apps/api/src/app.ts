@@ -34,7 +34,7 @@ export const openApiInfo = {
   openapi: '3.1.0',
   info: {
     title: 'Arclight API',
-    version: '0.2.0',
+    version: '0.2.1',
     description:
       'HTTP API of the Arclight engine. Call it from your server with an API key; never expose the key to browsers.',
     license: { name: 'AGPL-3.0-only', identifier: 'AGPL-3.0-only' },

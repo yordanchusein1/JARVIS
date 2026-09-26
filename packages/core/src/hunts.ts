@@ -97,8 +97,8 @@ export async function deleteHunt(db: Database, id: string): Promise<boolean> {
   return deleted.length > 0;
 }
 
-function nextRunOf(hunt: Hunt, timezone: string, now: Date): Date | null {
-  if (!hunt.active) return null;
+function nextRunOf(hunt: Hunt, timezone: string, now: Date, paused: boolean): Date | null {
+  if (!hunt.active || paused) return null;
   const slot = latestSlot(now, hunt.runHour, timezone);
   if (!hunt.lastScheduledFor || hunt.lastScheduledFor < slot) return slot;
   return nextSlot(now, hunt.runHour, timezone);
@@ -109,7 +109,7 @@ export async function listHunts(
   { ids, now = new Date() }: { ids?: string[]; now?: Date } = {},
 ): Promise<HuntSummary[]> {
   if (ids?.length === 0) return [];
-  const { timezone } = await getAgencyProfile(db);
+  const { timezone, automationPaused } = await getAgencyProfile(db);
   const rows = await db
     .select()
     .from(hunts)
@@ -134,7 +134,7 @@ export async function listHunts(
   return rows.map((hunt) => ({
     hunt,
     lastRun: lastRuns.find((r) => r.huntId === hunt.id) ?? null,
-    nextRunAt: nextRunOf(hunt, timezone, now),
+    nextRunAt: nextRunOf(hunt, timezone, now, automationPaused),
     leads: leadCounts.find((c) => c.huntId === hunt.id)?.leads ?? 0,
   }));
 }
@@ -271,12 +271,12 @@ export async function runHunt(
 }
 
 /**
- * Runs every active hunt whose daily slot has come. Safe to call often and from several
- * workers at once: each slot is claimed by one caller.
+ * Runs every active hunt whose daily slot has come, unless automation is paused. Safe to call
+ * often and from several workers at once: each slot is claimed by one caller.
  */
 export async function runDueHunts(db: Database, deps: HuntDependencies): Promise<HuntRun[]> {
   const now = (deps.now ?? (() => new Date()))();
-  const { timezone } = await getAgencyProfile(db);
+  const { timezone, automationPaused } = await getAgencyProfile(db);
   const active = await db.select().from(hunts).where(eq(hunts.active, true));
 
   const runs: HuntRun[] = [];
@@ -293,7 +293,11 @@ export async function runDueHunts(db: Database, deps: HuntDependencies): Promise
         ),
       )
       .returning({ id: hunts.id });
-    if (claimed.length > 0) runs.push(await runHunt(db, deps, hunt.id, 'schedule'));
+    // While automation is paused, slots are still claimed so that resuming doesn't run the
+    // missed ones at once.
+    if (claimed.length > 0 && !automationPaused) {
+      runs.push(await runHunt(db, deps, hunt.id, 'schedule'));
+    }
   }
   return runs;
 }

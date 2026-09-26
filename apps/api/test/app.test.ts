@@ -231,6 +231,10 @@ describe('pipeline and drafts', () => {
       body: { timezone: 'Asia/Makassar', followUpDays: 5 },
     });
     expect(updated.data).toMatchObject({ timezone: 'Asia/Makassar', followUpDays: 5 });
+    expect(updated.data?.automationPaused).toBe(false);
+
+    const paused = await arclight.PATCH('/agency-profile', { body: { automationPaused: true } });
+    expect(paused.data).toMatchObject({ automationPaused: true, followUpDays: 5 });
   });
 
   it('writes drafts only when the lead is ready', async () => {

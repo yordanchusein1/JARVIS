@@ -65,6 +65,13 @@ export async function setHuntActiveAction(id: string, active: boolean): Promise<
   refresh();
 }
 
+export async function setAutomationPausedAction(paused: boolean): Promise<void> {
+  const arclight = await getArclight();
+  if (!arclight) throw new Error(NOT_CONNECTED);
+  await arclight.PATCH('/agency-profile', { body: { automationPaused: paused } });
+  refresh();
+}
+
 export async function deleteHuntAction(id: string): Promise<void> {
   const arclight = await getArclight();
   if (!arclight) throw new Error(NOT_CONNECTED);

@@ -13,6 +13,7 @@ const DEFAULTS: AgencyProfile = {
   scoringWeights: {},
   timezone: 'Asia/Jakarta',
   followUpDays: 3,
+  automationPaused: false,
   updatedAt: new Date(0),
 };
 

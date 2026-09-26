@@ -1,7 +1,12 @@
 import type { Hunt } from '@arclighthq/sdk';
 import { getArclight } from '@/lib/arclight';
 import { formatWhen, hourLabel } from '@/lib/format';
-import { deleteHuntAction, runHuntAction, setHuntActiveAction } from './actions';
+import {
+  deleteHuntAction,
+  runHuntAction,
+  setAutomationPausedAction,
+  setHuntActiveAction,
+} from './actions';
 import { HuntForm, PendingButton } from './hunt-form';
 
 export const dynamic = 'force-dynamic';
@@ -64,6 +69,7 @@ export default async function HuntsPage({
   ]);
   const timeZone = profile.data?.timezone ?? 'UTC';
   const hunts = data?.data ?? [];
+  const paused = profile.data?.automationPaused ?? false;
 
   return (
     <>
@@ -73,6 +79,25 @@ export default async function HuntsPage({
         most-reviewed businesses it hasn&apos;t seen before as leads and audits them, so new leads
         are waiting for you each morning. Nothing is ever sent.
       </p>
+
+      <section className="card">
+        <div className="section-header">
+          <h2>Automatic hunts</h2>
+          <span className={paused ? 'badge' : 'badge badge-succeeded'}>
+            {paused ? 'Stopped' : 'On'}
+          </span>
+        </div>
+        <p className="muted small">
+          {paused
+            ? 'Scheduled hunts are stopped, so no Google searches or audits run on their own. You can still search, run a hunt and audit leads yourself. Missed runs are skipped when you turn this back on.'
+            : 'Active hunts run every day at their hour. Turn this off to stop all of them at once and save on Google, AI and server costs.'}
+        </p>
+        <form action={setAutomationPausedAction.bind(null, !paused)}>
+          <PendingButton secondary={!paused} pendingText="Saving…">
+            {paused ? 'Turn on automatic hunts' : 'Stop automatic hunts'}
+          </PendingButton>
+        </form>
+      </section>
 
       {error && <p className="error">Could not load hunts: {error.error.message}</p>}
 

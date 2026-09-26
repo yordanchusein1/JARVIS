@@ -2,6 +2,14 @@
 
 Notable changes to Arclight. The project is in early access and doesn't publish numbered releases yet; entries are grouped by milestone.
 
+## v0.2.1 — 2026-09-26
+
+### Added
+
+- **Stop automatic hunts** with one switch, to save API and server costs: on the dashboard's Hunts page, as `automationPaused` in `/v1/agency-profile`, and as `<AutomationToggle />` in `@arclighthq/react`. Manual searches, hunt runs and audits keep working; missed runs are skipped when it's turned back on.
+- **Google Gemini** for drafts and chat: set `GEMINI_API_KEY` (and optionally `GEMINI_MODEL`) instead of `ANTHROPIC_API_KEY`.
+- **Railway** deployment: config for the api and worker services in `deploy/railway/` and a guide in [Deployment](docs/deployment.md#deploying-on-railway).
+
 ## v0.2 (early access) — 2026-09-25
 
 ### Added

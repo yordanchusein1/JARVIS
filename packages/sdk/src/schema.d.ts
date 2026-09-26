@@ -497,6 +497,8 @@ export interface components {
             timezone: string;
             /** @description Days without a reply after which a contacted lead is due for a follow-up */
             followUpDays: number;
+            /** @description Stops scheduled hunts, to save API and server costs. Manual searches, hunt runs and audits still work. */
+            automationPaused: boolean;
         };
         Hunt: components["schemas"]["HuntSettings"] & {
             /** Format: uuid */
@@ -1150,6 +1152,8 @@ export interface operations {
                     timezone?: string;
                     /** @description Days without a reply after which a contacted lead is due for a follow-up */
                     followUpDays?: number;
+                    /** @description Stops scheduled hunts, to save API and server costs. Manual searches, hunt runs and audits still work. */
+                    automationPaused?: boolean;
                 };
             };
         };

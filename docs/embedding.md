@@ -87,13 +87,14 @@ export default async function LeadPage({ params }: { params: Promise<{ id: strin
 }
 ```
 
-| Component           | Shows                                                                                                       |
-| ------------------- | ----------------------------------------------------------------------------------------------------------- |
-| `<Briefing />`      | New leads, drafts ready to send with **Send on WhatsApp** and **Send by email** buttons, follow-ups due     |
-| `<LeadList />`      | Leads by priority; refreshes itself while audits run                                                        |
-| `<LeadDetail id />` | Scores, the evidence behind them, drafts with send buttons, status, **Write messages**, **Audit again**     |
-| `<Pipeline />`      | Leads in columns by stage; changing a lead's stage saves it                                                 |
-| `<Chat />`          | A conversation with Arclight that streams its answers; it can look up leads, search, draft and manage hunts |
+| Component              | Shows                                                                                                       |
+| ---------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `<Briefing />`         | New leads, drafts ready to send with **Send on WhatsApp** and **Send by email** buttons, follow-ups due     |
+| `<LeadList />`         | Leads by priority; refreshes itself while audits run                                                        |
+| `<LeadDetail id />`    | Scores, the evidence behind them, drafts with send buttons, status, **Write messages**, **Audit again**     |
+| `<Pipeline />`         | Leads in columns by stage; changing a lead's stage saves it                                                 |
+| `<Chat />`             | A conversation with Arclight that streams its answers; it can look up leads, search, draft and manage hunts |
+| `<AutomationToggle />` | A switch that stops or restarts all scheduled hunts, e.g. to save costs                                     |
 
 `ArclightProvider` takes `basePath` (where the handler is mounted, default `/api/arclight`) and `leadUrl` (your lead page, with `:id`; without it, names aren't links).
 

@@ -10,6 +10,7 @@ import {
 } from '@arclighthq/sdk';
 import { useArclight, useArclightQuery } from './context.tsx';
 import {
+  AutomationToggleView,
   BriefingView,
   isAuditPending,
   LeadDetailView,
@@ -158,5 +159,33 @@ export function LeadDetail({ id }: { id: string }) {
         act(() => client.PATCH('/businesses/{id}', { ...path, body: { status } }))
       }
     />
+  );
+}
+
+/** Turns scheduled hunts on or off for the whole agency, e.g. to save costs. */
+export function AutomationToggle() {
+  const { client } = useArclight();
+  const [busy, setBusy] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const { data, error, loading, reload } = useArclightQuery(
+    (c) => c.GET('/agency-profile'),
+    'automation',
+  );
+  if (!data) return <Notice error={!!error}>{error ?? (loading ? 'Loading…' : '')}</Notice>;
+
+  const change = async (paused: boolean) => {
+    setBusy(true);
+    const { error: failure } = await client.PATCH('/agency-profile', {
+      body: { automationPaused: paused },
+    });
+    setSaveError(failure ? failure.error.message : null);
+    setBusy(false);
+    reload();
+  };
+  return (
+    <>
+      {saveError && <Notice error>{saveError}</Notice>}
+      <AutomationToggleView paused={data.automationPaused} onChange={change} busy={busy} />
+    </>
   );
 }

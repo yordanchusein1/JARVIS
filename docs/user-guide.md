@@ -79,10 +79,12 @@ It never sends anything. New leads and drafts wait for you in the [daily briefin
 
 **Run now** runs a hunt immediately, for example to try a new search. **Pause** stops the daily runs; **Resume** waits for the next scheduled hour instead of catching up on missed days. Deleting a hunt keeps the leads it found.
 
+**Stop all automatic hunts** with the switch at the top of **Hunts** (or `automationPaused` in `PATCH /v1/agency-profile`, or `<AutomationToggle />` in an embedded admin). While it's off, no hunt runs on its own, so no Google searches, audits or drafts happen without you, which saves API and server costs. Searching, **Run now** and auditing still work when you ask for them. Turning it back on waits for each hunt's next hour instead of catching up. The worker process itself keeps running, idle; to stop paying for it entirely, stop the worker service at your host, and note that audits then wait until it runs again.
+
 **When a hunt runs dry.** Google returns the same places for the same search, so after a while every result is already a lead. The hunt then says "Nothing new left in this search". Create hunts for neighbouring areas (`klinik gigi Sidoarjo`) or related business types (`klinik kecantikan Surabaya`) instead.
 
 > [!NOTE]
-> Hunts run in the **worker**. If the worker isn't running, or `GOOGLE_API_KEY` isn't set for it, runs are recorded as failed with the reason and shown on **Hunts** and in the briefing. Automatic drafts also need `ANTHROPIC_API_KEY` on the worker ([Configuration](configuration.md)).
+> Hunts run in the **worker**. If the worker isn't running, or `GOOGLE_API_KEY` isn't set for it, runs are recorded as failed with the reason and shown on **Hunts** and in the briefing. Automatic drafts also need `ANTHROPIC_API_KEY` or `GEMINI_API_KEY` on the worker ([Configuration](configuration.md)).
 
 ## The daily briefing
 

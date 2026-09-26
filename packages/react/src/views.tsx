@@ -432,3 +432,39 @@ function Evidence({ title, signals }: { title: string; signals: BusinessDetail['
     </section>
   );
 }
+
+/** The switch for scheduled hunts. `paused` stops every hunt from running on its own. */
+export function AutomationToggleView({
+  paused,
+  onChange,
+  busy,
+}: {
+  paused: boolean;
+  onChange: (paused: boolean) => void;
+  busy?: boolean;
+}) {
+  return (
+    <section className="arc-card">
+      <div className="arc-actions">
+        <h2 className="arc-subtitle">Automatic hunts</h2>
+        <span className={paused ? 'arc-badge' : 'arc-badge arc-badge-succeeded'}>
+          {paused ? 'Stopped' : 'On'}
+        </span>
+      </div>
+      <p className="arc-muted arc-small">
+        {paused
+          ? 'Scheduled hunts are stopped, so no searches or audits run on their own. You can still search, run a hunt and audit leads yourself. Missed runs are skipped when you turn this back on.'
+          : 'Active hunts run every day at their hour. Stop them to save on Google, AI and server costs.'}
+      </p>
+      <button
+        type="button"
+        className={paused ? 'arc-button' : 'arc-button arc-button-secondary'}
+        disabled={busy}
+        aria-pressed={!paused}
+        onClick={() => onChange(!paused)}
+      >
+        {busy ? 'Saving…' : paused ? 'Turn on automatic hunts' : 'Stop automatic hunts'}
+      </button>
+    </section>
+  );
+}

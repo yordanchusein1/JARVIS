@@ -130,6 +130,6 @@ Railway detects the monorepo and offers a service per package. Don't use those; 
 2. **api**: + Add → GitHub Repo → your Arclight repo. Leave Root Directory empty and, under Settings → Config-as-code, set the path to `/deploy/railway/api.json` (builds the root `Dockerfile`, applies migrations before each deploy, starts the API). Generate a domain under Networking.
 3. **worker**: the same repo again, with config path `/deploy/railway/worker.json`. It needs no domain.
 
-Variables for both api and worker: `DATABASE_URL=${{Postgres.DATABASE_URL}}`, `GOOGLE_API_KEY`, `ANTHROPIC_API_KEY`, and for the worker also `DEFAULT_COUNTRY_CODE` (and the Instagram variables, if used). See [configuration](configuration.md).
+Variables for both api and worker: `DATABASE_URL=${{Postgres.DATABASE_URL}}`, `GOOGLE_API_KEY`, either `ANTHROPIC_API_KEY` or `GEMINI_API_KEY` (for drafts and chat), and for the worker also `DEFAULT_COUNTRY_CODE` (and the Instagram variables, if used). See [configuration](configuration.md).
 
 Create an API key for each client from the api service's shell: `tsx src/cli/create-api-key.ts <name>`. Your admin then uses the api domain as `ARCLIGHT_API_URL` and that key as `ARCLIGHT_API_KEY`.

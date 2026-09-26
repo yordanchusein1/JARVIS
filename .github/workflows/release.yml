@@ -52,5 +52,6 @@ jobs:
             fi
             pnpm --filter "$pkg" run build
             pnpm --filter "$pkg" pack --pack-destination "$PWD/packed"
-            npm publish packed/arclighthq-$name-*.tgz --access public
+            # The ./ matters: without it npm reads "packed/..." as a GitHub repository.
+            npm publish ./packed/arclighthq-$name-*.tgz --access public
           done
